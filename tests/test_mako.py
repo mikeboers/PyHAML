@@ -105,5 +105,22 @@ class TestHamlTutorial(Base):
             '''.strip() + '\n')
 
 
+class TestHamlReference(Base):
+    
+    def test_plain_text_escaping(self):
+        self.assertHTML(
+            '''
+%title
+  = title
+  \= title
+            '''.strip(),
+            '''
+<title>
+    MyPage
+    = title
+</title>
+            '''.strip() + '\n', title='MyPage')
+
+
 if __name__ == '__main__':
     main()

@@ -35,14 +35,23 @@ class Parser(object):
                 depth += 1
     
     def _parse_line(self, line, depth):
+
+        # Escape a line so it doesn't get touched.
+        if line.startswith('\\'):
+            self.add_node(nodes.Content(line[1:].lstrip()), depth)
+            return
         
+        # HTML comments.
         if line.startswith('/'):
             self.add_node(nodes.Comment(), depth=depth)
             return line[1:].lstrip()
+        
+        # Expressions.
         if line.startswith('='):
             self.add_node(nodes.Expression(line[1:].lstrip()), depth)
             return
         
+        # Tags.
         m = re.match(r'''
             (?:%(\w*))?  # tag name
             (            # id/class
@@ -82,7 +91,7 @@ class Parser(object):
             else:
                 return line.lstrip()
 
-        
+        # Control statements.
         m = re.match(r'''
             -
             \s*
