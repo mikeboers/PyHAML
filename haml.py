@@ -74,7 +74,7 @@ class TagNode(BaseNode):
         input
     '''.strip().split())
     
-    def __init__(self, name, id, class_, attr_expr):
+    def __init__(self, name, id, class_, attr_expr=None):
         super(TagNode, self).__init__()
         
         self.name = (name or 'div').lower()
@@ -177,31 +177,29 @@ class Parser(object):
         if line.startswith('/'):
             self.add_node(CommentNode(), depth=depth)
             return line[1:].lstrip()
+        if line.startswith('='):
+            self.add_node(ExpressionNode(line[1:].lstrip()), depth)
+            return
         
         m = re.match(r'''
-            (?:%(\w+))?  # tag name
+            (?:%(\w*))?  # tag name
             (            # id/class
               (?:\#[\w-]+|\.[\w-]+)+ 
-            )? 
-            (?:({.+?}))? # attribute dict
-            (=)?         # expression flag
+            )?
         ''', line, re.X)
         if m and ''.join(g or '' for g in m.groups()):
-            name, id_class, attr_expr, is_expr = m.groups()
-            id = None
-            class_ = []
-            for m2 in re.finditer(r'(#|\.)([\w-]+)', id_class or ''):
+            name, raw_id_class = m.groups()
+            id, class_ = None, []
+            for m2 in re.finditer(r'(#|\.)([\w-]+)', raw_id_class or ''):
                 type, value = m2.groups()
                 if type == '#':
                     id = value
                 else:
                     class_.append(value)
-            self.add_node(TagNode(name, id, ' '.join(class_), attr_expr), depth=depth)
+            self.add_node(TagNode(name, id, ' '.join(class_)), depth=depth)        
             line = line[m.end():].lstrip()
-            if is_expr:
-                self.add_node(ExpressionNode(line), depth + 1)
-                return
             return line
+
         
         m = re.match(r'''
             -
