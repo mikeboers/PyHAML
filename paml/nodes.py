@@ -217,15 +217,28 @@ class Source(Base):
         self.module = module
     
     def render_start(self, engine):
-        if self.module:
-            yield '<%! '
+        # We add an attribute to the engine to keep track of the nesting
+        # level of source nodes. We only open/close the source tags iff this
+        # is the outer source node.
+        nest_level = getattr(engine, '_Source_depth', 0)
+        setattr(engine, '_Source_depth', nest_level + 1)
+        if not nest_level:
+            if self.module:
+                yield '<%! '
+            else:
+                yield '<% '
         else:
-            yield '<% '
+            yield engine.indent()
         yield self.content
         yield engine.endl
+        yield engine.inc_depth
     
-    def render_end(self, engine):
-        yield '%>'
+    def render_end(self, engine):  
+        nest_level = getattr(engine, '_Source_depth') - 1
+        setattr(engine, '_Source_depth', nest_level)
+        yield engine.dec_depth
+        if not nest_level:
+            yield '%>'
 
 
 class Silent(Base):

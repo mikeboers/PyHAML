@@ -32,9 +32,17 @@ source = '''
 
 source = '''
 
-%title
-  = title
-  \= title
+%
+    -
+        a = 1
+        b = 2
+        def do_something(a, b):
+            return a + b
+    not source A
+    not source B
+not source C
+not source D
+= do_something(a, b)
 
 '''
 

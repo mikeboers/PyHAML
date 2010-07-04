@@ -33,6 +33,9 @@ class Parser(object):
             if not line:
                 continue
             depth = len(raw_line) - len(line)
+            # Cleanup the stack. We should only need to do this here as the
+            # depth only goes up until it is calculated from the next line.
+            self.prep_stack_for_depth(depth)
             last_line = None
             while line and line != last_line:
                 last_line = line
@@ -47,6 +50,10 @@ class Parser(object):
                 
     
     def _parse_line(self, line):
+        
+        if isinstance(self.node, nodes.Source):
+            yield nodes.Source(line)
+            return
         
         # Escape a line so it doesn't get touched.
         if line.startswith('\\'):
@@ -162,10 +169,11 @@ class Parser(object):
         # Content
         yield nodes.Content(line)
         
-    
-    def add_node(self, node, depth):
+    def prep_stack_for_depth(self, depth):        
         while depth <= self.depth:
             self.stack.pop()
+                
+    def add_node(self, node, depth):
         self.node.add_child(node)
         self.stack.append((depth, node))
         
