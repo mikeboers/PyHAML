@@ -53,6 +53,7 @@ class Expression(Content):
         yield engine.indent()
         yield '${%s}' % self.content.strip()
         yield engine.endl
+        yield engine.inc_depth # This is countered by the Content.render_end
 
 
 class Tag(Base):
@@ -119,6 +120,8 @@ class Tag(Base):
         if self.inline_child:
             yield engine.no_whitespace
             for x in self.inline_child.render_start(engine):
+                yield x
+            for x in self.inline_child.render_end(engine):
                 yield x
             yield engine.pop_whitespace
     

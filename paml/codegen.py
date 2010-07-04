@@ -12,32 +12,38 @@ _attr_sort_order = {
 }
 
 
-class _GeneratorSentinal(object):
+class GeneratorSentinal(object):
     def __init__(self, **kwargs):
         self.__dict__.update(**kwargs)
+    def __repr__(self):
+        if hasattr(self, 'name'):
+            return '<Sentinal:%s>' % self.name
+        return '<Sentinal at 0x%x>' % id(self)
 
 
 class WhitespaceControlToken(str):
-    pass
+    def __repr__(self):
+        return 'WhitespaceControlToken(%r)' % str.__repr__(self)
 
 
 class BaseGenerator(object):
     
-    inc_depth = _GeneratorSentinal(delta=1)
-    dec_depth = _GeneratorSentinal(delta=-1)
+    inc_depth = GeneratorSentinal(delta=1, name='inc_depth')
+    dec_depth = GeneratorSentinal(delta=-1, name='dec_depth')
     _increment_tokens = (inc_depth, dec_depth)
     
     assert_newline = WhitespaceControlToken('assert_newline')
     
-    no_whitespace = _GeneratorSentinal(
+    no_whitespace = GeneratorSentinal(
         indent_str = '',
         endl = '',
         endl_no_break = '',
+        name='no_whitespace',
     )
     default_whitespace = no_whitespace
     _whitespace_tokens = (no_whitespace, default_whitespace)
     
-    pop_whitespace = _GeneratorSentinal()
+    pop_whitespace = GeneratorSentinal(name='pop_whitespace')
     
     lstrip = WhitespaceControlToken('lstrip')
     rstrip = WhitespaceControlToken('rstrip')
@@ -133,7 +139,7 @@ class BaseGenerator(object):
 
 class MakoGenerator(BaseGenerator):
     
-    default_whitespace = _GeneratorSentinal(
+    default_whitespace = GeneratorSentinal(
         indent_str = '\t',
         endl = '\n',
         endl_no_break = '\\\n',

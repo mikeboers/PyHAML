@@ -32,12 +32,9 @@ source = '''
 
 source = '''
 
-- for i in range(3):
-    -!
-        def square(i):
-            return i**2
-    - i = square(i)
-    = i
+%title
+  = title
+  \= title
 
 '''
 
@@ -68,5 +65,5 @@ print template._code
 print
 
 print '===== RENDERED ====='
-print template.render_unicode(class_='test')
+print template.render_unicode(class_='test', title="MyPage")
 print
