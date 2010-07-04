@@ -58,7 +58,13 @@ class ContentNode(BaseNode):
     
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self.content)
-        
+
+
+class ExpressionNode(ContentNode):
+    
+    def render_start(self, engine):
+        return '${%s}' % self.content.strip()
+
 
 class TagNode(BaseNode):
     
@@ -168,48 +174,41 @@ class Parser(object):
             self.process_line(depth, line)
     
     def process_line(self, depth, line):
+        
+        if not line:
+            return
+        
         if line.startswith('/'):
             self.add_node(CommentNode(), depth=depth)
-            #self.process_line(depth + 1, line[1:].lstrip())
-            depth += 1
-            line = line[1:].strip()
-            if not line:
-                return
+            self.process_line(depth + 1, line[1:].lstrip())
+            return
+        
         m = re.match(r'''
             (?:%(\w+))?       # tag name
             (?:\#([\w-]+))?   # id
             (?:\.([\w\.-]+))? # class
             (?:({.+?}))?      # attribute dict
             (=)?              # expression flag
-            (?:
-                \s+
-                (.+)          # content
-            )?
-            $
         ''', line, re.X)
-        if m:
+        if m and ''.join(g or '' for g in m.groups()):
             parts = dict(zip(
                 TagNode.attr_names,
                 m.groups()
             ))
             self.add_node(TagNode(**parts), depth=depth)
-            content = parts.get('content')
-            if content:
-                depth += 1
-                if parts.get('is_expr'):
-                    self.add_node(ContentNode('${%s}' % content.strip()), depth=depth)
-                    line = ''
-                else:
-                    line = content.strip()
-            else:
-                line = ''
+            line = line[m.end():].lstrip()
+            if parts.get('is_expr'):
+                self.add_node(ExpressionNode(line), depth + 1)
+                return
+            self.process_line(depth + 1, line)
+            return
+        
         m = re.match(r'''
             -
             \s*
             (for|if|while) # tag name
             \s+
             (.+?):         # control line
-            (.*)           # content
         ''', line, re.X)
         if m:
             parts = dict(zip(
@@ -217,14 +216,11 @@ class Parser(object):
                 m.groups()
             ))
             self.add_node(ControlNode(**parts), depth=depth)
-            content = parts.get('content')
-            if content:
-                line = content
-                depth += 1
-            else:
-                line = ''            
-        if line:     
-            self.add_node(ContentNode(line), depth=depth)
+            line = line[m.end():].lstrip()
+            self.process_line(depth + 1, line)
+            return
+               
+        self.add_node(ContentNode(line), depth=depth)
     
     def add_node(self, node, depth):
         while depth <= self.depth:
@@ -265,8 +261,8 @@ source = '''
 <%def name="head()"></%def>
 '''
 
-print source
-print
+#print source
+#print
 
 parser = Parser()
 parser.process_string(source)
