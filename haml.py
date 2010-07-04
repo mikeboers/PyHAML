@@ -74,13 +74,13 @@ class TagNode(BaseNode):
         input
     '''.strip().split())
     
-    def __init__(self, name, id, class_, attr_expr=None):
+    def __init__(self, name, id, class_, kwargs_expr=None):
         super(TagNode, self).__init__()
         
         self.name = (name or 'div').lower()
         self.id = id
         self.class_ = (class_ or '').replace('.', ' ').strip()
-        self.attr_expr = attr_expr
+        self.kwargs_expr = kwargs_expr
     
     def render_start(self, engine):
         
@@ -90,12 +90,12 @@ class TagNode(BaseNode):
         if self.class_:
             const_attrs['class'] = self.class_
         
-        if not self.attr_expr:
+        if not self.kwargs_expr:
             attr_str = ''.join(' %s="%s"' % (k, cgi.escape(v)) for k, v in const_attrs.items())
         elif not const_attrs:
-            attr_str = '<%% __M_writer(__H_attrs(%s)) %%>' % self.attr_expr
+            attr_str = '<%% __M_writer(__H_attrs(%s)) %%>' % self.kwargs_expr
         else:
-            attr_str = '<%% __M_writer(__H_attrs(%r, %s)) %%>' % (const_attrs, self.attr_expr)
+            attr_str = '<%% __M_writer(__H_attrs(%r, %s)) %%>' % (const_attrs, self.kwargs_expr)
             
         if self.name in self.self_closing:
             return '<%s%s />' % (self.name, attr_str)
@@ -108,7 +108,7 @@ class TagNode(BaseNode):
     
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
-            ', '.join('%s=%r' % (k, getattr(self, k)) for k in ('name', 'id', 'class_', 'attr_expr') if getattr(self, k))
+            ', '.join('%s=%r' % (k, getattr(self, k)) for k in ('name', 'id', 'class_', 'kwargs_expr') if getattr(self, k))
         )
 
 
@@ -200,22 +200,22 @@ class Parser(object):
             line = line[m.end():]
             
             attr_brace_deltas = {'(': 1, ')': -1}
-            attr_expr_chars = []
-            attr_expr_depth = 0
+            kwargs_expr_chars = []
+            kwargs_expr_depth = 0
             pos = None
             for pos, char in enumerate(line):
-                attr_expr_depth += attr_brace_deltas.get(char, 0)
-                if not attr_expr_depth:
+                kwargs_expr_depth += attr_brace_deltas.get(char, 0)
+                if not kwargs_expr_depth:
                     break
-                attr_expr_chars.append(char)
+                kwargs_expr_chars.append(char)
             
             self.add_node(TagNode(
                 name,
                 id,
                 ' '.join(class_),
-                ''.join(attr_expr_chars)[1:] # It will only have the first brace.
+                ''.join(kwargs_expr_chars)[1:] # It will only have the first brace.
             ), depth=depth)  
-            if attr_expr_chars:
+            if kwargs_expr_chars:
                 return line[pos + 1:].lstrip()
             else:
                 return line.lstrip()
@@ -292,8 +292,8 @@ if __name__ == '__main__':
     <%def name="head()"></%def>
     '''
 
-    #print source
-    #print
+    print source
+    print
 
     root = parse(source)
 
