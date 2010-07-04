@@ -196,9 +196,24 @@ class Parser(object):
                     id = value
                 else:
                     class_.append(value)
-            self.add_node(TagNode(name, id, ' '.join(class_)), depth=depth)        
-            line = line[m.end():].lstrip()
-            return line
+               
+            line = line[m.end():]
+            
+            attr_brace_deltas = {'{': 1, '}': -1}
+            attr_expr_chars = []
+            attr_expr_depth = 0
+            pos = None
+            for pos, char in enumerate(line):
+                attr_expr_depth += attr_brace_deltas.get(char, 0)
+                if not attr_expr_depth:
+                    break
+                attr_expr_chars.append(char)
+            
+            self.add_node(TagNode(name, id, ' '.join(class_), ''.join(attr_expr_chars)), depth=depth)     
+            if pos is not None:
+                return line[pos + 1:].lstrip()
+            else:
+                return line.lstrip()
 
         
         m = re.match(r'''
@@ -254,6 +269,7 @@ source = '''
     #footer %ul - for i in range(10): %li= 1
     #id.class first
     .class#id second
+    #id{'key': {}.get('value', '')} test
 <%def name="head()"></%def>
 '''
 
