@@ -18,8 +18,11 @@ class Parser(object):
     def node(self):
         return self.stack[-1][1]
     
-    def process_string(self, source):
-        for raw_line in source.splitlines():
+    def parse_string(self, source):
+        self.parse(source.splitlines())
+    
+    def parse(self, source):
+        for raw_line in source:
             if raw_line.startswith('!'):
                 self.add_node(nodes.Content(raw_line[1:]), depth=self.depth + 1)
                 continue
@@ -28,10 +31,10 @@ class Parser(object):
                 continue
             depth = len(raw_line) - len(line)
             while line:
-                line = self.process_line(line, depth)
+                line = self._parse_line(line, depth)
                 depth += 1
     
-    def process_line(self, line, depth):
+    def _parse_line(self, line, depth):
         
         if line.startswith('/'):
             self.add_node(nodes.Comment(), depth=depth)
@@ -100,6 +103,9 @@ class Parser(object):
         self.stack.append((depth, node))
         
 
-
+def parse_string(source):
+    parser = Parser()
+    parser.parse_string(source)
+    return parser.root
 
     
