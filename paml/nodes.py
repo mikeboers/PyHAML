@@ -52,8 +52,11 @@ class Tag(Base):
     
     self_closing_names = set('''
         br
+        hr
         img
         input
+        link
+        meta
     '''.strip().split())
     
     def __init__(self, name, id, class_, kwargs_expr=None, self_closing=False):

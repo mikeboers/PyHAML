@@ -133,6 +133,18 @@ class TestHamlReference(Base):
 <br />
 <meta http-equiv="Content-Type" content="text/html" />
             '''.strip() + '\n', title='MyPage')
+        self.assertHTML(
+            '''
+%br
+%meta(**{'http-equiv': 'Content-Type', 'content': 'text/html'})
+            '''.strip(),
+            '''
+<br />
+<meta http-equiv="Content-Type" content="text/html" />
+            '''.strip() + '\n', title='MyPage')
+
+
+
 
 if __name__ == '__main__':
     main()
