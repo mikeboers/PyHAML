@@ -118,12 +118,12 @@ class Tag(Base):
                     yield engine.inc_depth
         
         if self.inline_child:
-            yield engine.no_whitespace
+            yield engine.rstrip
             for x in self.inline_child.render_start(engine):
                 yield x
             for x in self.inline_child.render_end(engine):
                 yield x
-            yield engine.pop_whitespace
+            yield engine.lstrip
     
     def render_end(self, engine):
         if self.strip_inner:

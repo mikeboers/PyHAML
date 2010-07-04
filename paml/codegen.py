@@ -28,31 +28,17 @@ class WhitespaceControlToken(str):
 
 class BaseGenerator(object):
     
+    indent_str = ''
+    endl = ''
+    endl_no_break = ''
+    
     inc_depth = GeneratorSentinal(delta=1, name='inc_depth')
     dec_depth = GeneratorSentinal(delta=-1, name='dec_depth')
     _increment_tokens = (inc_depth, dec_depth)
     
     assert_newline = WhitespaceControlToken('assert_newline')
-    
-    no_whitespace = GeneratorSentinal(
-        indent_str = '',
-        endl = '',
-        endl_no_break = '',
-        name='no_whitespace',
-    )
-    default_whitespace = no_whitespace
-    _whitespace_tokens = (no_whitespace, default_whitespace)
-    
-    pop_whitespace = GeneratorSentinal(name='pop_whitespace')
-    
     lstrip = WhitespaceControlToken('lstrip')
     rstrip = WhitespaceControlToken('rstrip')
-    
-    def __init__(self):
-        self.whitespace_stack = [self.default_whitespace]
-    
-    def __getattr__(self, name):
-        return getattr(self.whitespace_stack[-1], name)
     
     def generate(self, node):
         return ''.join(self.generate_iter(node))
@@ -109,10 +95,6 @@ class BaseGenerator(object):
                 continue
             if token in self._increment_tokens:
                 self.depth += token.delta
-            elif token in self._whitespace_tokens:
-                self.whitespace_stack.append(token)
-            elif token is self.pop_whitespace:
-                self.whitespace_stack.pop()
             elif isinstance(token, basestring):
                 if token:
                     yield token
@@ -139,11 +121,9 @@ class BaseGenerator(object):
 
 class MakoGenerator(BaseGenerator):
     
-    default_whitespace = GeneratorSentinal(
-        indent_str = '\t',
-        endl = '\n',
-        endl_no_break = '\\\n',
-    )
+    indent_str = '\t'
+    endl = '\n'
+    endl_no_break = '\\\n'
     
     def start_document(self):
         return (
