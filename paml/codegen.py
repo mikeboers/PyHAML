@@ -139,7 +139,7 @@ def mako_build_attr_str(*args, **kwargs):
     x.update(kwargs)
     pairs = x.items()
     pairs.sort(key=lambda pair: (_attr_sort_order.get(pair[0], 0), pair[0]))
-    return ''.join(' %s="%s"' % (k.strip('_'), cgi.escape(v)) for k, v in pairs)
+    return ''.join(' %s="%s"' % (k.strip('_'), cgi.escape(str(v))) for k, v in pairs)
 
 
 def generate_mako(node):
