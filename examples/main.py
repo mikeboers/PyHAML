@@ -11,24 +11,16 @@ source = '''
 %body
     #header
         %img#logo(src='/img/logo.png')
-        /
-            # Navigation
-            Another line of comments goes here.
-        %ul#top-nav.nav
-            %li Item 1
-            %li Item 2
-            %li Item 3
+        %ul#top-nav.nav - for i in range(2):
+            %li= 'Item %02d' % i
     #content
         %p
             The content goes in here.
             This is another line of the content.
-        %p.warning.error(class_=class_)
-            Paragraph 2.
-    #footer %ul - for i in range(3): %li= i
-    #id.class first
-    .class#id second
-    #test-id(key={}.get('value', 'default')) test
-<%def name="head()"></%def>
+        %p.warning
+            This is a warning.
+    #footer
+        &copy; The author, today.
 
 '''.strip()
 

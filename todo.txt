@@ -19,3 +19,8 @@
     eg. %(data={'id': 4}) -> <div data-id="4">...</div>
 
 - implement tests for all the examples in the haml tutorial
+
+- all code generation should be yielding a sequence of tokens:
+    - sentinal objects will be used for INC_DEPTH and DEC_DEPTH
+    - indent(), endl are strings
+    - strings for their contents
