@@ -43,7 +43,7 @@ class Parser(object):
         
         # HTML comments.
         if line.startswith('/'):
-            self.add_node(nodes.Comment(), depth=depth)
+            self.add_node(nodes.Comment(), depth)
             return line[1:].lstrip()
         
         # Expressions.
@@ -100,10 +100,10 @@ class Parser(object):
             (.+?):         # test
         ''', line, re.X)
         if m:
-            self.add_node(nodes.Control(*m.groups()), depth=depth)
+            self.add_node(nodes.Control(*m.groups()), depth)
             return line[m.end():].lstrip()
                
-        self.add_node(nodes.Content(line), depth=depth)
+        self.add_node(nodes.Content(line), depth)
     
     def add_node(self, node, depth):
         while depth <= self.depth:
