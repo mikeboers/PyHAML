@@ -10,16 +10,16 @@ class Compiler(object):
     def render_iter(self, node):
         for indent, line in self._visit_node(node):
             if line:
-                yield indent * ' ' + line + '\n'
+                yield (indent - 1) * ' ' + line + '\n'
     
-    def _visit_node(self, node, indent=-1):
-        yield indent, (node.render_start(self) or '').strip()
+    def _visit_node(self, node):
+        yield 0, (node.render_start(self) or '')
         for line in node.render_content(self):
-            yield indent + 1, line.strip()
+            yield 1, line
         for child in node.children:
-            for x in self._visit_node(child, indent + 1):
-                yield x
-        yield indent, (node.render_end(self) or '').strip()
+            for indent, x in self._visit_node(child):
+                yield indent + 1, x
+        yield 0, (node.render_end(self) or '')
             
 
 class BaseNode(object):
