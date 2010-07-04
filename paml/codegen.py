@@ -63,9 +63,7 @@ class BaseGenerator(object):
                         if buffer and not buffer[-1].endswith('\n'):
                             buffer.append('\n')
                     elif x == self.lstrip:
-                        print 'len', len(buffer)
                         for i in xrange(len(buffer) - 1, -1, -1):
-                            print i, repr(buffer[i])
                             buffer[i] = buffer[i].rstrip()
                             if buffer[i]:
                                 for z in buffer:
