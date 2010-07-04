@@ -63,7 +63,7 @@ class Tag(Base):
         self.id = id
         self.class_ = (class_ or '').replace('.', ' ').strip()
         self.kwargs_expr = kwargs_expr
-        self.content = ''
+        self.inline_child = None
     
     def render_start(self, engine):
         
@@ -90,7 +90,12 @@ class Tag(Base):
             if self.children:
                 yield engine.endl
                 yield engine.inc_depth
-        yield self.content
+        
+        if self.inline_child:
+            yield engine.no_whitespace
+            for x in self.inline_child.render_start(engine):
+                yield x
+            yield engine.pop_whitespace
     
     def render_end(self, engine):
         if self.name not in self.self_closing:
@@ -102,7 +107,7 @@ class Tag(Base):
     
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
-            ', '.join('%s=%r' % (k, getattr(self, k)) for k in ('name', 'id', 'class_', 'kwargs_expr', 'content') if getattr(self, k))
+            ', '.join('%s=%r' % (k, getattr(self, k)) for k in ('name', 'id', 'class_', 'kwargs_expr', 'inline_child') if getattr(self, k))
         )
 
 

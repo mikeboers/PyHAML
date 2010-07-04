@@ -36,23 +36,18 @@ class Parser(object):
             last_line = None
             while line and line != last_line:
                 last_line = line
-                i = None
-                for i, token in enumerate(self._parse_line(line)):
+                for token in self._parse_line(line):
                     if isinstance(token, nodes.Base):
                         self.add_node(token, depth)
                     elif isinstance(token, basestring):
                         line = token
                         depth += 1
-                    elif token is INC_DEPTH:
-                        depth += 1
                     else:
                         raise TypeError('unknown token type %r' % token)
-                if i is None:
-                    self.add_node(nodes.Content(line), depth)
                 
     
     def _parse_line(self, line):
-
+        
         # Escape a line so it doesn't get touched.
         if line.startswith('\\'):
             yield nodes.Content(line[1:].lstrip())
@@ -105,17 +100,20 @@ class Parser(object):
                 ''.join(kwargs_expr_chars)[1:] # It will only have the first brace.
             )
             yield tag
-            yield INC_DEPTH
+            
             if kwargs_expr_chars:
                 line = line[pos + 1:].lstrip()
             else:
                 line = line.lstrip()
-            i = None
-            for i, token in enumerate(self._parse_line(line)):
-                yield token
-            if i is None:
-                tag.content = line
-                yield ''
+            if not line:
+                return
+            
+            tokens = list(self._parse_line(line))
+            if len(tokens) == 1 and isinstance(tokens[0], (nodes.Content, nodes.Expression)):
+                tag.inline_child = tokens[0]
+            else:
+                for x in tokens:
+                    yield x
             return
 
         # Control statements.
@@ -130,6 +128,9 @@ class Parser(object):
             yield nodes.Control(*m.groups())
             yield line[m.end():].lstrip()
             return
+        
+        # Content
+        yield nodes.Content(line)
         
     
     def add_node(self, node, depth):

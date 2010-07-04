@@ -16,17 +16,31 @@ class _GeneratorSentinal(object):
         self.__dict__.update(**kwargs)
 
 
+
 class BaseGenerator(object):
-    
-    indent_str = ''
-    endl = ''
-    endl_no_break = ''
     
     inc_depth = _GeneratorSentinal(delta=1)
     dec_depth = _GeneratorSentinal(delta=-1)
     _increment_tokens = (inc_depth, dec_depth)
     
     assert_newline = _GeneratorSentinal()
+    
+    no_whitespace = _GeneratorSentinal(
+        indent_str = '',
+        endl = '',
+        endl_no_break = '',
+    )
+    default_whitespace = no_whitespace
+    _whitespace_tokens = (no_whitespace, default_whitespace)
+    
+    pop_whitespace = _GeneratorSentinal()
+    
+    
+    def __init__(self):
+        self.whitespace_stack = [self.default_whitespace]
+    
+    def __getattr__(self, name):
+        return getattr(self.whitespace_stack[-1], name)
     
     def generate(self, node):
         self.depth = 0
@@ -36,6 +50,10 @@ class BaseGenerator(object):
                 continue
             if token in self._increment_tokens:
                 self.depth += token.delta
+            elif token in self._whitespace_tokens:
+                self.whitespace_stack.append(token)
+            elif token is self.pop_whitespace:
+                self.whitespace_stack.pop()
             elif token is self.assert_newline:
                 if result and result[-1][-1] != '\n':
                     result.append('\n')
@@ -55,6 +73,9 @@ class BaseGenerator(object):
     def indent(self, delta=0):
         return self.indent_str * (self.depth + delta)
     
+    def _set_whitespace_from_token(self, token):
+        self.__dict__.update(token.__dict__)
+    
     def noop(self):
         return None
     
@@ -63,9 +84,11 @@ class BaseGenerator(object):
 
 class MakoGenerator(BaseGenerator):
     
-    indent_str = '\t'
-    endl = '\n'
-    endl_no_break = '\\\n'
+    default_whitespace = _GeneratorSentinal(
+        indent_str = '\t',
+        endl = '\n',
+        endl_no_break = '\\\n',
+    )
     
     def start_document(self):
         return (
