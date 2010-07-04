@@ -15,6 +15,7 @@ class Parser(object):
     def __init__(self):
         self.root = nodes.Document()
         self.stack = [(-1, self.root)]
+        self._peeked = None
     
     @property
     def depth(self):
@@ -27,8 +28,32 @@ class Parser(object):
     def parse_string(self, source):
         self.parse(source.splitlines())
     
+    def next_line(self):
+        if self._peeked is not None:
+            line = self._peeked
+            self._peeked = None
+            return line
+        return next(self.source)
+    
+    def peek_line(self):
+        if self._peeked is None:
+            self._peeked = next(self.source)
+        return self._peeked
+    
     def parse(self, source):
-        for raw_line in source:
+        self.source = iter(source)
+        while True:
+            try:
+                raw_line = self.next_line()
+            except StopIteration:
+                return
+            try:
+                while raw_line.endswith('|'):
+                    raw_line = raw_line[:-1]
+                    if self.peek_line().endswith('|'):
+                        raw_line += self.next_line()
+            except StopIteration:
+                pass
             line = raw_line.lstrip()
             if not line:
                 continue

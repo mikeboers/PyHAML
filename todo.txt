@@ -2,7 +2,6 @@
 - mako filters on expression nodes:
     %=|h something -> <div>${something|h}</div>
 
-- line continuations with backslash. do it before anything is parsed
 
 
 - children of an expression tag should all be content and get evaluated as well
