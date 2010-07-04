@@ -2,6 +2,7 @@
 import re
 import cgi
 
+
 class Compiler(object):
     
     def render(self, node):
@@ -9,17 +10,17 @@ class Compiler(object):
         
     def render_iter(self, node):
         for indent, line in self._visit_node(node):
-            if line:
+            if line is not None:
                 yield (indent - 1) * ' ' + line + '\n'
     
     def _visit_node(self, node):
-        yield 0, (node.render_start(self) or '')
+        yield 0, node.render_start(self)
         for line in node.render_content(self):
             yield 1, line
         for child in node.children:
             for indent, x in self._visit_node(child):
                 yield indent + 1, x
-        yield 0, (node.render_end(self) or '')
+        yield 0, node.render_end(self)
             
 
 class BaseNode(object):
@@ -29,13 +30,13 @@ class BaseNode(object):
         self.indent = -1
     
     def render_start(self, engine):
-        pass
+        return None
     
     def render_content(self, engine):
         return []
     
     def render_end(self, engine):
-        pass
+        return None
 
 
 class DocumentNode(BaseNode):
