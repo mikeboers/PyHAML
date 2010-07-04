@@ -17,7 +17,7 @@ class _GeneratorSentinal(object):
         self.__dict__.update(**kwargs)
 
 
-class OuterCommand(str):
+class WhitespaceControlToken(str):
     pass
 
 
@@ -27,7 +27,7 @@ class BaseGenerator(object):
     dec_depth = _GeneratorSentinal(delta=-1)
     _increment_tokens = (inc_depth, dec_depth)
     
-    assert_newline = OuterCommand('assert_newline')
+    assert_newline = WhitespaceControlToken('assert_newline')
     
     no_whitespace = _GeneratorSentinal(
         indent_str = '',
@@ -39,8 +39,8 @@ class BaseGenerator(object):
     
     pop_whitespace = _GeneratorSentinal()
     
-    lstrip = OuterCommand('lstrip')
-    rstrip = OuterCommand('rstrip')
+    lstrip = WhitespaceControlToken('lstrip')
+    rstrip = WhitespaceControlToken('rstrip')
     
     def __init__(self):
         self.whitespace_stack = [self.default_whitespace]
@@ -58,7 +58,7 @@ class BaseGenerator(object):
         try:
             while True:
                 x = next(generator)
-                if isinstance(x, OuterCommand):
+                if isinstance(x, WhitespaceControlToken):
                     if x == self.assert_newline:
                         if buffer and not buffer[-1].endswith('\n'):
                             buffer.append('\n')
@@ -73,7 +73,7 @@ class BaseGenerator(object):
                     elif x == self.rstrip:
                         r_stripping = True
                     else:
-                        raise ValueError('unexpected OuterCommand %r' % x)
+                        raise ValueError('unexpected WhitespaceControlToken %r' % x)
                 else:
                     if r_stripping:
                         x = x.lstrip()
