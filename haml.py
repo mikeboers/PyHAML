@@ -144,8 +144,9 @@ class Compiler(object):
                 \s+
                 (.+)          # content
             )?
+            $
         ''', line, re.X)
-        if m and ''.join(x or '' for x in m.groups()):
+        if m:
             parts = dict(zip(
                 TagNode.attr_names,
                 m.groups()
