@@ -44,7 +44,7 @@ class BaseNode(object):
 class DocumentNode(BaseNode):
     
     def render_start(self, engine):
-        return '<%! from haml import mako_build_attr_str as __H_attrs %>\\'
+        return '<%%! from %s import mako_build_attr_str as __H_attrs %%>\\' % __name__
 
 
 class ContentNode(BaseNode):
