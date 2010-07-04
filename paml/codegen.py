@@ -80,7 +80,12 @@ class BaseGenerator(object):
                         if x:
                             r_stripping = False
                     if x:
-                        buffer.append(x)
+                        if buffer and x.strip():
+                            for y in buffer:
+                                yield y
+                            buffer = [x]
+                        else:
+                            buffer.append(x)
         except StopIteration:
             for x in buffer:
                 yield x
