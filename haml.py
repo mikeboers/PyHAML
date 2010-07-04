@@ -27,7 +27,6 @@ class BaseNode(object):
     
     def __init__(self):
         self.children = []
-        self.indent = -1
     
     def render_start(self, engine):
         return None
@@ -126,18 +125,22 @@ class Parser(object):
     
     def __init__(self):
         self.root = DocumentNode()
-        self.stack = [self.root]
+        self.stack = [(-1, self.root)]
     
     @property
-    def tip(self):
-        return self.stack[-1]
+    def indent(self):
+        return self.stack[-1][0]
+        
+    @property
+    def node(self):
+        return self.stack[-1][1]
     
     def process_string(self, source):
         for raw_line in source.splitlines():
             if raw_line.startswith('!'):
-                self.add_node(ContentNode(raw_line[1:]), indent=self.tip.indent + 1)
+                self.add_node(ContentNode(raw_line[1:]), indent=self.indent + 1)
                 continue
-            line = raw_line.strip()
+            line = raw_line.lstrip()
             if not line:
                 continue
             indent = len(raw_line) - len(line)
@@ -201,13 +204,11 @@ class Parser(object):
         if line:     
             self.add_node(ContentNode(line), indent=indent)
     
-    def add_node(self, node, indent=None):
-        if indent is not None:
-            node.indent = indent
-        while node.indent <= self.tip.indent:
+    def add_node(self, node, indent):
+        while indent <= self.indent:
             self.stack.pop()
-        self.tip.children.append(node)
-        self.stack.append(node)
+        self.node.children.append(node)
+        self.stack.append((indent, node))
         
 
 
@@ -241,6 +242,9 @@ source = '''
             %li= 1
 <%def name="head()"></%def>
 '''
+
+print source
+print
 
 parser = Parser()
 parser.process_string(source)
