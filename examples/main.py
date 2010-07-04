@@ -19,6 +19,8 @@ source = '''
             This is another line of the content.
         %p.warning
             This is a warning.
+        %<
+            This should not have whitespace.
     #footer
         &copy; The author, today.
 

@@ -17,6 +17,9 @@ class _GeneratorSentinal(object):
         self.__dict__.update(**kwargs)
 
 
+class OuterCommand(str):
+    pass
+
 
 class BaseGenerator(object):
     
@@ -24,7 +27,7 @@ class BaseGenerator(object):
     dec_depth = _GeneratorSentinal(delta=-1)
     _increment_tokens = (inc_depth, dec_depth)
     
-    assert_newline = _GeneratorSentinal()
+    assert_newline = OuterCommand('assert_newline')
     
     no_whitespace = _GeneratorSentinal(
         indent_str = '',
@@ -36,6 +39,8 @@ class BaseGenerator(object):
     
     pop_whitespace = _GeneratorSentinal()
     
+    lstrip = OuterCommand('lstrip')
+    rstrip = OuterCommand('rstrip')
     
     def __init__(self):
         self.whitespace_stack = [self.default_whitespace]
@@ -49,9 +54,35 @@ class BaseGenerator(object):
     def generate_iter(self, node):    
         generator = self._generate_string_tokens(node)
         buffer = []
+        r_stripping = False
         try:
             while True:
-                yield next(generator)
+                x = next(generator)
+                if isinstance(x, OuterCommand):
+                    if x == self.assert_newline:
+                        if buffer and not buffer[-1].endswith('\n'):
+                            buffer.append('\n')
+                    elif x == self.lstrip:
+                        print 'len', len(buffer)
+                        for i in xrange(len(buffer) - 1, -1, -1):
+                            print i, repr(buffer[i])
+                            buffer[i] = buffer[i].rstrip()
+                            if buffer[i]:
+                                for z in buffer:
+                                    yield z
+                                buffer = []
+                                break
+                    elif x == self.rstrip:
+                        r_stripping = True
+                    else:
+                        raise ValueError('unexpected OuterCommand %r' % x)
+                else:
+                    if r_stripping:
+                        x = x.lstrip()
+                        if x:
+                            r_stripping = False
+                    if x:
+                        buffer.append(x)
         except StopIteration:
             for x in buffer:
                 yield x
@@ -67,9 +98,6 @@ class BaseGenerator(object):
                 self.whitespace_stack.append(token)
             elif token is self.pop_whitespace:
                 self.whitespace_stack.pop()
-            elif token is self.assert_newline:
-                if result and result[-1][-1] != '\n':
-                    yield '\n'
             elif isinstance(token, basestring):
                 if token:
                     yield token

@@ -89,14 +89,18 @@ class Tag(Base):
         else:
             attr_str = '<%% __M_writer(__P_attrs(%r, %s)) %%>' % (const_attrs, self.kwargs_expr)
         
+        yield engine.indent()
+        if self.strip_outer:
+            yield engine.lstrip
+        
         if self.self_closing or self.name in self.self_closing_names:
-            yield engine.indent()
             yield '<%s%s />' % (self.name, attr_str)
             yield engine.endl
         else:
-            yield engine.indent()
             yield '<%s%s>' % (self.name, attr_str)
             if self.children:
+                if self.strip_inner:
+                    yield engine.rstrip
                 yield engine.endl
                 yield engine.inc_depth
         
@@ -111,7 +115,11 @@ class Tag(Base):
             if self.children:
                 yield engine.dec_depth
                 yield engine.indent()
+                if self.strip_inner:
+                    yield engine.lstrip
             yield '</%s>' % self.name
+            if self.strip_outer:
+                yield engine.rstrip
             yield engine.endl
     
     def __repr__(self):

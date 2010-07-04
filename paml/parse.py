@@ -99,11 +99,11 @@ class Parser(object):
                 line = line
             
             # Whitespace striping
-            m2 = re.match(r'[<>]+', line)
+            m2 = re.match(r'([<>]+)', line)
             strip_outer = strip_inner = False
             if m2:
-                strip_outer = '>' in m2.group(0)
-                strip_inner = '>' in m2.group(0)
+                strip_outer = '>' in m2.group(1)
+                strip_inner = '<' in m2.group(1)
                 line = line[m2.end():]
                  
             # Self closing tags
