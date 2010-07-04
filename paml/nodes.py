@@ -101,8 +101,9 @@ class Tag(Base):
             if self.children:
                 if self.strip_inner:
                     yield engine.rstrip
-                yield engine.endl
-                yield engine.inc_depth
+                else:
+                    yield engine.endl
+                    yield engine.inc_depth
         
         if self.inline_child:
             yield engine.no_whitespace
@@ -113,10 +114,11 @@ class Tag(Base):
     def render_end(self, engine):
         if not (self.self_closing or self.name in self.self_closing_names):
             if self.children:
-                yield engine.dec_depth
-                yield engine.indent()
                 if self.strip_inner:
                     yield engine.lstrip
+                else:
+                    yield engine.dec_depth
+                    yield engine.indent()
             yield '</%s>' % self.name
             if self.strip_outer:
                 yield engine.rstrip
