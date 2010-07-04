@@ -6,11 +6,14 @@ class Base(object):
     def __init__(self):
         self.children = []
     
+    def add_child(self, node):
+        self.children.append(node)
+    
     def render_start(self, engine):
         return None
     
-    def render_content(self, engine):
-        return []
+    def children_to_render(self):
+        return self.children
     
     def render_end(self, engine):
         return None
@@ -198,4 +201,20 @@ class Control(Base):
             self.type,
             self.test
         )
+
+
+class Silent(Base):
     
+    def __init__(self, comment):
+        super(Silent, self).__init__()
+        self.comment = comment
+    
+    def __repr__(self):
+        return '%s(%r)' % (
+            self.__class__.__name__,
+            self.comment
+        )
+    
+    def children_to_render(self):
+        return []
+

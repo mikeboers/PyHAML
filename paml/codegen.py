@@ -115,7 +115,7 @@ class BaseGenerator(object):
         
     def _visit_node(self, node):
         for x in node.render_start(self) or []: yield x
-        for child in node.children:
+        for child in node.children_to_render():
             for x in self._visit_node(child): yield x
         for x in node.render_end(self) or []: yield x
     

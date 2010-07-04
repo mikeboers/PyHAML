@@ -64,6 +64,11 @@ class Parser(object):
             yield nodes.Expression(line[1:].lstrip())
             return
         
+        # Silent comments
+        if line.startswith('-#'):
+            yield nodes.Silent(line[2:].lstrip())
+            return
+        
         # Tags.
         m = re.match(r'''
             (?:%(\w*))?  # tag name
@@ -153,7 +158,7 @@ class Parser(object):
     def add_node(self, node, depth):
         while depth <= self.depth:
             self.stack.pop()
-        self.node.children.append(node)
+        self.node.add_child(node)
         self.stack.append((depth, node))
         
 

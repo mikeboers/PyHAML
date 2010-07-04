@@ -244,7 +244,33 @@ bar</pre><img />
 <![endif]-->
             '''.strip() + '\n')    
     
-    
+    def test_silent_comments(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#haml_comments_"""
+        self.assertHTML(
+            '''
+%p foo
+-# This is a comment
+%p bar
+            '''.strip(),
+            '''
+<p>foo</p>
+<p>bar</p>
+            '''.strip() + '\n')
+
+    def test_silent_comments_2(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#haml_comments_"""
+        self.assertHTML(
+            '''
+%p foo
+-#
+  This won't be displayed
+    Nor will this
+%p bar
+            '''.strip(),
+            '''
+<p>foo</p>
+<p>bar</p>
+            '''.strip() + '\n')    
                 
 if __name__ == '__main__':
     main()
