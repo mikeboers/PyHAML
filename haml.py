@@ -36,6 +36,9 @@ class BaseNode(object):
     
     def render_end(self, engine):
         return None
+    
+    def __repr__(self):
+        return '<%s at 0x%x>' % (self.__class__.__name__, id(self))
 
 
 class DocumentNode(BaseNode):
@@ -52,6 +55,9 @@ class ContentNode(BaseNode):
     
     def render_start(self, engine):
         return self.content
+    
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__.__name__, self.content)
         
 
 class TagNode(BaseNode):
@@ -94,6 +100,11 @@ class TagNode(BaseNode):
     def render_end(self, engine):
         if self.name not in self.self_closing:
             return '</%s>' % self.name
+    
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__,
+            ', '.join('%s=%r' % (k, getattr(self, k)) for k in self.attr_names if getattr(self, k))
+        )
 
 
 class CommentNode(BaseNode):
@@ -103,6 +114,9 @@ class CommentNode(BaseNode):
     
     def render_end(self, engine):
         return '-->'
+    
+    def __repr__(self):
+        return '%s()' % self.__class__.__name__
 
 
 class ControlNode(BaseNode):
@@ -119,6 +133,13 @@ class ControlNode(BaseNode):
     
     def render_end(self, engine):
         return '%% end %s' % self.name
+    
+    def __repr__(self):
+        return '%s(name=%r, test=%r)' % (
+            self.__class__.__name__,
+            self.name,
+            self.test
+        )
     
     
 class Parser(object):
@@ -149,6 +170,7 @@ class Parser(object):
     def process_line(self, depth, line):
         if line.startswith('/'):
             self.add_node(CommentNode(), depth=depth)
+            #self.process_line(depth + 1, line[1:].lstrip())
             depth += 1
             line = line[1:].strip()
             if not line:
@@ -248,5 +270,14 @@ print
 
 parser = Parser()
 parser.process_string(source)
+
+def print_tree(node, depth=0):
+    print '|   ' * depth + repr(node)
+    for child in node.children:
+        print_tree(child, depth + 1)
+
+print_tree(parser.root)
+print
+print
 
 print Compiler().render(parser.root)
