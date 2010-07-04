@@ -156,7 +156,15 @@ class TestHamlReference(Base):
     Foo!
 </div></blockquote>
             '''.strip() + '\n')
-
+        self.assertHTML(
+            '''
+%img
+%img>
+%img
+            '''.strip(),
+            '''
+<img /><img /><img />
+            '''.strip() + '\n')
 
 if __name__ == '__main__':
     main()

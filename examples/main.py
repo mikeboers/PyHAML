@@ -21,6 +21,10 @@ source = '''
             This is a warning.
         %<
             This should not have whitespace.
+            Can't help it here though.
+        %img
+        %img>
+        %img
     #footer
         &copy; The author, today.
 
