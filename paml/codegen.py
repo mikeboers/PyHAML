@@ -44,8 +44,20 @@ class BaseGenerator(object):
         return getattr(self.whitespace_stack[-1], name)
     
     def generate(self, node):
+        return ''.join(self.generate_iter(node))
+    
+    def generate_iter(self, node):    
+        generator = self._generate_string_tokens(node)
+        buffer = []
+        try:
+            while True:
+                yield next(generator)
+        except StopIteration:
+            for x in buffer:
+                yield x
+    
+    def _generate_string_tokens(self, node):
         self.depth = 0
-        result = []
         for token in self._visit_node(node):
             if token is None:
                 continue
@@ -57,13 +69,12 @@ class BaseGenerator(object):
                 self.whitespace_stack.pop()
             elif token is self.assert_newline:
                 if result and result[-1][-1] != '\n':
-                    result.append('\n')
+                    yield '\n'
             elif isinstance(token, basestring):
                 if token:
-                    result.append(token)
+                    yield token
             else:
                 raise TypeError('unexpected token %r' % token)
-        return ''.join(result)
         
     def _visit_node(self, node):
         for x in node.render_start(self) or []: yield x

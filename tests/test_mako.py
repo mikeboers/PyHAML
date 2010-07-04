@@ -120,7 +120,7 @@ class TestHamlReference(Base):
         <three>Hey there</three>
     </two>
 </one>
-            '''.strip() + '\n', title='MyPage')
+            '''.strip() + '\n')
 
     def test_self_closing_tags(self):
         """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#selfclosing_tags_"""
@@ -132,7 +132,7 @@ class TestHamlReference(Base):
             '''
 <br />
 <meta http-equiv="Content-Type" content="text/html" />
-            '''.strip() + '\n', title='MyPage')
+            '''.strip() + '\n')
         self.assertHTML(
             '''
 %br
@@ -141,9 +141,21 @@ class TestHamlReference(Base):
             '''
 <br />
 <meta http-equiv="Content-Type" content="text/html" />
-            '''.strip() + '\n', title='MyPage')
+            '''.strip() + '\n')
 
-
+    def test_whitespace_removal(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#whitespace_removal__and_"""
+        self.assertHTML(
+            '''
+%blockquote<
+    %div
+        Foo!
+            '''.strip(),
+            '''
+<blockquote><div>
+    Foo!
+</div></blockquote>
+            '''.strip() + '\n')
 
 
 if __name__ == '__main__':

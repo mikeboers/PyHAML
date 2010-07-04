@@ -59,7 +59,9 @@ class Tag(Base):
         meta
     '''.strip().split())
     
-    def __init__(self, name, id, class_, kwargs_expr=None, self_closing=False):
+    def __init__(self, name, id, class_, kwargs_expr=None, self_closing=False,
+        strip_inner=False, strip_outer=False):
+        
         super(Tag, self).__init__()
         
         self.name = (name or 'div').lower()
@@ -67,6 +69,8 @@ class Tag(Base):
         self.class_ = (class_ or '').replace('.', ' ').strip()
         self.kwargs_expr = kwargs_expr
         self.self_closing = self_closing
+        self.strip_inner = strip_inner
+        self.strip_outer = strip_outer
         
         self.inline_child = None
     
@@ -112,7 +116,10 @@ class Tag(Base):
     
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
-            ', '.join('%s=%r' % (k, getattr(self, k)) for k in ('name', 'id', 'class_', 'kwargs_expr', 'inline_child') if getattr(self, k))
+            ', '.join('%s=%r' % (k, getattr(self, k)) for k in (
+                'name', 'id', 'class_', 'kwargs_expr', 'inline_child',
+                'strip_inner', 'strip_outer'
+            ) if getattr(self, k))
         )
 
 

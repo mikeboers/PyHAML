@@ -97,7 +97,15 @@ class Parser(object):
                 line = line[pos + 1:]
             else:
                 line = line
-                    
+            
+            # Whitespace striping
+            m2 = re.match(r'[<>]+', line)
+            strip_outer = strip_inner = False
+            if m2:
+                strip_outer = '>' in m2.group(0)
+                strip_inner = '>' in m2.group(0)
+                line = line[m2.end():]
+                 
             # Self closing tags
             self_closing = bool(line and line[0] == '/')
             line = line[int(self_closing):].lstrip()
@@ -107,7 +115,9 @@ class Parser(object):
                 id,
                 ' '.join(class_),
                 ''.join(kwargs_expr_chars)[1:], # It will only have the first brace.
-                self_closing
+                self_closing,
+                strip_outer=strip_outer,
+                strip_inner=strip_inner,
             )
             yield tag
             
