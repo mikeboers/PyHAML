@@ -22,7 +22,7 @@ class Base(object):
 class Document(Base):
     
     def render_start(self, engine):
-        return engine.start_document()
+        yield engine.start_document()
 
 
 class Content(Base):
@@ -32,7 +32,9 @@ class Content(Base):
         self.content = content
     
     def render_start(self, engine):
-        return self.content
+        yield engine.indent()
+        yield self.content
+        yield engine.endl
     
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self.content)
@@ -41,7 +43,9 @@ class Content(Base):
 class Expression(Content):
     
     def render_start(self, engine):
-        return '${%s}' % self.content.strip()
+        yield engine.indent()
+        yield '${%s}' % self.content.strip()
+        yield engine.endl
 
 
 class Tag(Base):
@@ -76,13 +80,21 @@ class Tag(Base):
             attr_str = '<%% __M_writer(__P_attrs(%r, %s)) %%>' % (const_attrs, self.kwargs_expr)
             
         if self.name in self.self_closing:
-            return '<%s%s />' % (self.name, attr_str)
+            yield engine.indent()
+            yield '<%s%s />' % (self.name, attr_str)
+            yield engine.endl
         else:
-            return '<%s%s>' % (self.name, attr_str)
+            yield engine.indent()
+            yield '<%s%s>' % (self.name, attr_str)
+            yield engine.endl
+            yield engine.inc_depth
     
     def render_end(self, engine):
         if self.name not in self.self_closing:
-            return '</%s>' % self.name
+            yield engine.dec_depth
+            yield engine.indent()
+            yield '</%s>' % self.name
+            yield engine.endl
     
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
@@ -93,13 +105,13 @@ class Tag(Base):
 class Comment(Base):
     
     def render_start(self, engine):
-        return '<!--'
+        yield '<!--'
     
     def render_end(self, engine):
-        return '-->'
+        yield '-->'
     
     def __repr__(self):
-        return '%s()' % self.__class__.__name__
+        yield '%s()' % self.__class__.__name__
 
 
 class Control(Base):
@@ -110,10 +122,16 @@ class Control(Base):
         self.test = test
     
     def render_start(self, engine):
-        return '%% %s %s: ' % (self.type, self.test)
+        yield engine.assert_newline
+        yield engine.indent(-1)
+        yield '%% %s %s: ' % (self.type, self.test)
+        yield engine.endl
     
     def render_end(self, engine):
-        return '%% end%s' % self.type
+        yield engine.assert_newline
+        yield engine.indent(-1)
+        yield '%% end%s' % self.type
+        yield engine.endl
     
     def __repr__(self):
         return '%s(type=%r, test=%r)' % (

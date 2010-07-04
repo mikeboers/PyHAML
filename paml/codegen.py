@@ -1,5 +1,6 @@
 
 import cgi
+from itertools import chain
 
 
 _attr_sort_order = {
@@ -9,27 +10,49 @@ _attr_sort_order = {
     'selected': 1,
 }
 
+class _GeneratorSentinal(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(**kwargs)
+
+
 
 class BaseGenerator(object):
     
-    indent_str = '\t'
+    indent_str = ''
+    endl = ''
+    endl_no_break = ''
+    
+    inc_depth = _GeneratorSentinal(delta=1)
+    dec_depth = _GeneratorSentinal(delta=-1)
+    _increment_tokens = (inc_depth, dec_depth)
+    
+    assert_newline = _GeneratorSentinal()
     
     def generate(self, node):
-        return ''.join(self._generate_iter(node))
+        self.depth = 0
+        result = []
+        for token in self._visit_node(node):
+            if token is None:
+                continue
+            if token in self._increment_tokens:
+                self.depth += token.delta
+            elif token is self.assert_newline:
+                if result and result[-1][-1] != '\n':
+                    result.append('\n')
+            elif isinstance(token, basestring):
+                result.append(token)
+            else:
+                raise TypeError('unexpected token %r' % token)
+        return ''.join(result)
         
-    def _generate_iter(self, node):
-        for depth, line in self._visit_node(node):
-            if line is not None:
-                yield (depth - 1) * self.indent_str + line + '\n'
-    
     def _visit_node(self, node):
-        yield 0, node.render_start(self)
-        for line in node.render_content(self):
-            yield 1, line
+        for x in node.render_start(self) or []: yield x
         for child in node.children:
-            for depth, x in self._visit_node(child):
-                yield depth + 1, x
-        yield 0, node.render_end(self)
+            for x in self._visit_node(child): yield x
+        for x in node.render_end(self) or []: yield x
+    
+    def indent(self, delta=0):
+        return self.indent_str * (self.depth + delta)
     
     def noop(self):
         return None
@@ -39,8 +62,15 @@ class BaseGenerator(object):
 
 class MakoGenerator(BaseGenerator):
     
+    indent_str = '\t'
+    endl = '\n'
+    endl_no_break = '\\\n'
+    
     def start_document(self):
-        return '<%%! from %s import mako_build_attr_str as __P_attrs %%>\\' % __name__
+        return (
+            '<%%! from %s import mako_build_attr_str as __P_attrs %%>' % __name__ +
+            self.endl_no_break
+        )
 
         
 def mako_build_attr_str(*args, **kwargs):
