@@ -126,23 +126,21 @@ class CommentNode(BaseNode):
 
 class ControlNode(BaseNode):
     
-    attr_names = 'name test content'.split()
-    
-    def __init__(self, **kwargs):
+    def __init__(self, type, test):
         super(ControlNode, self).__init__()
-        for k in self.attr_names:
-            setattr(self, k, kwargs.get(k))
+        self.type = type
+        self.test = test
     
     def render_start(self, engine):
-        return '%% %s %s: ' % (self.name, self.test)
+        return '%% %s %s: ' % (self.type, self.test)
     
     def render_end(self, engine):
-        return '%% end %s' % self.name
+        return '%% end %s' % self.type
     
     def __repr__(self):
-        return '%s(name=%r, test=%r)' % (
+        return '%s(type=%r, test=%r)' % (
             self.__class__.__name__,
-            self.name,
+            self.type,
             self.test
         )
     
@@ -198,16 +196,12 @@ class Parser(object):
         m = re.match(r'''
             -
             \s*
-            (for|if|while) # tag name
+            (for|if|while) # control type
             \s+
-            (.+?):         # control line
+            (.+?):         # test
         ''', line, re.X)
         if m:
-            parts = dict(zip(
-                ControlNode.attr_names,
-                m.groups()
-            ))
-            self.add_node(ControlNode(**parts), depth=depth)
+            self.add_node(ControlNode(*m.groups()), depth=depth)
             return line[m.end():].lstrip()
                
         self.add_node(ContentNode(line), depth=depth)
@@ -245,10 +239,7 @@ source = '''
             This is another line of the content.
         %p.warning.error{'class': class_}
             Paragraph 2.
-    #footer
-        %ul - for i in range(10):
-            %li= 1
-    #range-test - for x in range(3): - for y in range(3): =f(x, y)
+    #footer %ul - for i in range(10): %li= 1
 <%def name="head()"></%def>
 '''
 
