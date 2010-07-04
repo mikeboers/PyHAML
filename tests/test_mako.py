@@ -31,38 +31,26 @@ class TestHamlTutorial(Base):
     def test_1(self):
         self.assertMako(
             '%strong= item.title',
-            '''
-<strong>
-    ${item.title}
-</strong>
-            '''.strip() + '\n')
+            '<strong>${item.title}</strong>\n'
+        )
     
     def test_2(self):
         self.assertHTML(
             '%strong(class_="code", id="message") Hello, World!',
-            '''
-<strong id="message" class="code">
-    Hello, World!
-</strong>
-            '''.strip() + '\n')
+            '<strong id="message" class="code">Hello, World!</strong>\n'
+        )
 
     def test_2b(self):
         self.assertHTML(
             '%strong.code#message Hello, World!',
-            '''
-<strong id="message" class="code">
-    Hello, World!
-</strong>
-            '''.strip() + '\n')
+            '<strong id="message" class="code">Hello, World!</strong>\n'
+        )
             
     def test_3(self):
         self.assertHTML(
             '.content Hello, World!',
-            '''
-<div class="content">
-    Hello, World!
-</div>
-            '''.strip() + '\n')
+            '<div class="content">Hello, World!</div>\n'
+        )
 
     def test_4(self):
         class obj(object):
@@ -72,11 +60,9 @@ class TestHamlTutorial(Base):
         item.body = 'Hello, World!'
         self.assertHTML(
             '.item(id="item-%d" % item.id)= item.body',
-            '''
-<div id="item-123" class="item">
-    Hello, World!
-</div>
-            '''.strip() + '\n', item=item)
+            '<div id="item-123" class="item">Hello, World!</div>\n',
+            item=item
+        )
 
     def test_5(self):
         self.assertHTML(
@@ -91,12 +77,8 @@ class TestHamlTutorial(Base):
             '''
 <div id="content">
 	<div class="left column">
-		<h2>
-			Welcome to our site!
-		</h2>
-		<p>
-			Info.
-		</p>
+		<h2>Welcome to our site!</h2>
+		<p>Info.</p>
 	</div>
 	<div class="right column">
 		Right content.
