@@ -1,0 +1,14 @@
+
+- Redesign the main parsing loop; either a series of generators transforming
+  the lines into lines + indents, or a series of coroutines.
+
+- Rendering should be handled by the engine, which visits each node in sequence
+  and calls:
+    1) node.render_start(engine)
+        should return a string which will be surrounded by engine whitespace
+    2) node.render_content(engine)
+        should return a list of strings which will be surrounded by whitespace
+    3) iterates across the children of the node
+    4) node.render_end(engine)
+        should return a string which will be surrounded by whitespace
+        
