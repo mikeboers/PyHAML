@@ -95,6 +95,15 @@ class TagNode(BaseNode):
             return '</%s>' % self.name
 
 
+class CommentNode(BaseNode):
+    
+    def render_start(self, engine):
+        return '<!--'
+    
+    def render_end(self, engine):
+        return '-->'
+
+
 class ControlNode(BaseNode):
     
     attr_names = 'name test content'.split()
@@ -134,6 +143,12 @@ class Compiler(object):
             self.process_line(indent, line)
     
     def process_line(self, indent, line):
+        if line.startswith('/'):
+            self.add_node(CommentNode(), indent=indent)
+            indent += 1
+            line = line[1:].strip()
+            if not line:
+                return
         m = re.match(r'''
             (?:%(\w+))?       # tag name
             (?:\#([\w-]+))?   # id
@@ -207,6 +222,9 @@ source = '''
 %body
     #header
         %img#logo{'src':'/img/logo.png'}
+        /
+            # Navigation
+            Another line of comments goes here.
         %ul#top-nav.nav
             %li Item 1
             %li Item 2
