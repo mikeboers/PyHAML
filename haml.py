@@ -187,7 +187,7 @@ class Parser(object):
               (?:\#[\w-]+|\.[\w-]+)+ 
             )?
         ''', line, re.X)
-        if m and ''.join(g or '' for g in m.groups()):
+        if m and (m.group(1) is not None or m.group(2)):
             name, raw_id_class = m.groups()
             id, class_ = None, []
             for m2 in re.finditer(r'(#|\.)([\w-]+)', raw_id_class or ''):
@@ -269,7 +269,7 @@ source = '''
     #footer %ul - for i in range(10): %li= 1
     #id.class first
     .class#id second
-    #id{'key': {}.get('value', '')} test
+    %{'key': {}.get('value', '')} test
 <%def name="head()"></%def>
 '''
 
