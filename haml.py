@@ -199,7 +199,7 @@ class Parser(object):
                
             line = line[m.end():]
             
-            attr_brace_deltas = {'{': 1, '}': -1}
+            attr_brace_deltas = {'(': 1, ')': -1}
             attr_expr_chars = []
             attr_expr_depth = 0
             pos = None
@@ -213,7 +213,7 @@ class Parser(object):
                 name,
                 id,
                 ' '.join(class_),
-                ''.join(attr_expr_chars)[1:-1]
+                ''.join(attr_expr_chars)[1:] # It will only have the first brace.
             ), depth=depth)  
             if attr_expr_chars:
                 return line[pos + 1:].lstrip()
@@ -257,7 +257,7 @@ source = '''
     ${next.head()}
 %body
     #header
-        %img#logo{'src':'/img/logo.png'}
+        %img#logo(src='/img/logo.png')
         /
             # Navigation
             Another line of comments goes here.
@@ -269,12 +269,12 @@ source = '''
         %p
             The content goes in here.
             This is another line of the content.
-        %p.warning.error{'class': class_}
+        %p.warning.error(class_=class_)
             Paragraph 2.
     #footer %ul - for i in range(10): %li= 1
     #id.class first
     .class#id second
-    %{'key': {}.get('value', '')} test
+    %(key={}.get('value', '')) test
 <%def name="head()"></%def>
 '''
 
