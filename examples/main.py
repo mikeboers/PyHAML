@@ -33,8 +33,10 @@ source = '''
 source = '''
 
 - for i in range(3):
-    - i **= 2
-      i += 1
+    -!
+        def square(i):
+            return i**2
+    - i = square(i)
     = i
 
 '''

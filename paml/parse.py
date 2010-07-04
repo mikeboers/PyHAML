@@ -153,7 +153,10 @@ class Parser(object):
         
         # Python source.
         if line.startswith('-'):
-            yield nodes.Source(line[1:].lstrip())
+            if line.startswith('-!'):
+                yield nodes.Source(line[2:].lstrip(), module=True)
+            else:
+                yield nodes.Source(line[1:].lstrip(), module=False)
             return
         
         # Content

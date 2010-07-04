@@ -38,6 +38,10 @@ class Content(Base):
         yield engine.indent()
         yield self.content
         yield engine.endl
+        yield engine.inc_depth
+    
+    def render_end(self, engine):
+        yield engine.dec_depth
     
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self.content)
@@ -204,12 +208,16 @@ class Control(Base):
 
 class Source(Base):
     
-    def __init__(self, content):
+    def __init__(self, content, module=False):
         super(Source, self).__init__()
         self.content = content
+        self.module = module
     
     def render_start(self, engine):
-        yield '<% '
+        if self.module:
+            yield '<%! '
+        else:
+            yield '<% '
         yield self.content
         yield engine.endl
     
