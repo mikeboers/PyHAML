@@ -50,8 +50,9 @@ class ContentNode(BaseNode):
         super(ContentNode, self).__init__()
         self.content = content
     
-    def render_content(self, engine):
-        return [self.content]
+    def render_start(self, engine):
+        return self.content
+        
 
 class TagNode(BaseNode):
     
