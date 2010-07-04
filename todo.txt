@@ -1,7 +1,17 @@
 
 - name it 'paml'
 
+- line continuations with backslash. do it before anything is parsed
+
+- children get appended with add_child, then nodes can override this to
+  throw exceptions when they shouldnt have children
+
+- children_to_visit() on nodes by default returns the full child list
+- children of an expression tag should all be content and get evaluated as well
 - implement manual self closing tags
+
+- figure out what the whitespace sets are for, and see if I can replace it with
+  whitespace controls
 
 - move main into paml.core
 
