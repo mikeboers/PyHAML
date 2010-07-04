@@ -141,13 +141,17 @@ class Tag(Base):
 
 class Comment(Base):
     
-    def __init__(self, inline_content):
+    def __init__(self, inline_content, IE_condition=''):
         super(Comment, self).__init__()
         self.inline_content = inline_content
+        self.IE_condition = IE_condition
     
     def render_start(self, engine):
         yield engine.indent()
         yield '<!--'
+        if self.IE_condition:
+            yield self.IE_condition
+            yield '>'
         if self.inline_content:
             yield ' '
             yield self.inline_content
@@ -160,6 +164,8 @@ class Comment(Base):
         if self.children:
             yield engine.dec_depth
             yield engine.indent()
+        if self.IE_condition:
+            yield '<![endif]'
         yield '-->'
         yield engine.endl
     

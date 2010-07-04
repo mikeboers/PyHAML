@@ -78,13 +78,13 @@ class TestHamlTutorial(Base):
             '''.strip(),
             '''
 <div id="content">
-	<div class="left column">
-		<h2>Welcome to our site!</h2>
-		<p>Info.</p>
-	</div>
-	<div class="right column">
-		Right content.
-	</div>
+    <div class="left column">
+        <h2>Welcome to our site!</h2>
+        <p>Info.</p>
+    </div>
+    <div class="right column">
+        Right content.
+    </div>
 </div>
             '''.strip() + '\n')
 
@@ -228,7 +228,21 @@ bar</pre><img />
 -->
             '''.strip() + '\n')
     
-    
+    def test_html_conditional_comments(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#html_comments_"""
+        self.assertHTML(
+            '''
+/[if IE]
+  %a(href='http://www.mozilla.com/en-US/firefox/')
+    %h1 Get Firefox
+            '''.strip(),
+            '''
+<!--[if IE]>
+    <a href="http://www.mozilla.com/en-US/firefox/">
+        <h1>Get Firefox</h1>
+    </a>
+<![endif]-->
+            '''.strip() + '\n')    
     
     
                 

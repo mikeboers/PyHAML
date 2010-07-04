@@ -54,8 +54,9 @@ class Parser(object):
             return
         
         # HTML comments.
-        if line.startswith('/'):
-            yield nodes.Comment(line[1:].lstrip())
+        m = re.match(r'/(\[if[^\]]+])?(.*)$', line)
+        if m:
+            yield nodes.Comment(m.group(2).strip(), (m.group(1) or '').rstrip())
             return
         
         # Expressions.
