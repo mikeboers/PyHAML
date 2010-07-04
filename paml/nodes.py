@@ -49,11 +49,20 @@ class Content(Base):
 
 class Expression(Content):
     
+    def __init__(self, content, filters):
+        super(Expression, self).__init__(content)
+        self.filters = filters
+    
     def render_start(self, engine):
         yield engine.indent()
-        yield '${%s}' % self.content.strip()
+        yield '${%s%s}' % (self.content.strip(), ('|' + self.filters if self.filters else ''))
         yield engine.endl
         yield engine.inc_depth # This is countered by the Content.render_end
+    
+    def __repr__(self):
+        return '%s(%r, %r)' % (self.__class__.__name__, self.content, self.filters)
+        
+    
 
 
 class Tag(Base):

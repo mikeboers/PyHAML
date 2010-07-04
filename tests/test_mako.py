@@ -292,7 +292,9 @@ bar</pre><img />
 </whoo>
             '''.strip() + '\n')   
             
-            
+    def test_escaping_html(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#escaping_html"""
+        self.assertHTML('&= "I like cheese & crackers"', 'I like cheese &amp; crackers\n')
             
             
             

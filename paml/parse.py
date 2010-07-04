@@ -92,8 +92,20 @@ class Parser(object):
             return
         
         # Expressions.
-        if line.startswith('='):
-            yield nodes.Expression(line[1:].lstrip())
+        m = re.match(r'''
+            (&?)
+            =
+            (?:\|(\w+(?:,\w+)*))?
+            \s*
+            (.+)
+        
+        ''', line, re.X)
+        if m:
+            add_escape, filters, content = m.groups()
+            filters = filters or ''
+            if add_escape:
+                filters = filters + (',' if filters else '') + 'h'
+            yield nodes.Expression(content, filters)
             return
         
         # Silent comments
