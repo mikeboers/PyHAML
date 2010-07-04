@@ -1,7 +1,7 @@
 
 import cgi
 
-class Compiler(object):
+class BaseGenerator(object):
     
     def render(self, node):
         return ''.join(self.render_iter(node))
@@ -20,8 +20,16 @@ class Compiler(object):
                 yield depth + 1, x
         yield 0, node.render_end(self)
     
+    def noop(self):
+        return None
+    
+    start_document = noop
+
+
+class MakoGenerator(BaseGenerator):
+    
     def start_document(self):
-        return '<%%! from %s import mako_build_attr_str as __H_attrs %%>\\' % __name__
+        return '<%%! from %s import mako_build_attr_str as __P_attrs %%>\\' % __name__
 
 
 

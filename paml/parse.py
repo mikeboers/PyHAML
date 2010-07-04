@@ -1,9 +1,8 @@
 
 import re
-import cgi
 
 from . import nodes
-from codegen import Compiler
+
 
 class Parser(object):
     
@@ -101,63 +100,6 @@ class Parser(object):
         self.stack.append((depth, node))
         
 
-def parse(source):
-    parser = Parser()
-    parser.process_string(source)
-    return parser.root
 
 
     
-
-if __name__ == '__main__':
-
-    from mako.template import Template
-    
-    source = '''
-
-    %head
-        %title My test document.
-    %body
-        #header
-            %img#logo(src='/img/logo.png')
-            /
-                # Navigation
-                Another line of comments goes here.
-            %ul#top-nav.nav
-                %li Item 1
-                %li Item 2
-                %li Item 3
-        #content
-            %p
-                The content goes in here.
-                This is another line of the content.
-            %p.warning.error(class_=class_)
-                Paragraph 2.
-        #footer %ul - for i in range(3): %li= i
-        #id.class first
-        .class#id second
-        #test-id(key={}.get('value', 'default')) test
-    <%def name="head()"></%def>
-    '''
-
-    print source
-    print
-
-    root = parse(source)
-
-    def print_tree(node, depth=0):
-        print '|   ' * depth + repr(node)
-        for child in node.children:
-            print_tree(child, depth + 1)
-
-    print_tree(root)
-    print
-    print
-
-    compiled = Compiler().render(root)
-    print compiled
-    
-    template = Template(compiled)
-    print template._code
-    
-    print template.render_unicode(class_='test')

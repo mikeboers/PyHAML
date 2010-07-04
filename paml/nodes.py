@@ -71,9 +71,9 @@ class Tag(Base):
         if not self.kwargs_expr:
             attr_str = ''.join(' %s="%s"' % (k, cgi.escape(v)) for k, v in const_attrs.items())
         elif not const_attrs:
-            attr_str = '<%% __M_writer(__H_attrs(%s)) %%>' % self.kwargs_expr
+            attr_str = '<%% __M_writer(__P_attrs(%s)) %%>' % self.kwargs_expr
         else:
-            attr_str = '<%% __M_writer(__H_attrs(%r, %s)) %%>' % (const_attrs, self.kwargs_expr)
+            attr_str = '<%% __M_writer(__P_attrs(%r, %s)) %%>' % (const_attrs, self.kwargs_expr)
             
         if self.name in self.self_closing:
             return '<%s%s />' % (self.name, attr_str)
