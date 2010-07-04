@@ -44,7 +44,7 @@ class BaseNode(object):
 class DocumentNode(BaseNode):
     
     def render_start(self, engine):
-        return '<%! from haml.runtime import mako_build_attr_str as __H_attrs %>\\'
+        return '<%! from haml import mako_build_attr_str as __H_attrs %>\\'
 
 
 class ContentNode(BaseNode):
@@ -93,9 +93,9 @@ class TagNode(BaseNode):
         if not self.attr_expr:
             attr_str = ''.join(' %s="%s"' % (k, cgi.escape(v)) for k, v in const_attrs.items())
         elif not const_attrs:
-            attr_str = '${__H_attrs(%s)}' % self.attr_expr
+            attr_str = '<%% __M_writer(__H_attrs(%s)) %%>' % self.attr_expr
         else:
-            attr_str = '${__H_attrs(%r, %s)}' % (const_attrs, self.attr_expr)
+            attr_str = '<%% __M_writer(__H_attrs(%r, %s)) %%>' % (const_attrs, self.attr_expr)
             
         if self.name in self.self_closing:
             return '<%s%s />' % (self.name, attr_str)
@@ -135,7 +135,7 @@ class ControlNode(BaseNode):
         return '%% %s %s: ' % (self.type, self.test)
     
     def render_end(self, engine):
-        return '%% end %s' % self.type
+        return '%% end%s' % self.type
     
     def __repr__(self):
         return '%s(type=%r, test=%r)' % (
@@ -247,49 +247,69 @@ def parse(source):
     return parser.root
 
 
+_attr_sort_order = {
+    'id': -2,
+    'class': -1
+}
+def mako_build_attr_str(*args, **kwargs):
+    x = {}
+    for arg in args:
+        x.update(arg)
+    x.update(kwargs)
+    pairs = x.items()
+    pairs.sort(key=lambda pair: _attr_sort_order.get(pair[0], 0))
+    return ''.join(' %s="%s"' % (k.strip('_'), cgi.escape(v)) for k, v in pairs)
+    
 
+if __name__ == '__main__':
 
+    from mako.template import Template
+    
+    source = '''
 
-source = '''
+    %head
+        %title My test document.
+    %body
+        #header
+            %img#logo(src='/img/logo.png')
+            /
+                # Navigation
+                Another line of comments goes here.
+            %ul#top-nav.nav
+                %li Item 1
+                %li Item 2
+                %li Item 3
+        #content
+            %p
+                The content goes in here.
+                This is another line of the content.
+            %p.warning.error(class_=class_)
+                Paragraph 2.
+        #footer %ul - for i in range(3): %li= i
+        #id.class first
+        .class#id second
+        #test-id(key={}.get('value', 'default')) test
+    <%def name="head()"></%def>
+    '''
 
-%head
-    %title My test document.
-    ${next.head()}
-%body
-    #header
-        %img#logo(src='/img/logo.png')
-        /
-            # Navigation
-            Another line of comments goes here.
-        %ul#top-nav.nav
-            %li Item 1
-            %li Item 2
-            %li Item 3
-    #content
-        %p
-            The content goes in here.
-            This is another line of the content.
-        %p.warning.error(class_=class_)
-            Paragraph 2.
-    #footer %ul - for i in range(10): %li= 1
-    #id.class first
-    .class#id second
-    %(key={}.get('value', '')) test
-<%def name="head()"></%def>
-'''
+    #print source
+    #print
 
-#print source
-#print
+    root = parse(source)
 
-root = parse(source)
+    def print_tree(node, depth=0):
+        print '|   ' * depth + repr(node)
+        for child in node.children:
+            print_tree(child, depth + 1)
 
-def print_tree(node, depth=0):
-    print '|   ' * depth + repr(node)
-    for child in node.children:
-        print_tree(child, depth + 1)
+    print_tree(root)
+    print
+    print
 
-print_tree(root)
-print
-print
-
-print Compiler().render(root)
+    compiled = Compiler().render(root)
+    print compiled
+    
+    template = Template(compiled)
+    print template._code
+    
+    print template.render_unicode(class_='test')
