@@ -151,6 +151,11 @@ class Parser(object):
             yield line[m.end():].lstrip()
             return
         
+        # Python source.
+        if line.startswith('-'):
+            yield nodes.Source(line[1:].lstrip())
+            return
+        
         # Content
         yield nodes.Content(line)
         

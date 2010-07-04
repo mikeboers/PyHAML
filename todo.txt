@@ -1,5 +1,6 @@
 
-- name it 'paml'
+- mako filters on expression nodes:
+    %=|h something -> <div>${something|h}</div>
 
 - line continuations with backslash. do it before anything is parsed
 

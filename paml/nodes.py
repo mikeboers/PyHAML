@@ -202,6 +202,20 @@ class Control(Base):
             self.test
         )
 
+class Source(Base):
+    
+    def __init__(self, content):
+        super(Source, self).__init__()
+        self.content = content
+    
+    def render_start(self, engine):
+        yield '<% '
+        yield self.content
+        yield engine.endl
+    
+    def render_end(self, engine):
+        yield '%>'
+
 
 class Silent(Base):
     

@@ -30,7 +30,14 @@ source = '''
 
 '''.strip()
 
-source = '%p<= "Foo\nBar"'
+source = '''
+
+- for i in range(3):
+    - i **= 2
+      i += 1
+    = i
+
+'''
 
 
 print '===== SOURCE ====='
