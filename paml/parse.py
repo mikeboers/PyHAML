@@ -83,6 +83,7 @@ class Parser(object):
                
             line = line[m.end():]
             
+            # Extract the kwargs expression.
             attr_brace_deltas = {'(': 1, ')': -1}
             kwargs_expr_chars = []
             kwargs_expr_depth = 0
@@ -92,19 +93,25 @@ class Parser(object):
                 if not kwargs_expr_depth:
                     break
                 kwargs_expr_chars.append(char)
-            
+            if kwargs_expr_chars:
+                line = line[pos + 1:]
+            else:
+                line = line
+                    
+            # Self closing tags
+            self_closing = bool(line and line[0] == '/')
+            line = line[int(self_closing):].lstrip()
+                
             tag = nodes.Tag(
                 name,
                 id,
                 ' '.join(class_),
-                ''.join(kwargs_expr_chars)[1:] # It will only have the first brace.
+                ''.join(kwargs_expr_chars)[1:], # It will only have the first brace.
+                self_closing
             )
             yield tag
             
-            if kwargs_expr_chars:
-                line = line[pos + 1:].lstrip()
-            else:
-                line = line.lstrip()
+
             if not line:
                 return
             

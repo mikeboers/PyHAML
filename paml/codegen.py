@@ -4,8 +4,9 @@ from itertools import chain
 
 
 _attr_sort_order = {
-    'id': -2,
-    'class': -1,
+    'id': -3,
+    'class': -2,
+    'http-equiv': -1, # for meta
     'checked': 1,
     'selected': 1,
 }

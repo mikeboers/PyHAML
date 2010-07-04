@@ -28,6 +28,8 @@ class Base(TestCase):
 
 class TestHamlTutorial(Base):
     
+    """Testing all of the examples from http://haml-lang.com/tutorial.html"""
+    
     def test_1(self):
         self.assertMako(
             '%strong= item.title',
@@ -90,6 +92,7 @@ class TestHamlTutorial(Base):
 class TestHamlReference(Base):
     
     def test_plain_text_escaping(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#escaping_"""
         self.assertHTML(
             '''
 %title
@@ -103,6 +106,33 @@ class TestHamlReference(Base):
 </title>
             '''.strip() + '\n', title='MyPage')
 
+    def test_element_name(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#element_name_"""
+        self.assertHTML(
+            '''
+%one
+  %two
+    %three Hey there
+            '''.strip(),
+            '''
+<one>
+    <two>
+        <three>Hey there</three>
+    </two>
+</one>
+            '''.strip() + '\n', title='MyPage')
+
+    def test_self_closing_tags(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#selfclosing_tags_"""
+        self.assertHTML(
+            '''
+%br/
+%meta(**{'http-equiv': 'Content-Type', 'content': 'text/html'})/
+            '''.strip(),
+            '''
+<br />
+<meta http-equiv="Content-Type" content="text/html" />
+            '''.strip() + '\n', title='MyPage')
 
 if __name__ == '__main__':
     main()

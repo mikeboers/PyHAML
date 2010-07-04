@@ -50,19 +50,21 @@ class Expression(Content):
 
 class Tag(Base):
     
-    self_closing = set('''
+    self_closing_names = set('''
         br
         img
         input
     '''.strip().split())
     
-    def __init__(self, name, id, class_, kwargs_expr=None):
+    def __init__(self, name, id, class_, kwargs_expr=None, self_closing=False):
         super(Tag, self).__init__()
         
         self.name = (name or 'div').lower()
         self.id = id
         self.class_ = (class_ or '').replace('.', ' ').strip()
         self.kwargs_expr = kwargs_expr
+        self.self_closing = self_closing
+        
         self.inline_child = None
     
     def render_start(self, engine):
@@ -80,7 +82,7 @@ class Tag(Base):
         else:
             attr_str = '<%% __M_writer(__P_attrs(%r, %s)) %%>' % (const_attrs, self.kwargs_expr)
         
-        if self.name in self.self_closing:
+        if self.self_closing or self.name in self.self_closing_names:
             yield engine.indent()
             yield '<%s%s />' % (self.name, attr_str)
             yield engine.endl
@@ -98,7 +100,7 @@ class Tag(Base):
             yield engine.pop_whitespace
     
     def render_end(self, engine):
-        if self.name not in self.self_closing:
+        if not (self.self_closing or self.name in self.self_closing_names):
             if self.children:
                 yield engine.dec_depth
                 yield engine.indent()
