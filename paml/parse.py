@@ -23,9 +23,6 @@ class Parser(object):
     
     def parse(self, source):
         for raw_line in source:
-            if raw_line.startswith('!'):
-                self.add_node(nodes.Content(raw_line[1:]), depth=self.depth + 1)
-                continue
             line = raw_line.lstrip()
             if not line:
                 continue
