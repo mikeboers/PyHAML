@@ -271,6 +271,31 @@ bar</pre><img />
 <p>foo</p>
 <p>bar</p>
             '''.strip() + '\n')    
-                
+
+    def test_multiline(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#multiline"""
+        self.assertHTML(
+            '''
+%whoo
+  %hoo=                          |
+    "I think this might get " +  |
+    "pretty long so I should " + |
+    "probably make it " +        |
+    "multiline so it doesn't " + |
+    "look awful."                |
+  %p This is short.
+            '''.strip(),
+            '''
+<whoo>
+    <hoo>I think this might get pretty long so I should probably make it multiline so it doesn't look awful.</hoo>
+    <p>This is short.</p>
+</whoo>
+            '''.strip() + '\n')   
+            
+            
+            
+            
+            
+                            
 if __name__ == '__main__':
     main()
