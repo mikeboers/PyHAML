@@ -12,13 +12,15 @@ _attr_sort_order = {
 
 class BaseGenerator(object):
     
+    indent_str = '\t'
+    
     def generate(self, node):
         return ''.join(self._generate_iter(node))
         
     def _generate_iter(self, node):
         for depth, line in self._visit_node(node):
             if line is not None:
-                yield (depth - 1) * ' ' + line + '\n'
+                yield (depth - 1) * self.indent_str + line + '\n'
     
     def _visit_node(self, node):
         yield 0, node.render_start(self)
