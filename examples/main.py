@@ -29,8 +29,10 @@ source = '''
     .class#id second
     #test-id(key={}.get('value', 'default')) test
 <%def name="head()"></%def>
-'''
 
+'''.strip()
+
+print '===== SOURCE ====='
 print source
 print
 
@@ -41,14 +43,20 @@ def print_tree(node, depth=0):
     for child in node.children:
         print_tree(child, depth + 1)
 
+print '===== NODES ====='
 print_tree(root)
 print
-print
 
+print '===== MAKO ====='
 compiled = paml.generate_mako(root)
 print compiled
+print
 
+print '===== COMPILED MAKO ====='
 template = Template(compiled)
 print template._code
+print
 
+print '===== RENDERED ====='
 print template.render_unicode(class_='test')
+print
