@@ -63,6 +63,7 @@ class Tag(Base):
         self.id = id
         self.class_ = (class_ or '').replace('.', ' ').strip()
         self.kwargs_expr = kwargs_expr
+        self.content = ''
     
     def render_start(self, engine):
         
@@ -78,7 +79,7 @@ class Tag(Base):
             attr_str = '<%% __M_writer(__P_attrs(%s)) %%>' % self.kwargs_expr
         else:
             attr_str = '<%% __M_writer(__P_attrs(%r, %s)) %%>' % (const_attrs, self.kwargs_expr)
-            
+        
         if self.name in self.self_closing:
             yield engine.indent()
             yield '<%s%s />' % (self.name, attr_str)
@@ -86,19 +87,22 @@ class Tag(Base):
         else:
             yield engine.indent()
             yield '<%s%s>' % (self.name, attr_str)
-            yield engine.endl
-            yield engine.inc_depth
+            if self.children:
+                yield engine.endl
+                yield engine.inc_depth
+        yield self.content
     
     def render_end(self, engine):
         if self.name not in self.self_closing:
-            yield engine.dec_depth
-            yield engine.indent()
+            if self.children:
+                yield engine.dec_depth
+                yield engine.indent()
             yield '</%s>' % self.name
             yield engine.endl
     
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
-            ', '.join('%s=%r' % (k, getattr(self, k)) for k in ('name', 'id', 'class_', 'kwargs_expr') if getattr(self, k))
+            ', '.join('%s=%r' % (k, getattr(self, k)) for k in ('name', 'id', 'class_', 'kwargs_expr', 'content') if getattr(self, k))
         )
 
 

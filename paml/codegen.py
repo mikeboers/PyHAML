@@ -40,7 +40,8 @@ class BaseGenerator(object):
                 if result and result[-1][-1] != '\n':
                     result.append('\n')
             elif isinstance(token, basestring):
-                result.append(token)
+                if token:
+                    result.append(token)
             else:
                 raise TypeError('unexpected token %r' % token)
         return ''.join(result)

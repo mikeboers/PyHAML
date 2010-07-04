@@ -8,7 +8,7 @@ class _ParsingSentinal(object):
     def __init__(self, *args, **kwargs):
         self.__dict__.update(**kwargs)
 
-DONE = _ParsingSentinal()
+INC_DEPTH = _ParsingSentinal()
 
 class Parser(object):
     
@@ -36,14 +36,19 @@ class Parser(object):
             last_line = None
             while line and line != last_line:
                 last_line = line
-                for token in self._parse_line(line):
+                i = None
+                for i, token in enumerate(self._parse_line(line)):
                     if isinstance(token, nodes.Base):
                         self.add_node(token, depth)
                     elif isinstance(token, basestring):
                         line = token
                         depth += 1
+                    elif token is INC_DEPTH:
+                        depth += 1
                     else:
                         raise TypeError('unknown token type %r' % token)
+                if i is None:
+                    self.add_node(nodes.Content(line), depth)
                 
     
     def _parse_line(self, line):
@@ -93,16 +98,24 @@ class Parser(object):
                     break
                 kwargs_expr_chars.append(char)
             
-            yield nodes.Tag(
+            tag = nodes.Tag(
                 name,
                 id,
                 ' '.join(class_),
                 ''.join(kwargs_expr_chars)[1:] # It will only have the first brace.
-            )  
+            )
+            yield tag
+            yield INC_DEPTH
             if kwargs_expr_chars:
-                yield line[pos + 1:].lstrip()
+                line = line[pos + 1:].lstrip()
             else:
-                yield line.lstrip()
+                line = line.lstrip()
+            i = None
+            for i, token in enumerate(self._parse_line(line)):
+                yield token
+            if i is None:
+                tag.content = line
+                yield ''
             return
 
         # Control statements.
@@ -117,8 +130,7 @@ class Parser(object):
             yield nodes.Control(*m.groups())
             yield line[m.end():].lstrip()
             return
-               
-        yield nodes.Content(line)
+        
     
     def add_node(self, node, depth):
         while depth <= self.depth:
