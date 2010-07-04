@@ -10,10 +10,10 @@ _attr_sort_order = {
     'selected': 1,
 }
 
+
 class _GeneratorSentinal(object):
     def __init__(self, **kwargs):
         self.__dict__.update(**kwargs)
-
 
 
 class BaseGenerator(object):

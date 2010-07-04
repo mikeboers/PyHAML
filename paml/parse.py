@@ -4,6 +4,12 @@ import re
 from . import nodes
 
 
+class _ParsingSentinal(object):
+    def __init__(self, *args, **kwargs):
+        self.__dict__.update(**kwargs)
+
+DONE = _ParsingSentinal()
+
 class Parser(object):
     
     def __init__(self):
@@ -27,25 +33,35 @@ class Parser(object):
             if not line:
                 continue
             depth = len(raw_line) - len(line)
-            while line:
-                line = self._parse_line(line, depth)
-                depth += 1
+            last_line = None
+            while line and line != last_line:
+                last_line = line
+                for token in self._parse_line(line):
+                    if isinstance(token, nodes.Base):
+                        self.add_node(token, depth)
+                    elif isinstance(token, basestring):
+                        line = token
+                        depth += 1
+                    else:
+                        raise TypeError('unknown token type %r' % token)
+                
     
-    def _parse_line(self, line, depth):
+    def _parse_line(self, line):
 
         # Escape a line so it doesn't get touched.
         if line.startswith('\\'):
-            self.add_node(nodes.Content(line[1:].lstrip()), depth)
+            yield nodes.Content(line[1:].lstrip())
             return
         
         # HTML comments.
         if line.startswith('/'):
-            self.add_node(nodes.Comment(), depth)
-            return line[1:].lstrip()
+            yield nodes.Comment()
+            yield line[1:].lstrip()
+            return
         
         # Expressions.
         if line.startswith('='):
-            self.add_node(nodes.Expression(line[1:].lstrip()), depth)
+            yield nodes.Expression(line[1:].lstrip())
             return
         
         # Tags.
@@ -77,16 +93,17 @@ class Parser(object):
                     break
                 kwargs_expr_chars.append(char)
             
-            self.add_node(nodes.Tag(
+            yield nodes.Tag(
                 name,
                 id,
                 ' '.join(class_),
                 ''.join(kwargs_expr_chars)[1:] # It will only have the first brace.
-            ), depth=depth)  
+            )  
             if kwargs_expr_chars:
-                return line[pos + 1:].lstrip()
+                yield line[pos + 1:].lstrip()
             else:
-                return line.lstrip()
+                yield line.lstrip()
+            return
 
         # Control statements.
         m = re.match(r'''
@@ -97,10 +114,11 @@ class Parser(object):
             (.+?):         # test
         ''', line, re.X)
         if m:
-            self.add_node(nodes.Control(*m.groups()), depth)
-            return line[m.end():].lstrip()
+            yield nodes.Control(*m.groups())
+            yield line[m.end():].lstrip()
+            return
                
-        self.add_node(nodes.Content(line), depth)
+        yield nodes.Content(line)
     
     def add_node(self, node, depth):
         while depth <= self.depth:

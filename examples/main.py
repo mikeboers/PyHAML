@@ -7,7 +7,7 @@ import paml.codegen
 source = '''
 
 %head
-    %title My test document.
+    %title This should be one line.
 %body
     #header
         %img#logo(src='/img/logo.png')
