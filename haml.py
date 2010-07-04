@@ -74,14 +74,13 @@ class TagNode(BaseNode):
         input
     '''.strip().split())
     
-    attr_names = 'name id class_ attr_expr is_expr content'.split()
-    
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, id, class_, attr_expr):
         super(TagNode, self).__init__()
-        for key in self.attr_names:
-            setattr(self, key, kwargs.get(key))
+        
         self.name = (name or 'div').lower()
-        self.class_ = (self.class_ or '').replace('.', ' ').strip()
+        self.id = id
+        self.class_ = (class_ or '').replace('.', ' ').strip()
+        self.attr_expr = attr_expr
     
     def render_start(self, engine):
         
@@ -109,7 +108,7 @@ class TagNode(BaseNode):
     
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
-            ', '.join('%s=%r' % (k, getattr(self, k)) for k in self.attr_names if getattr(self, k))
+            ', '.join('%s=%r' % (k, getattr(self, k)) for k in ('name', 'id', 'class_', 'attr_expr') if getattr(self, k))
         )
 
 
@@ -189,13 +188,9 @@ class Parser(object):
             (=)?              # expression flag
         ''', line, re.X)
         if m and ''.join(g or '' for g in m.groups()):
-            parts = dict(zip(
-                TagNode.attr_names,
-                m.groups()
-            ))
-            self.add_node(TagNode(**parts), depth=depth)
+            self.add_node(TagNode(*m.group(1, 2, 3, 4)), depth=depth)
             line = line[m.end():].lstrip()
-            if parts.get('is_expr'):
+            if m.group(5):
                 self.add_node(ExpressionNode(line), depth + 1)
                 return
             return line
