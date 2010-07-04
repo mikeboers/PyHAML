@@ -141,11 +141,27 @@ class Tag(Base):
 
 class Comment(Base):
     
+    def __init__(self, inline_content):
+        super(Comment, self).__init__()
+        self.inline_content = inline_content
+    
     def render_start(self, engine):
+        yield engine.indent()
         yield '<!--'
+        if self.inline_content:
+            yield ' '
+            yield self.inline_content
+            yield ' '
+        if self.children:
+            yield engine.inc_depth
+            yield engine.endl
     
     def render_end(self, engine):
+        if self.children:
+            yield engine.dec_depth
+            yield engine.indent()
         yield '-->'
+        yield engine.endl
     
     def __repr__(self):
         yield '%s()' % self.__class__.__name__

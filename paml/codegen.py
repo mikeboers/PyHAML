@@ -63,12 +63,16 @@ class BaseGenerator(object):
                         if buffer and not buffer[-1].endswith('\n'):
                             buffer.append('\n')
                     elif x == self.lstrip:
+                        # Work backwards through the buffer rstripping until
+                        # we hit some non-white content. Then flush everything
+                        # in the buffer upto that point. We need to leave the
+                        # last one incase we get a "assert_newline" command.
                         for i in xrange(len(buffer) - 1, -1, -1):
                             buffer[i] = buffer[i].rstrip()
                             if buffer[i]:
-                                for z in buffer:
+                                for z in buffer[:i]:
                                     yield z
-                                buffer = []
+                                buffer = [buffer[i]]
                                 break
                     elif x == self.rstrip:
                         r_stripping = True
@@ -80,6 +84,8 @@ class BaseGenerator(object):
                         if x:
                             r_stripping = False
                     if x:
+                        # Flush the buffer if we have non-white content as no
+                        # lstrip command will get past this new token anyways.
                         if buffer and x.strip():
                             for y in buffer:
                                 yield y

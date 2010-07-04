@@ -143,7 +143,7 @@ class TestHamlReference(Base):
 <meta http-equiv="Content-Type" content="text/html" />
             '''.strip() + '\n')
 
-    def test_whitespace_removal(self):
+    def test_whitespace_removal_1(self):
         """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#whitespace_removal__and_"""
         self.assertHTML(
             '''
@@ -156,6 +156,9 @@ class TestHamlReference(Base):
     Foo!
 </div></blockquote>
             '''.strip() + '\n')
+
+    def test_whitespace_removal_2(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#whitespace_removal__and_"""
         self.assertHTML(
             '''
 %img
@@ -166,5 +169,68 @@ class TestHamlReference(Base):
 <img /><img /><img />
             '''.strip() + '\n')
 
+#     def test_whitespace_removal_3(self):
+#         """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#whitespace_removal__and_"""
+#         self.assertHTML(
+#             '''
+# %p<= "Foo\nBar"
+#             '''.strip(),
+#             '''
+# <p>Foo
+# Bar</p>
+#             '''.strip() + '\n')
+
+    def test_whitespace_removal_4(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#whitespace_removal__and_"""
+        self.assertHTML(
+            '''
+%img
+%pre><
+    foo
+    bar
+%img
+            '''.strip(),
+            '''
+<img /><pre>foo
+bar</pre><img />
+            '''.strip() + '\n')
+
+    def test_html_comments_1(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#html_comments_"""
+        self.assertHTML(
+            '''
+%peanutbutterjelly
+  / This is the peanutbutterjelly element
+  I like sandwiches!
+            '''.strip(),
+            '''
+<peanutbutterjelly>
+    <!-- This is the peanutbutterjelly element -->
+    I like sandwiches!
+</peanutbutterjelly>
+            '''.strip() + '\n')
+            
+    def test_html_comments_2(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#html_comments_"""
+        self.assertHTML(
+            '''
+/
+  %p This doesn't render...
+  %div
+    %h1 Because it's commented out!
+            '''.strip(),
+            '''
+<!--
+    <p>This doesn't render...</p>
+    <div>
+        <h1>Because it's commented out!</h1>
+    </div>
+-->
+            '''.strip() + '\n')
+    
+    
+    
+    
+                
 if __name__ == '__main__':
     main()

@@ -30,6 +30,9 @@ source = '''
 
 '''.strip()
 
+source = '%p<= "Foo\nBar"'
+
+
 print '===== SOURCE ====='
 print source
 print

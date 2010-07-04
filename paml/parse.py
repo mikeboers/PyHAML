@@ -55,8 +55,7 @@ class Parser(object):
         
         # HTML comments.
         if line.startswith('/'):
-            yield nodes.Comment()
-            yield line[1:].lstrip()
+            yield nodes.Comment(line[1:].lstrip())
             return
         
         # Expressions.
