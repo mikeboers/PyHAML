@@ -3,7 +3,24 @@ import re
 import cgi
 
 class Engine(object):
-    pass
+    
+    def render(self, node):
+        return ''.join(self.render_iter(node))
+        
+    def render_iter(self, node):
+        for indent, line in self._visit_node(node):
+            if line:
+                yield indent * ' ' + line + '\n'
+    
+    def _visit_node(self, node, indent=-1):
+        yield indent, (node.render_start(self) or '').strip()
+        for line in node.render_content(self):
+            yield indent + 1, line.strip()
+        for child in node.children:
+            for x in self._visit_node(child, indent + 1):
+                yield x
+        yield indent, (node.render_end(self) or '').strip()
+            
 
 class BaseNode(object):
     
@@ -11,20 +28,21 @@ class BaseNode(object):
         self.children = []
         self.indent = -1
     
-    def render(self):
-        return self.render_children()
+    def render_start(self, engine):
+        pass
     
-    def render_children(self):
-        return ''.join(x.render() for x in self.children)
+    def render_content(self, engine):
+        return []
     
-    @property
-    def indent_str(self):
-        return '  ' * self.indent
+    def render_end(self, engine):
+        pass
+
+
+class DocumentNode(BaseNode):
     
-    def normalize_indent(self, indent=-1):
-        self.indent = indent
-        for child in self.children:
-            child.normalize_indent(indent + 1)
+    def render_start(self, engine):
+        return '<%! from haml.runtime import mako_build_attr_str as __H_attrs %>\\'
+
 
 class ContentNode(BaseNode):
     
@@ -32,11 +50,8 @@ class ContentNode(BaseNode):
         super(ContentNode, self).__init__()
         self.content = content
     
-    def render(self):
-        return (
-            self.indent_str + self.content + '\n' +
-            self.render_children()
-        )
+    def render_content(self, engine):
+        return [self.content]
 
 class TagNode(BaseNode):
     
@@ -55,7 +70,7 @@ class TagNode(BaseNode):
         self.name = (name or 'div').lower()
         self.class_ = (self.class_ or '').replace('.', ' ').strip()
     
-    def render(self):
+    def render_start(self, engine):
         
         const_attrs = {}
         if self.id:
@@ -71,15 +86,13 @@ class TagNode(BaseNode):
             attr_str = '${__H_attrs(%r, %s)}' % (const_attrs, self.attr_expr)
             
         if self.name in self.self_closing:
-            return (
-                self.indent_str + ('<%s%s />' % (self.name, attr_str)) + '\n'
-            )
-        
-        return (
-            self.indent_str + ('<%s%s>' % (self.name, attr_str)) + '\n' +
-            self.render_children() +
-            self.indent_str + ('</%s>' % self.name) + '\n'
-        )
+            return '<%s%s />' % (self.name, attr_str)
+        else:
+            return '<%s%s>' % (self.name, attr_str)
+    
+    def render_end(self, engine):
+        if self.name not in self.self_closing:
+            return '</%s>' % self.name
 
 
 class ControlNode(BaseNode):
@@ -91,19 +104,18 @@ class ControlNode(BaseNode):
         for k in self.attr_names:
             setattr(self, k, kwargs.get(k))
     
-    def render(self):
-        return (
-            self.indent_str + ('%% %s %s: ' % (self.name, self.test)) + '\n' + 
-            self.render_children() +
-            self.indent_str + ('%% end %s' % self.name) + '\n'
-        )
+    def render_start(self, engine):
+        return '%% %s %s: ' % (self.name, self.test)
+    
+    def render_end(self, engine):
+        return '%% end %s' % self.name
     
     
 class Compiler(object):
     
     def __init__(self, engine):
         self.engine = engine
-        self.root = BaseNode()
+        self.root = DocumentNode()
         self.stack = [self.root]
     
     @property
@@ -204,18 +216,14 @@ source = '''
             This is another line of the content.
         %p.warning.error{'class': class_}
             Paragraph 2.
-!       %p
-!           This should not be touched.
     #footer
         %ul - for i in range(10):
             %li= 1
 <%def name="head()"></%def>
 '''
 
-
-c = Compiler(Engine())
+e = Engine()
+c = Compiler(e)
 c.process_string(source)
-c.root.normalize_indent()
 
-print '<%! from haml.runtime import mako_build_attr_str as __H_attrs %>\\'
-print c.root.render()
+print e.render(c.root)
