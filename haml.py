@@ -171,17 +171,15 @@ class Parser(object):
             if not line:
                 continue
             depth = len(raw_line) - len(line)
-            self.process_line(depth, line)
+            while line:
+                line = self.process_line(line, depth)
+                depth += 1
     
-    def process_line(self, depth, line):
-        
-        if not line:
-            return
+    def process_line(self, line, depth):
         
         if line.startswith('/'):
             self.add_node(CommentNode(), depth=depth)
-            self.process_line(depth + 1, line[1:].lstrip())
-            return
+            return line[1:].lstrip()
         
         m = re.match(r'''
             (?:%(\w+))?       # tag name
@@ -200,8 +198,7 @@ class Parser(object):
             if parts.get('is_expr'):
                 self.add_node(ExpressionNode(line), depth + 1)
                 return
-            self.process_line(depth + 1, line)
-            return
+            return line
         
         m = re.match(r'''
             -
@@ -216,9 +213,7 @@ class Parser(object):
                 m.groups()
             ))
             self.add_node(ControlNode(**parts), depth=depth)
-            line = line[m.end():].lstrip()
-            self.process_line(depth + 1, line)
-            return
+            return line[m.end():].lstrip()
                
         self.add_node(ContentNode(line), depth=depth)
     
@@ -258,6 +253,7 @@ source = '''
     #footer
         %ul - for i in range(10):
             %li= 1
+    #range-test - for x in range(3): - for y in range(3): =f(x, y)
 <%def name="head()"></%def>
 '''
 
