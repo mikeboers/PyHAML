@@ -213,6 +213,10 @@ class Parser(object):
         self.stack.append((depth, node))
         
 
+def parse(source):
+    parser = Parser()
+    parser.process_string(source)
+    return parser.root
 
 
 
@@ -246,16 +250,15 @@ source = '''
 #print source
 #print
 
-parser = Parser()
-parser.process_string(source)
+root = parse(source)
 
 def print_tree(node, depth=0):
     print '|   ' * depth + repr(node)
     for child in node.children:
         print_tree(child, depth + 1)
 
-print_tree(parser.root)
+print_tree(root)
 print
 print
 
-print Compiler().render(parser.root)
+print Compiler().render(root)
