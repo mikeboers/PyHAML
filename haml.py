@@ -209,8 +209,13 @@ class Parser(object):
                     break
                 attr_expr_chars.append(char)
             
-            self.add_node(TagNode(name, id, ' '.join(class_), ''.join(attr_expr_chars)), depth=depth)     
-            if pos is not None:
+            self.add_node(TagNode(
+                name,
+                id,
+                ' '.join(class_),
+                ''.join(attr_expr_chars)[1:-1]
+            ), depth=depth)  
+            if attr_expr_chars:
                 return line[pos + 1:].lstrip()
             else:
                 return line.lstrip()
