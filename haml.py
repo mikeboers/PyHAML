@@ -9,17 +9,17 @@ class Compiler(object):
         return ''.join(self.render_iter(node))
         
     def render_iter(self, node):
-        for indent, line in self._visit_node(node):
+        for depth, line in self._visit_node(node):
             if line is not None:
-                yield (indent - 1) * ' ' + line + '\n'
+                yield (depth - 1) * ' ' + line + '\n'
     
     def _visit_node(self, node):
         yield 0, node.render_start(self)
         for line in node.render_content(self):
             yield 1, line
         for child in node.children:
-            for indent, x in self._visit_node(child):
-                yield indent + 1, x
+            for depth, x in self._visit_node(child):
+                yield depth + 1, x
         yield 0, node.render_end(self)
             
 
@@ -128,7 +128,7 @@ class Parser(object):
         self.stack = [(-1, self.root)]
     
     @property
-    def indent(self):
+    def depth(self):
         return self.stack[-1][0]
         
     @property
@@ -138,18 +138,18 @@ class Parser(object):
     def process_string(self, source):
         for raw_line in source.splitlines():
             if raw_line.startswith('!'):
-                self.add_node(ContentNode(raw_line[1:]), indent=self.indent + 1)
+                self.add_node(ContentNode(raw_line[1:]), depth=self.depth + 1)
                 continue
             line = raw_line.lstrip()
             if not line:
                 continue
-            indent = len(raw_line) - len(line)
-            self.process_line(indent, line)
+            depth = len(raw_line) - len(line)
+            self.process_line(depth, line)
     
-    def process_line(self, indent, line):
+    def process_line(self, depth, line):
         if line.startswith('/'):
-            self.add_node(CommentNode(), indent=indent)
-            indent += 1
+            self.add_node(CommentNode(), depth=depth)
+            depth += 1
             line = line[1:].strip()
             if not line:
                 return
@@ -170,12 +170,12 @@ class Parser(object):
                 TagNode.attr_names,
                 m.groups()
             ))
-            self.add_node(TagNode(**parts), indent=indent)
+            self.add_node(TagNode(**parts), depth=depth)
             content = parts.get('content')
             if content:
-                indent += 1
+                depth += 1
                 if parts.get('is_expr'):
-                    self.add_node(ContentNode('${%s}' % content.strip()), indent=indent)
+                    self.add_node(ContentNode('${%s}' % content.strip()), depth=depth)
                     line = ''
                 else:
                     line = content.strip()
@@ -194,21 +194,21 @@ class Parser(object):
                 ControlNode.attr_names,
                 m.groups()
             ))
-            self.add_node(ControlNode(**parts), indent=indent)
+            self.add_node(ControlNode(**parts), depth=depth)
             content = parts.get('content')
             if content:
                 line = content
-                indent += 1
+                depth += 1
             else:
                 line = ''            
         if line:     
-            self.add_node(ContentNode(line), indent=indent)
+            self.add_node(ContentNode(line), depth=depth)
     
-    def add_node(self, node, indent):
-        while indent <= self.indent:
+    def add_node(self, node, depth):
+        while depth <= self.depth:
             self.stack.pop()
         self.node.children.append(node)
-        self.stack.append((indent, node))
+        self.stack.append((depth, node))
         
 
 
