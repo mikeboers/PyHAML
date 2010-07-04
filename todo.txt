@@ -1,14 +1,21 @@
 
-- Redesign the main parsing loop; either a series of generators transforming
-  the lines into lines + indents, or a series of coroutines.
+- name it 'paml'
 
-- Rendering should be handled by the engine, which visits each node in sequence
-  and calls:
-    1) node.render_start(engine)
-        should return a string which will be surrounded by engine whitespace
-    2) node.render_content(engine)
-        should return a list of strings which will be surrounded by whitespace
-    3) iterates across the children of the node
-    4) node.render_end(engine)
-        should return a string which will be surrounded by whitespace
-        
+- implement manual self closing tags
+
+- move main into paml.core
+
+- the compiler should have backend specific methods for the following:
+    - boolean attributes (ie HTML vs XHTML versions)
+    - expressions
+    - control statements (start and end)
+
+- larger list of self-closing tags
+    meta, img, link, script, br, and hr
+
+- id lists should be joined by '_'
+- class lists should be joined by ' '
+- attribute values that are dicts should be combined with '-'
+    eg. %(data={'id': 4}) -> <div data-id="4">...</div>
+
+- implement tests for all the examples in the haml tutorial
