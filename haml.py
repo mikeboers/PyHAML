@@ -2,7 +2,7 @@
 import re
 import cgi
 
-class Engine(object):
+class Compiler(object):
     
     def render(self, node):
         return ''.join(self.render_iter(node))
@@ -120,10 +120,9 @@ class ControlNode(BaseNode):
         return '%% end %s' % self.name
     
     
-class Compiler(object):
+class Parser(object):
     
-    def __init__(self, engine):
-        self.engine = engine
+    def __init__(self):
         self.root = DocumentNode()
         self.stack = [self.root]
     
@@ -241,8 +240,7 @@ source = '''
 <%def name="head()"></%def>
 '''
 
-e = Engine()
-c = Compiler(e)
-c.process_string(source)
+parser = Parser()
+parser.process_string(source)
 
-print e.render(c.root)
+print Compiler().render(parser.root)
