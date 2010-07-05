@@ -1,7 +1,5 @@
 
-- specify that all the render_* methods must return an iterable
-
-- verify the logic for handling line continuation tokens
+- start thinking about exception handling (and making sense of it)
 
 - rename nodes.Comment to nodes.HTMLComment
 - rename nodes.Silent to nodes.HAMLComment

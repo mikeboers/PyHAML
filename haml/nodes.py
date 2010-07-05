@@ -21,13 +21,13 @@ class Base(object):
 
     def render(self, engine):
         return chain(
-            self.render_start(engine) or [],
-            self.render_content(engine) or [],
-            self.render_end(engine) or [],
+            self.render_start(engine),
+            self.render_content(engine),
+            self.render_end(engine),
         )
 
     def render_start(self, engine):
-        return None
+        return []
 
     def children_to_render(self):
         return self.children
@@ -36,16 +36,16 @@ class Base(object):
         to_chain = []
         if self.inline_child:
             to_chain = [
-                self.inline_child.render_start(engine) or [],
-                self.inline_child.render_content(engine) or [],
-                self.inline_child.render_end(engine) or [],
+                self.inline_child.render_start(engine),
+                self.inline_child.render_content(engine),
+                self.inline_child.render_end(engine),
             ]
         for child in self.children_to_render():
             to_chain.append(child.render(engine))
         return chain(*to_chain)
 
     def render_end(self, engine):
-        return None
+        return []
 
     def __repr__(self):
         return '<%s at 0x%x>' % (self.__class__.__name__, id(self))
