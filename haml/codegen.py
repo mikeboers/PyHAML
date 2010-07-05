@@ -24,7 +24,12 @@ class GeneratorSentinal(object):
 
 
 class BaseGenerator(object):
-
+    
+    class no_strip(str):
+        """A string class that will not have space removed."""
+        def __repr__(self):
+            return 'no_strip(%s)' % str.__repr__(self)
+            
     indent_str = ''
     endl = ''
     endl_no_break = ''
@@ -33,14 +38,9 @@ class BaseGenerator(object):
     dec_depth = GeneratorSentinal(delta=-1, name='dec_depth')
     _increment_tokens = (inc_depth, dec_depth)
 
-    line_continuation = GeneratorSentinal(name='line_continuation')
+    line_continuation = no_strip('\\\n')
     lstrip = GeneratorSentinal(name='lstrip')
     rstrip = GeneratorSentinal(name='rstrip')
-
-    class no_strip(str):
-        """A string class that will not have space removed."""
-        def __repr__(self):
-            return 'no_strip(%s)' % str.__repr__(self)
 
     def generate(self, node):
         return ''.join(self.generate_iter(node))
@@ -50,6 +50,7 @@ class BaseGenerator(object):
         r_stripping = False
         self.depth = 0
         for token in node.render(self):
+            print repr(token)
             if isinstance(token, GeneratorSentinal):
                 if token in self._increment_tokens:
                     self.depth += token.delta
@@ -70,9 +71,6 @@ class BaseGenerator(object):
                             break
                 elif token is self.rstrip:
                     r_stripping = True
-                elif token is self.line_continuation:
-                    if buffer and not buffer[-1].endswith('\\\n'):
-                        buffer.append(self.no_strip('\\\n'))
                 else:
                     raise ValueError('unexpected %r' % token)
             elif isinstance(token, basestring):

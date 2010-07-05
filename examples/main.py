@@ -14,6 +14,7 @@ source = '''
         %ul#top-nav.nav
             - for i in range(2):
                 %li= 'Item %02d' % i
+    #nav - for i in range(3): %li= i
     #content
         %p
             The content goes in here.
