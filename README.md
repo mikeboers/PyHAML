@@ -63,11 +63,11 @@ renders to:
 
 We only output the XHTML style attribute. Eg.:
     
-    %(type='checkbox', checked=True)
+    %input(type='checkbox', checked=True)
 
 to
     
-    <div type="checkbox" checked="checked"></div>
+    <input type="checkbox" checked="checked" />
     
 ### [Python Evaluation: =](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#ruby_evaluation)
 ### [Running Python: -](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#running_ruby_)

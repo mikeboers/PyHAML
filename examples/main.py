@@ -32,7 +32,7 @@ source = '''
 
 source = '''
 
-%(type='checkbox', checked=True)
+%input(type='checkbox', checked=True)
 
 '''.strip()
 
