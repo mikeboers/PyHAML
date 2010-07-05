@@ -355,6 +355,11 @@ C
             '''.strip(),
             '''
 <div id="prefix_model_name_123" class="prefix_model_name">contents</div>
-            '''.strip() + '\n')                             
+            '''.strip() + '\n')   
+
+    def test_boolean_attribtues(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#boolean_attributes"""
+        self.assertHTML("%(type='checkbox', checked=True)", '<div type="checkbox" checked="checked"></div>\n')              
+                                      
 if __name__ == '__main__':
     main()

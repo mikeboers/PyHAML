@@ -185,6 +185,10 @@ def flatten_attr_dict(prefix_key, input):
 def camel_to_underscores(name):
     return re.sub(r'(?<!^)([A-Z])([A-Z]*)', lambda m: '_' + m.group(0), name).lower()
     
+def _format_mako_attr_pair(k, v):
+    if v is True:
+        v = k
+    return ' %s="%s"' % (k, cgi.escape(str(v)))
 
 def mako_build_attr_str(*args, **kwargs):
     x = {}
@@ -209,7 +213,7 @@ def mako_build_attr_str(*args, **kwargs):
     for k, v in x.iteritems():
         pairs.extend(flatten_attr_dict(k, v))
     pairs.sort(key=lambda pair: (_attr_sort_order.get(pair[0], 0), pair[0]))
-    return ''.join(' %s="%s"' % (k, cgi.escape(str(v))) for k, v in pairs if v)
+    return ''.join(_format_mako_attr_pair(k, v) for k, v in pairs if v)
 
 
 def generate_mako(node):

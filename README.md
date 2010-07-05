@@ -58,6 +58,17 @@ renders to:
     
     <a a="one" b="two" />
 
+
+#### [Boolean Attributes](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#boolean_attributes)
+
+We only output the XHTML style attribute. Eg.:
+    
+    %(type='checkbox', checked=True)
+
+to
+    
+    <div type="checkbox" checked="checked"></div>
+    
 ### [Python Evaluation: =](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#ruby_evaluation)
 ### [Running Python: -](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#running_ruby_)
 
@@ -80,7 +91,6 @@ We don't supply any filters, but the mechanism is there to take callables from t
         - statement
         / comment
 
-### [Boolean Attributes](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#boolean_attributes)
 ### [Doctype: !!!](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#doctype_)
 ### [Whitespace Preservation](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#tilde)
 ### [Helpers](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#helpers)

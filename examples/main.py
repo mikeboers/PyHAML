@@ -32,10 +32,7 @@ source = '''
 
 source = '''
 
--! class ModelName(object):
-    id = 123
-- model = ModelName()
-%div[model, 'prefix'] contents
+%(type='checkbox', checked=True)
 
 '''.strip()
 
