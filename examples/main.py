@@ -24,6 +24,12 @@ source = '''
         %p.warning
             This is a warning.
 
+- content = """
+    before
+    
+    after"""
+= content
+    		
 '''.strip()
 
 

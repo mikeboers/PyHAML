@@ -50,22 +50,36 @@ class Parser(object):
                 pass
 
             line = raw_line.lstrip()
+            
+            # We track the inter-line depth seperate from the intra-line depth
+            # so that indentation due to whitespace always results in more
+            # depth in the graph than many nested nodes from a single line.
+            # We treat a whitespace-only line as if the indentation level has
+            # not changed
+            if line:
+                inter_depth = len(raw_line) - len(line)
+            else:
+                inter_depth = self._stack[-1][0][0]
+            intra_depth = 0
+            
+            # Cleanup the stack. We should only need to do this here as the
+            # depth only goes up until it is calculated from the next line.
+            self._prep_stack_for_depth((inter_depth, 0))
+            
+            # Greedy nodes recieve all content until we fall out of their scope.
+            if isinstance(self._topmost_node, nodes.GreedyBase):
+                self._add_node(
+                    self._topmost_node.__class__.with_parent(self._topmost_node, line),
+                    (inter_depth, intra_depth)
+                )
+                continue
+            
             if not line:
                 # I am unsure if I should just be discarding all empty lines
                 # like this. There are some scenarios in which an empty line
                 # would still be used, such as in a multiline string inside a
                 # source block.
                 continue
-
-            # We track the inter-line depth seperate from the intra-line depth
-            # so that indentation due to whitespace always results in more
-            # depth in the graph than many nested nodes from a single line.
-            inter_depth = len(raw_line) - len(line)
-            intra_depth = 0
-
-            # Cleanup the stack. We should only need to do this here as the
-            # depth only goes up until it is calculated from the next line.
-            self._prep_stack_for_depth((inter_depth, 0))
 
             # Main loop. We process a series of tokens, which consist of either
             # nodes to add to the stack, or strings to be re-parsed and
@@ -84,11 +98,6 @@ class Parser(object):
 
 
     def _parse_line(self, line):
-        
-        # Greedy nodes recieve all content until we fall out of their scope.
-        if isinstance(self._topmost_node, nodes.GreedyBase):
-            yield self._topmost_node.__class__.with_parent(self._topmost_node, line)
-            return
 
         # Escaping.
         if line.startswith('\\'):

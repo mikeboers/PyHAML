@@ -351,6 +351,13 @@ class Source(GreedyBase):
         if not self.dec_depth(engine):
             yield '%>'
         yield engine.dec_depth
+    
+    def __repr__(self):
+        return '%s(%r%s)' % (
+            self.__class__.__name__,
+            self.content,
+            ', module=True' if self.module else ''
+        )
 
 
 class Filtered(GreedyBase):
