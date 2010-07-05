@@ -24,6 +24,23 @@ class Base(object):
 
 class GreedyBase(Base):
     
+    @classmethod
+    def with_parent(cls, parent, *args, **kwargs):
+        obj = cls(*args, **kwargs)
+        obj._parent = parent
+        return obj
+    
+    @property
+    def parent(self):
+        return getattr(self, '_parent', None)
+    
+    @property
+    def outermost_node(self):
+        x = self
+        while x.parent is not None:
+            x = x.parent
+        return x
+    
     @property
     def depth_attr(self):
         return '_%s_depth' % self.__class__.__name__
@@ -76,7 +93,8 @@ class Expression(Content, GreedyBase):
     def render_start(self, engine):
         if self.content.strip():
             yield engine.indent()
-            yield '${%s%s}' % (self.content.strip(), ('|' + self.filters if self.filters else ''))
+            filters = self.outermost_node.filters
+            yield '${%s%s}' % (self.content.strip(), ('|' + filters if filters else ''))
             yield engine.endl
         yield engine.inc_depth # This is countered by the Content.render_end
     

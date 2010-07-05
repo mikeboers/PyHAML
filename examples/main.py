@@ -33,7 +33,7 @@ source = '''
 source = '''
 
 = 'inline expr'
-=
+=|h
     'block expr 1'
     'block expr 2'
     a

@@ -103,13 +103,34 @@ after
 inline expr
     block expr 1
     block expr 2
-    A
-        B
-        C
+    one
+        two
+        three
             '''.strip() + '\n',
-        a='A', b='B', c='C')  
+        a='one', b='two', c='three')
 
 
+    def test_expr_blocks_filters(self):
+        self.assertHTML(
+            '''
+-! to_title = lambda x: x.title()
+= 'inline expr'
+=|to_title
+    'block expr 1'
+    'block expr 2'
+    a
+        b
+        c
+            '''.strip(),
+            '''
+inline expr
+    Block Expr 1
+    Block Expr 2
+    One
+        Two
+        Three
+            '''.strip() + '\n',
+        a='one', b='two', c='three')  
 
 
 

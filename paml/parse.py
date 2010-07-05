@@ -77,7 +77,7 @@ class Parser(object):
     def _parse_line(self, line):
         
         if isinstance(self.node, nodes.GreedyBase):
-            yield self.node.__class__(line)
+            yield self.node.__class__.with_parent(self.node, line)
             return
         
         # Escape a line so it doesn't get touched.
