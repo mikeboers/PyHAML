@@ -191,6 +191,7 @@ def mako_build_attr_str(*args, **kwargs):
     for arg in args:
         x.update(arg)
     obj_ref = kwargs.pop('__obj_ref', None)
+    obj_ref_prefix = kwargs.pop('__obj_ref_pre', None)
     x.update(kwargs)
     x['id'] = flatten_attr_list(
         x.pop('id', [])
@@ -200,8 +201,8 @@ def mako_build_attr_str(*args, **kwargs):
     ))
     if obj_ref:
         class_name = camel_to_underscores(obj_ref.__class__.__name__)
-        x['id'] = [class_name, getattr(obj_ref, 'id', None)]
-        x['class'].append(class_name)
+        x['id'] = filter(None, [obj_ref_prefix, class_name, getattr(obj_ref, 'id', None)])
+        x['class'].append((obj_ref_prefix + '_' if obj_ref_prefix else '') + class_name)
     x['id'] = '_'.join(map(str, x['id']))
     x['class'] = ' '.join(map(str, x['class']))
     pairs = []

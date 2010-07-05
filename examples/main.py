@@ -35,7 +35,7 @@ source = '''
 -! class ModelName(object):
     id = 123
 - model = ModelName()
-%div[model] contents
+%div[model, 'prefix'] contents
 
 '''.strip()
 

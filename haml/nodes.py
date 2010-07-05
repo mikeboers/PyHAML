@@ -158,7 +158,8 @@ class Tag(Base):
     '''.strip().split())
     
     def __init__(self, name, id, class_, kwargs_expr=None, self_closing=False,
-        strip_inner=False, strip_outer=False, object_reference=None):
+        strip_inner=False, strip_outer=False, object_reference=None,
+        object_reference_prefix=None):
         
         super(Tag, self).__init__()
         
@@ -170,6 +171,7 @@ class Tag(Base):
         self.strip_inner = strip_inner
         self.strip_outer = strip_outer
         self.object_reference = object_reference
+        self.object_reference_prefix = object_reference_prefix
     
     def render_start(self, engine):
         
@@ -182,6 +184,8 @@ class Tag(Base):
         kwargs_expr = self.kwargs_expr
         if self.object_reference:
             kwargs_expr += (', ' if kwargs_expr else '') + '__obj_ref=' + self.object_reference
+            if self.object_reference_prefix:
+                kwargs_expr += ', __obj_ref_pre=' + self.object_reference_prefix
             
         if kwargs_expr:
             try:

@@ -122,13 +122,13 @@ class Parser(object):
         print repr(line)
         m = re.match(r'''
             (?:%(%?\w*))?  # tag name. the extra % is for mako
-            (?:\[(.+?)\])? # object reference
+            (?:\[(.+?)(?:,(.+?))?\])? # object reference and prefix
             (              # id/class
               (?:\#[\w-]+|\.[\w-]+)+ 
             )?
         ''', line, re.X)
-        if m and (m.group(1) is not None or m.group(3)):
-            name, object_reference, raw_id_class = m.groups()
+        if m and (m.group(1) is not None or m.group(4)):
+            name, object_reference, object_reference_prefix, raw_id_class = m.groups()
             id, class_ = None, []
             for m2 in re.finditer(r'(#|\.)([\w-]+)', raw_id_class or ''):
                 type, value = m2.groups()
@@ -175,6 +175,7 @@ class Parser(object):
                 strip_outer=strip_outer,
                 strip_inner=strip_inner,
                 object_reference=object_reference,
+                object_reference_prefix=object_reference_prefix,
             )
             yield line
             return
