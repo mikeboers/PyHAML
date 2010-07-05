@@ -162,6 +162,9 @@ def flatten_attr_list(input):
     if isinstance(input, basestring):
         yield input
         return
+    if not isinstance(input, collections.Iterable):
+        yield input
+        return
     for element in input:
         if element:
             for sub_element in flatten_attr_list(element):
@@ -181,12 +184,12 @@ def mako_build_attr_str(*args, **kwargs):
     for arg in args:
         x.update(arg)
     x.update(kwargs)
-    x['id'] = '_'.join(filter(None, flatten_attr_list(
+    x['id'] = '_'.join(map(str, filter(None, flatten_attr_list(
         x.pop('id', [])
-    )))
-    x['class'] = ' '.join(filter(None, flatten_attr_list(
+    ))))
+    x['class'] = ' '.join(map(str, filter(None, flatten_attr_list(
         [x.pop('class', []), x.pop('class_', [])]
-    )))
+    ))))
     pairs = []
     for k, v in x.iteritems():
         pairs.extend(flatten_attr_dict(k, v))
