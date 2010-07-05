@@ -1,11 +1,4 @@
 
-- depth should be a tuple of interline_depth and intraline depth
-    - the intra_depth should start at 0 for every line and go up 1 for every
-    node that is thrown out
-    the inter_depth should be set to whatever whitespace is being pulled off
-    - this should allow the next line to be indented no matter how many statements
-    were on the previous line
-
 - tags should not actually hold the inline_content; their inner whitespace
   flag should be triggered instead and the child should be a normal child
     
@@ -14,15 +7,10 @@
     - expressions
     - control statements (start and end)
 
+- control statements should not count for collapsing inner whitespace for tags
 
-- id lists should be joined by '_'
-- class lists should be joined by ' '
 - attribute values that are dicts should be combined with '-'
     eg. %(data={'id': 4}) -> <div data-id="4">...</div>
+    - only need to do this for "data"
 
 - implement tests for all the examples in the haml tutorial
-
-- all code generation should be yielding a sequence of tokens:
-    - sentinal objects will be used for INC_DEPTH and DEC_DEPTH
-    - indent(), endl are strings
-    - strings for their contents
