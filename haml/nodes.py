@@ -49,6 +49,19 @@ class Base(object):
     
     def __repr__(self):
         return '<%s at 0x%x>' % (self.__class__.__name__, id(self))
+    
+    def print_tree(self, depth=0, inline=False):
+        if inline:
+            print '-> ' + repr(self),
+        else:
+            print '|   ' * depth + repr(self),
+        depth += int(not inline)
+        if self.inline_child:
+            self.inline_child.print_tree(depth, True)
+        else:
+            print
+        for child in self.children:
+            child.print_tree(depth)
 
 
 class GreedyBase(Base):

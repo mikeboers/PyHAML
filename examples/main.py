@@ -30,13 +30,6 @@ source = '''
 
 '''.strip()
 
-source = '''
-
-- attrs = dict(a='one', b='two')
-%a(attrs)/
-
-'''
-
 
 print '===== SOURCE ====='
 print source
@@ -44,21 +37,10 @@ print
 
 root = haml.parse_string(source)
 
-def print_tree(node, depth=0, inline=False):
-    if inline:
-        print '-> ' + repr(node),
-    else:
-        print '|   ' * depth + repr(node),
-    depth += int(not inline)
-    if node.inline_child:
-        print_tree(node.inline_child, depth, True)
-    else:
-        print
-    for child in node.children:
-        print_tree(child, depth)
+
 
 print '===== NODES ====='
-print_tree(root)
+root.print_tree()
 print
 
 print '===== MAKO ====='
