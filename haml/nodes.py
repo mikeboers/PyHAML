@@ -67,38 +67,35 @@ class Base(object):
 
 class GreedyBase(Base):
 
+    def __init__(self, *args, **kwargs):
+        super(GreedyBase, self).__init__(*args, **kwargs)
+        self._greedy_parent = None
+    
     @classmethod
     def with_parent(cls, parent, *args, **kwargs):
         obj = cls(*args, **kwargs)
-        obj._parent = parent
+        obj._greedy_parent = parent
         return obj
-
-    @property
-    def parent(self):
-        return getattr(self, '_parent', None)
 
     @property
     def outermost_node(self):
         x = self
-        while x.parent is not None:
-            x = x.parent
+        while x._greedy_parent is not None:
+            x = x._greedy_parent
         return x
 
     @property
-    def depth_attr(self):
+    def _depth_attr(self):
         return '_%s_depth' % self.__class__.__name__
 
-    def get_depth(self, engine):
-        return getattr(engine, self.depth_attr, 0)
-
     def inc_depth(self, engine):
-        depth = getattr(engine, self.depth_attr, 0)
-        setattr(engine, self.depth_attr, depth + 1)
+        depth = getattr(engine, self._depth_attr, 0)
+        setattr(engine, self._depth_attr, depth + 1)
         return depth
 
     def dec_depth(self, engine):
-        depth = getattr(engine, self.depth_attr) - 1
-        setattr(engine, self.depth_attr, depth)
+        depth = getattr(engine, self._depth_attr) - 1
+        setattr(engine, self._depth_attr, depth)
         return depth
 
 

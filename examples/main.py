@@ -11,32 +11,15 @@ source = '''
 %body
     #header
         %img#logo(src='/img/logo.png')
-        %ul#top-nav.nav - for i in range(2):
-            %li= 'Item %02d' % i
+        %ul#top-nav.nav
+            - for i in range(2):
+                %li= 'Item %02d' % i
     #content
         %p
             The content goes in here.
             This is another line of the content.
         %p.warning
             This is a warning.
-        %<
-            This should not have whitespace.
-            Can't help it here though.
-        %img
-        %img>
-        %img
-    #footer
-        &copy; The author, today.
-
-'''.strip()
-
-source = '''
-
-- content = """one
-    two
-    
-    three"""
-= content
 
 '''.strip()
 
