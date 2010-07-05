@@ -17,6 +17,9 @@
 	
 	This will drop the blank line.   
 
+- Need to move all the attributes nodes are setting on the engine to a place where
+  they will get reset at the start of compilation.
+
 - the compiler should have backend specific methods for the following:
     - boolean attributes (ie HTML vs XHTML versions)
     - expressions

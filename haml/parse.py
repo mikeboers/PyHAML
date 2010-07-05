@@ -128,6 +128,11 @@ class Parser(object):
         # HAML comments
         if line.startswith('-#'):
             yield nodes.Silent(line[2:].lstrip())
+            return  
+        
+        # XML Doctype
+        if line.startswith('!!!'):
+            yield nodes.Doctype(*line[3:].strip().split())
             return
 
         # Tags.

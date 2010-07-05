@@ -6,6 +6,8 @@ import haml.codegen
 
 source = '''
 
+!!! XML
+!!!
 %head
     %title This should be one line.
 %body
@@ -23,6 +25,7 @@ source = '''
             This is a warning.
 
 '''.strip()
+
 
 print '===== SOURCE ====='
 print source.strip()

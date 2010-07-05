@@ -69,7 +69,7 @@ class GreedyBase(Base):
     def __init__(self, *args, **kwargs):
         super(GreedyBase, self).__init__(*args, **kwargs)
         self._greedy_parent = None
-    
+
     @classmethod
     def with_parent(cls, parent, *args, **kwargs):
         obj = cls(*args, **kwargs)
@@ -182,9 +182,9 @@ class Tag(Base):
             const_attrs['id'] = self.id
         if self.class_:
             const_attrs['class'] = self.class_
-        
+
         kwargs_expr = self.kwargs_expr or ''
-        
+
         # Object references are actually handled by the attribute formatting
         # function.
         if self.object_reference:
@@ -389,3 +389,48 @@ class Silent(Base):
 
     def children_to_render(self):
         return []
+
+
+
+class Doctype(Base):
+    doctypes = {
+        'xml': {
+            None: """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">""",
+            "strict": """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">""",
+            "frameset": """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">""",
+            "5": """<!DOCTYPE html>""",
+            "1.1": """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">""",
+            "basic": """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">""",
+            "mobile": """<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">""",
+            "rdfa": """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">""",
+        }, 'html': {
+            None: """<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">""",
+            "strict": """<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">""",
+            "frameset": """<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">"""
+    }}
+
+    def __init__(self, name=None, charset=None):
+        super(Doctype, self).__init__()
+        self.name = name.lower() if name else None
+        self.charset = charset
+
+    def __repr__(self):
+        return '%s(%r, %r)' % (
+            self.__class__.__name__,
+            self.name,
+            self.charset
+        )
+
+    def render_start(self, engine):
+        if self.name in ('xml', 'html'):
+            mode = self.name
+            engine._Doctype_mode = mode
+        else:
+            mode = getattr(engine, '_Doctype_mode', 'html')
+        if self.name == 'xml':
+            charset = self.charset or 'utf-8'
+            yield "<?xml version='1.0' encoding='%s' ?>" % charset
+            yield engine.no_strip('\n')
+            return
+        yield self.doctypes[mode][self.name]
+        yield engine.no_strip('\n')
