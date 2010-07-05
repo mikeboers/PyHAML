@@ -32,13 +32,8 @@ source = '''
 
 source = '''
 
-= 'inline expr'
-=|h
-    'block expr 1'
-    'block expr 2'
-    a
-        b
-        c
+%(id=['a', 'b', None], class_=['a', 'b'])
+    content
 
 '''
 

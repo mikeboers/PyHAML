@@ -1,6 +1,30 @@
 
 from . import *
+from paml.codegen import flatten_attr
 
+
+class TestFlattenAttr(Base):
+    
+    def test_basic_string(self):
+        self.assertEqual(list(flatten_attr(
+            'string'
+        )), [
+            'string'
+        ])
+    def test_basic_list(self):
+        self.assertEqual(list(flatten_attr(
+            ['a', 'b']
+        )), [
+            'a',
+            'b'
+        ])
+    def test_basic_mixed(self):
+        self.assertEqual(list(flatten_attr(
+            ['a', 'b', None, ['c', ['d', 'e']]]
+        )), [
+            'a', 'b', 'c', 'd', 'e'
+        ])
+        
 
 class TestHamlTutorial(Base):
     

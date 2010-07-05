@@ -142,9 +142,10 @@ def flatten_attr(l):
         return
     for el in l:
         if isinstance(el, collections.Iterable) and not isinstance(el, basestring):
-            for sub in flatten(el):
-                yield sub
-        else:
+            for sub in flatten_attr(el):
+                if sub:
+                    yield sub
+        elif el:
             yield el
   
 def mako_build_attr_str(*args, **kwargs):
@@ -153,9 +154,9 @@ def mako_build_attr_str(*args, **kwargs):
         x.update(arg)
     x.update(kwargs)
     if 'id' in x:
-        x['id'] = '_'.join(flatten_attr(x['id']))
+        x['id'] = '_'.join(filter(None, flatten_attr(x['id'])))
     if 'class_' in x:
-        x['class_'] = ' '.join(flatten_attr(x['class_']))
+        x['class_'] = ' '.join(filter(None, flatten_attr(x['class_'])))
     pairs = x.items()
     pairs.sort(key=lambda pair: (_attr_sort_order.get(pair[0], 0), pair[0]))
     return ''.join(' %s="%s"' % (k.strip('_'), cgi.escape(str(v))) for k, v in pairs)

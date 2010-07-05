@@ -1,9 +1,4 @@
 
-- children of an expression tag should all be content and get evaluated as well
-
-
-- move main into paml.core
-
 - the compiler should have backend specific methods for the following:
     - boolean attributes (ie HTML vs XHTML versions)
     - expressions
