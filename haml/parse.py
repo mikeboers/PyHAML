@@ -220,16 +220,19 @@ class Parser(object):
         # Content
         yield nodes.Content(line)
 
-    def _prep_stack_for_depth(self, depth):
+    def _prep_stack_for_depth(self, depth):  
+        """Pop everything off the stack that is not shorter than the given depth."""
         while depth <= self._stack[-1][0]:
             self._stack.pop()
 
     def _add_node(self, node, depth):
+        """Add a node to the graph, and the stack."""
         self._topmost_node.add_child(node, bool(depth[1]))
         self._stack.append((depth, node))
 
 
 def parse_string(source):
+    """Parse a string into a HAML node to be compiled."""
     parser = Parser()
     parser.parse_string(source)
     return parser.root

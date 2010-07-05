@@ -21,9 +21,11 @@ class Base(object):
             self.children.append(node)
 
     def render(self, engine):
-        for x in self.render_start(engine) or []: yield x
-        for x in self.render_content(engine) or []: yield x
-        for x in self.render_end(engine) or []: yield x
+        return chain(
+            self.render_start(engine) or [],
+            self.render_content(engine) or [],
+            self.render_end(engine) or [],
+        )
 
     def render_start(self, engine):
         return None
@@ -35,14 +37,13 @@ class Base(object):
         to_chain = []
         if self.inline_child:
             to_chain = [
-                self.inline_child.render_start(engine),
-                self.inline_child.render_content(engine),
-                self.inline_child.render_end(engine),
+                self.inline_child.render_start(engine) or [],
+                self.inline_child.render_content(engine) or [],
+                self.inline_child.render_end(engine) or [],
             ]
         for child in self.children_to_render():
             to_chain.append(child.render(engine))
         return chain(*to_chain)
-
 
     def render_end(self, engine):
         return None
@@ -50,18 +51,18 @@ class Base(object):
     def __repr__(self):
         return '<%s at 0x%x>' % (self.__class__.__name__, id(self))
 
-    def print_tree(self, depth=0, inline=False):
-        if inline:
+    def print_tree(self, _depth=0, _inline=False):
+        if _inline:
             print '-> ' + repr(self),
         else:
-            print '|   ' * depth + repr(self),
-        depth += int(not inline)
+            print '|   ' * _depth + repr(self),
+        _depth += int(not _inline)
         if self.inline_child:
-            self.inline_child.print_tree(depth, True)
+            self.inline_child.print_tree(_depth, True)
         else:
             print
         for child in self.children:
-            child.print_tree(depth)
+            child.print_tree(_depth)
 
 
 class GreedyBase(Base):

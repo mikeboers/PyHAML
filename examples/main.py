@@ -41,7 +41,7 @@ source = '''
 '''.strip()
 
 print '===== SOURCE ====='
-print source
+print source.strip()
 print
 
 root = haml.parse_string(source)
@@ -54,14 +54,14 @@ print
 
 print '===== MAKO ====='
 compiled = haml.generate_mako(root)
-print compiled
+print compiled.strip()
 print
 
 print '===== COMPILED MAKO ====='
 template = Template(compiled)
-print template._code
+print template._code.strip()
 print
 
 print '===== RENDERED ====='
-print template.render_unicode(class_='test', title="MyPage", a='A', b='B', c='C')
+print template.render_unicode(class_='test', title="MyPage", a='A', b='B', c='C').strip()
 print

@@ -1,4 +1,6 @@
 
+- spcify that all the render_* methods must return an iterable
+
 - rename nodes.Comment to nodes.HTMLComment
 - rename nodes.Silent to nodes.HAMLComment
 - rename nodes.Filtered to nodes.Filter
