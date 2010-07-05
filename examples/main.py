@@ -1,7 +1,7 @@
 
 from mako.template import Template
-import paml
-import paml.codegen
+import haml
+import haml.codegen
 
 
 source = '''
@@ -44,7 +44,7 @@ print '===== SOURCE ====='
 print source
 print
 
-root = paml.parse_string(source)
+root = haml.parse_string(source)
 
 def print_tree(node, depth=0, inline=False):
     if inline:
@@ -64,7 +64,7 @@ print_tree(root)
 print
 
 print '===== MAKO ====='
-compiled = paml.generate_mako(root)
+compiled = haml.generate_mako(root)
 print compiled
 print
 

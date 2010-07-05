@@ -1,6 +1,6 @@
 
 from . import *
-from paml.codegen import flatten_attr_list
+from haml.codegen import flatten_attr_list
 
 
 class TestFlattenAttr(Base):
