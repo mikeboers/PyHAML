@@ -88,7 +88,26 @@ before
 after
             '''.strip() + '\n')   
 
-
+    def test_expr_blocks(self):
+        self.assertHTML(
+            '''
+= 'inline expr'
+=
+    'block expr 1'
+    'block expr 2'
+    a
+        b
+        c
+            '''.strip(),
+            '''
+inline expr
+    block expr 1
+    block expr 2
+    A
+        B
+        C
+            '''.strip() + '\n',
+        a='A', b='B', c='C')  
 
 
 

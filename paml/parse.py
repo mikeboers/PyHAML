@@ -97,8 +97,8 @@ class Parser(object):
             =
             (?:\|(\w+(?:,\w+)*))?
             \s*
-            (.+)
-        
+            (.*)
+            $        
         ''', line, re.X)
         if m:
             add_escape, filters, content = m.groups()

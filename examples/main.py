@@ -31,17 +31,15 @@ source = '''
 '''.strip()
 
 source = '''
-A
--! def noop(x):
-    return x
-B
-:noop
-    The syntaxes! They do nothing!!!
-    #id
-    .class
-    - statement
-    / comment
-C
+
+= 'inline expr'
+=
+    'block expr 1'
+    'block expr 2'
+    a
+        b
+        c
+
 '''
 
 
@@ -71,5 +69,5 @@ print template._code
 print
 
 print '===== RENDERED ====='
-print template.render_unicode(class_='test', title="MyPage")
+print template.render_unicode(class_='test', title="MyPage", a='A', b='B', c='C')
 print

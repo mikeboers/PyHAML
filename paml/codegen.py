@@ -12,6 +12,9 @@ _attr_sort_order = {
 }
 
 
+
+    
+
 class GeneratorSentinal(object):
     def __init__(self, **kwargs):
         self.__dict__.update(**kwargs)
@@ -131,12 +134,28 @@ class MakoGenerator(BaseGenerator):
             self.endl_no_break
         )
 
-        
+import collections
+def flatten_attr(l):
+    """From http://stackoverflow.com/questions/2158395/flatten-an-irregular-list-of-lists-in-python"""
+    if isinstance(l, basestring):
+        yield l
+        return
+    for el in l:
+        if isinstance(el, collections.Iterable) and not isinstance(el, basestring):
+            for sub in flatten(el):
+                yield sub
+        else:
+            yield el
+  
 def mako_build_attr_str(*args, **kwargs):
     x = {}
     for arg in args:
         x.update(arg)
     x.update(kwargs)
+    if 'id' in x:
+        x['id'] = '_'.join(flatten_attr(x['id']))
+    if 'class_' in x:
+        x['class_'] = ' '.join(flatten_attr(x['class_']))
     pairs = x.items()
     pairs.sort(key=lambda pair: (_attr_sort_order.get(pair[0], 0), pair[0]))
     return ''.join(' %s="%s"' % (k.strip('_'), cgi.escape(str(v))) for k, v in pairs)

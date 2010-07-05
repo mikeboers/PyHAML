@@ -22,6 +22,26 @@ class Base(object):
         return '<%s at 0x%x>' % (self.__class__.__name__, id(self))
 
 
+class GreedyBase(Base):
+    
+    @property
+    def depth_attr(self):
+        return '_%s_depth' % self.__class__.__name__
+    
+    def get_depth(self, engine):
+        return getattr(engine, self.depth_attr, 0)
+    
+    def inc_depth(self, engine):
+        depth = getattr(engine, self.depth_attr, 0)
+        setattr(engine, self.depth_attr, depth + 1)
+        return depth
+    
+    def dec_depth(self, engine):
+        depth = getattr(engine, self.depth_attr) - 1
+        setattr(engine, self.depth_attr, depth)
+        return depth
+
+
 class Document(Base):
     
     def render_start(self, engine):
@@ -47,16 +67,17 @@ class Content(Base):
         return '%s(%r)' % (self.__class__.__name__, self.content)
 
 
-class Expression(Content):
+class Expression(Content, GreedyBase):
     
-    def __init__(self, content, filters):
+    def __init__(self, content, filters=''):
         super(Expression, self).__init__(content)
         self.filters = filters
     
     def render_start(self, engine):
-        yield engine.indent()
-        yield '${%s%s}' % (self.content.strip(), ('|' + self.filters if self.filters else ''))
-        yield engine.endl
+        if self.content.strip():
+            yield engine.indent()
+            yield '${%s%s}' % (self.content.strip(), ('|' + self.filters if self.filters else ''))
+            yield engine.endl
         yield engine.inc_depth # This is countered by the Content.render_end
     
     def __repr__(self):
@@ -219,24 +240,7 @@ class Control(Base):
         )
 
 
-class GreedyBase(Base):
-    
-    @property
-    def depth_attr(self):
-        return '_%s_depth' % self.__class__.__name__
-    
-    def get_depth(self, engine):
-        return getattr(engine, self.depth_attr, 0)
-    
-    def inc_depth(self, engine):
-        depth = getattr(engine, self.depth_attr, 0)
-        setattr(engine, self.depth_attr, depth + 1)
-        return depth
-    
-    def dec_depth(self, engine):
-        depth = getattr(engine, self.depth_attr) - 1
-        setattr(engine, self.depth_attr, depth)
-        return depth
+
 
         
 class Source(GreedyBase):

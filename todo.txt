@@ -1,9 +1,4 @@
 
-- mako filters on expression nodes:
-    %=|h something -> <div>${something|h}</div>
-
-
-
 - children of an expression tag should all be content and get evaluated as well
 
 
@@ -14,8 +9,6 @@
     - expressions
     - control statements (start and end)
 
-- larger list of self-closing tags
-    meta, img, link, script, br, and hr
 
 - id lists should be joined by '_'
 - class lists should be joined by ' '
