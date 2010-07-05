@@ -65,7 +65,7 @@ class Parser(object):
 
             # Cleanup the stack. We should only need to do this here as the
             # depth only goes up until it is calculated from the next line.
-            self.prep_stack_for_depth((inter_depth, 0))
+            self._prep_stack_for_depth((inter_depth, 0))
 
             # Main loop. We process a series of tokens, which consist of either
             # nodes to add to the stack, or strings to be re-parsed and
@@ -75,7 +75,7 @@ class Parser(object):
                 last_line = line
                 for token in self._parse_line(line):
                     if isinstance(token, nodes.Base):
-                        self.add_node(token, (inter_depth, intra_depth))
+                        self._add_node(token, (inter_depth, intra_depth))
                     elif isinstance(token, basestring):
                         line = token
                         intra_depth += 1
@@ -163,7 +163,7 @@ class Parser(object):
                 brace_depth += brace_deltas.get(char, 0)
                 if not brace_depth:
                     break
-            if pos:
+            if pos: # This could be either None or 0 if it wasn't a brace.
                 kwargs_expr = line[1:pos]
                 line = line[pos + 1:]
             else:           
@@ -182,15 +182,16 @@ class Parser(object):
             line = line[int(self_closing):].lstrip()
 
             yield nodes.Tag(
-                name,
-                id,
-                ' '.join(class_),
+                name=name,
+                id=id,
+                class_=' '.join(class_),
+                
                 kwargs_expr=kwargs_expr,
-                self_closing=self_closing,
-                strip_outer=strip_outer,
-                strip_inner=strip_inner,
                 object_reference=object_reference,
-                object_reference_prefix=object_reference_prefix,
+                object_reference_prefix=object_reference_prefix, 
+                self_closing=self_closing,
+                strip_inner=strip_inner,
+                strip_outer=strip_outer,
             )
             yield line
             return
@@ -219,11 +220,11 @@ class Parser(object):
         # Content
         yield nodes.Content(line)
 
-    def prep_stack_for_depth(self, depth):
+    def _prep_stack_for_depth(self, depth):
         while depth <= self._stack[-1][0]:
             self._stack.pop()
 
-    def add_node(self, node, depth):
+    def _add_node(self, node, depth):
         self._topmost_node.add_child(node, bool(depth[1]))
         self._stack.append((depth, node))
 
