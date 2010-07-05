@@ -36,9 +36,11 @@ A
     return x
 B
 :noop
-    this stuff is filtered
-    or so we home
-    blah blah blah
+    The syntaxes! They do nothing!!!
+    #id
+    .class
+    - statement
+    / comment
 C
 '''
 

@@ -272,7 +272,36 @@ bar</pre><img />
         """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#escaping_html"""
         self.assertHTML('&= "I like cheese & crackers"', 'I like cheese &amp; crackers\n')
             
-            
+    def test_filters(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#multiline
+        
+        We don't implement any of the speced filters.
+        
+        """
+        self.assertHTML(
+            '''
+A
+-! def noop(x):
+    return x
+B
+:noop
+    The syntaxes! They do nothing!!!
+    #id
+    .class
+    - statement
+    / comment
+C
+            '''.strip(),
+            '''
+A
+B
+The syntaxes! They do nothing!!!
+#id
+.class
+- statement
+/ comment
+C
+            '''.strip() + '\n')               
             
                             
 if __name__ == '__main__':

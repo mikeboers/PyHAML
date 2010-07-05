@@ -276,7 +276,7 @@ class Filtered(GreedyBase):
             yield '<%% __M_writer(%s(\'\'.join([' % self.filter
             yield engine.endl
         if self.content is not None:
-            yield '\'%s%s\',' % (engine.indent(), (self.content + engine.endl).encode('unicode-escape').replace("'", "\\'"))
+            yield '\'%s%s\',' % (engine.indent(-1), (self.content + engine.endl).encode('unicode-escape').replace("'", "\\'"))
             yield engine.endl
         yield engine.inc_depth
 
