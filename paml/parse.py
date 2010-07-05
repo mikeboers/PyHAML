@@ -14,7 +14,7 @@ class Parser(object):
     
     def __init__(self):
         self.root = nodes.Document()
-        self.stack = [(-1, self.root)]
+        self.stack = [((-1, 0), self.root)]
         self._peeked = None
     
     @property
@@ -57,19 +57,23 @@ class Parser(object):
             line = raw_line.lstrip()
             if not line:
                 continue
-            depth = len(raw_line) - len(line)
+            # We track the inter-line depth seperate from the intra-line depth
+            # so that indentation due to whitespace always results in more
+            # depth in the graph than many nested nodes from a single line.
+            inter_depth = len(raw_line) - len(line)
+            intra_depth = 0
             # Cleanup the stack. We should only need to do this here as the
             # depth only goes up until it is calculated from the next line.
-            self.prep_stack_for_depth(depth)
+            self.prep_stack_for_depth((inter_depth, 0))
             last_line = None
             while line and line != last_line:
                 last_line = line
                 for token in self._parse_line(line):
                     if isinstance(token, nodes.Base):
-                        self.add_node(token, depth)
+                        self.add_node(token, (inter_depth, intra_depth))
                     elif isinstance(token, basestring):
                         line = token
-                        depth += 1
+                        intra_depth += 1
                     else:
                         raise TypeError('unknown token type %r' % token)
                 
