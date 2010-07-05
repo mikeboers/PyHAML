@@ -1,4 +1,14 @@
 
+- depth should be a tuple of interline_depth and intraline depth
+    - the intra_depth should start at 0 for every line and go up 1 for every
+    node that is thrown out
+    the inter_depth should be set to whatever whitespace is being pulled off
+    - this should allow the next line to be indented no matter how many statements
+    were on the previous line
+
+- tags should not actually hold the inline_content; their inner whitespace
+  flag should be triggered instead and the child should be a normal child
+    
 - the compiler should have backend specific methods for the following:
     - boolean attributes (ie HTML vs XHTML versions)
     - expressions
