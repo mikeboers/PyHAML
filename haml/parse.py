@@ -120,8 +120,8 @@ class Parser(object):
         
         # Tags.
         m = re.match(r'''
-            (?:%(\w*))?  # tag name
-            (            # id/class
+            (?:%(%?\w*))?  # tag name. the extra % is for mako
+            (              # id/class
               (?:\#[\w-]+|\.[\w-]+)+ 
             )?
         ''', line, re.X)
