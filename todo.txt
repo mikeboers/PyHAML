@@ -9,6 +9,10 @@
 
 - control statements should not count for collapsing inner whitespace for tags
 
+- boolean attributes should render without value
+
+- doctypes
+
 - attribute values that are dicts should be combined with '-'
     eg. %(data={'id': 4}) -> <div data-id="4">...</div>
     - only need to do this for "data"

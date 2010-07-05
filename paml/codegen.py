@@ -1,6 +1,7 @@
 
 import cgi
 from itertools import chain
+import collections
 
 
 _attr_sort_order = {
@@ -134,19 +135,24 @@ class MakoGenerator(BaseGenerator):
             self.endl_no_break
         )
 
-import collections
-def flatten_attr(l):
-    """From http://stackoverflow.com/questions/2158395/flatten-an-irregular-list-of-lists-in-python"""
-    if isinstance(l, basestring):
-        yield l
+
+def flatten_attr_list(input):
+    if isinstance(input, basestring):
+        yield input
         return
-    for el in l:
-        if isinstance(el, collections.Iterable) and not isinstance(el, basestring):
-            for sub in flatten_attr(el):
-                if sub:
-                    yield sub
-        elif el:
-            yield el
+    for element in input:
+        if element:
+            for sub_element in flatten_attr_list(element):
+                yield sub_element
+
+
+def flatten_attr_dict(prefix_key, input):
+    if not isinstance(input, dict):
+        yield prefix_key, input
+        return
+    for key, value in input.iteritems():
+        yield prefix_key + '-' + key, value
+
   
 def mako_build_attr_str(*args, **kwargs):
     x = {}
@@ -154,10 +160,12 @@ def mako_build_attr_str(*args, **kwargs):
         x.update(arg)
     x.update(kwargs)
     if 'id' in x:
-        x['id'] = '_'.join(filter(None, flatten_attr(x['id'])))
+        x['id'] = '_'.join(filter(None, flatten_attr_list(x['id'])))
     if 'class_' in x:
-        x['class_'] = ' '.join(filter(None, flatten_attr(x['class_'])))
-    pairs = x.items()
+        x['class_'] = ' '.join(filter(None, flatten_attr_list(x['class_'])))
+    pairs = []
+    for k, v in x.iteritems():
+        pairs.extend(flatten_attr_dict(k, v))
     pairs.sort(key=lambda pair: (_attr_sort_order.get(pair[0], 0), pair[0]))
     return ''.join(' %s="%s"' % (k.strip('_'), cgi.escape(str(v))) for k, v in pairs)
 

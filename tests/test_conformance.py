@@ -1,26 +1,26 @@
 
 from . import *
-from paml.codegen import flatten_attr
+from paml.codegen import flatten_attr_list
 
 
 class TestFlattenAttr(Base):
     
     def test_basic_string(self):
-        self.assertEqual(list(flatten_attr(
+        self.assertEqual(list(flatten_attr_list(
             'string'
         )), [
             'string'
         ])
     def test_basic_list(self):
-        self.assertEqual(list(flatten_attr(
+        self.assertEqual(list(flatten_attr_list(
             ['a', 'b']
         )), [
             'a',
             'b'
         ])
     def test_basic_mixed(self):
-        self.assertEqual(list(flatten_attr(
-            ['a', 'b', None, ['c', ['d', 'e']]]
+        self.assertEqual(list(flatten_attr_list(
+            ['a', 'b', None, ['c', ['d', None, 'e']]]
         )), [
             'a', 'b', 'c', 'd', 'e'
         ])
@@ -325,7 +325,11 @@ The syntaxes! They do nothing!!!
 - statement
 / comment
 C
-            '''.strip() + '\n')               
+            '''.strip() + '\n') 
+            
+    def test_data_attr(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#html5_custom_data_attributes"""
+        self.assertHTML('%a(href="/posts", data={"author_id": 123}) Posts By Author', '<a data-author_id="123" href="/posts">Posts By Author</a>\n')              
             
                             
 if __name__ == '__main__':
