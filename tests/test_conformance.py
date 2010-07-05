@@ -331,6 +331,30 @@ C
         """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#html5_custom_data_attributes"""
         self.assertHTML('%a(href="/posts", data={"author_id": 123}) Posts By Author', '<a data-author_id="123" href="/posts">Posts By Author</a>\n')              
             
-                            
+    def test_object_reference(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#object_reference_"""
+        self.assertHTML(
+            '''
+-! class ModelName(object):
+    id = 123
+- model = ModelName()
+%div[model] contents
+            '''.strip(),
+            '''
+<div id="model_name_123" class="model_name">contents</div>
+            '''.strip() + '\n') 
+
+    def test_object_reference_prefix(self):
+        """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#object_reference_"""
+        self.assertHTML(
+            '''
+-! class ModelName(object):
+    id = 123
+- model = ModelName()
+%div[model, 'prefix'] contents
+            '''.strip(),
+            '''
+<div id="prefix_model_name_123" class="prefix_model_name">contents</div>
+            '''.strip() + '\n')                             
 if __name__ == '__main__':
     main()
