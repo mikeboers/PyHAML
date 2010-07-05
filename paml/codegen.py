@@ -42,10 +42,10 @@ class BaseGenerator(object):
     dec_depth = GeneratorSentinal(delta=-1, name='dec_depth')
     _increment_tokens = (inc_depth, dec_depth)
     
-    assert_newline = GeneratorSentinal(name='assert_newline')
+    line_continuation = GeneratorSentinal(name='line_continuation')
     lstrip = GeneratorSentinal(name='lstrip')
     rstrip = GeneratorSentinal(name='rstrip')
-    _pass_to_outer_loop = (assert_newline, lstrip, rstrip)
+    _pass_to_outer_loop = (line_continuation, lstrip, rstrip)
     
     class no_strip(str):
         """A string class that will not have space removed."""
@@ -65,14 +65,16 @@ class BaseGenerator(object):
                 x = next(generator)
                 #print 'outer', repr(x)
                 if isinstance(x, GeneratorSentinal):
-                    if x == self.assert_newline:
-                        if buffer and not buffer[-1].endswith('\n'):
-                            buffer.append(self.no_strip('\n'))
+                    if x == self.line_continuation:
+                        if buffer and not buffer[-1].endswith('\\\n'):
+                            ##if buffer[-1].endswith('\n'):
+                            ##    buffer[-1] = buffer[-1][:-1]
+                            buffer.append(self.no_strip('\\\n'))
                     elif x == self.lstrip:
                         # Work backwards through the buffer rstripping until
                         # we hit some non-white content. Then flush everything
                         # in the buffer upto that point. We need to leave the
-                        # last one incase we get a "assert_newline" command.
+                        # last one incase we get a "line_continuation" command.
                         # Remember that no_strip strings are simply ignored.
                         # print 'lstrip begin'
                         for i in xrange(len(buffer) - 1, -1, -1):
@@ -117,8 +119,8 @@ class BaseGenerator(object):
     
     def _generate_string_tokens(self, node):
         self.depth = 0
-        for token in self._visit_node(node):
-            # print 'inner', repr(token)
+        for token in node.render(self):
+            #print 'inner', repr(token)
             if token is None:
                 continue
             if isinstance(token, basestring):
@@ -130,13 +132,6 @@ class BaseGenerator(object):
                 yield token
             else:
                 raise TypeError('unexpected token %r' % token)
-        
-    def _visit_node(self, node):
-        for x in node.render_start(self) or []: yield x
-        for x in node.render_content(self) or []: yield x
-        for child in node.children_to_render():
-            for x in self._visit_node(child): yield x
-        for x in node.render_end(self) or []: yield x
     
     def indent(self, delta=0):
         return self.indent_str * (self.depth + delta)

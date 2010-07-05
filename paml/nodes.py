@@ -7,27 +7,38 @@ class Base(object):
     def __init__(self):
         self.children = []
         self.inline_child = None
+        self.inline_parent = None
     
     def add_child(self, node, inline):
         if inline:
             self.inline_child = node
+            node.inline_parent = self
         else:
             self.children.append(node)
     
+    def render(self, engine):
+        for x in self.render_start(engine) or []: yield x
+        for x in self.render_content(engine) or []: yield x
+        for x in self.render_end(engine) or []: yield x
+            
     def render_start(self, engine):
         return None
     
+    def children_to_render(self):
+        return self.children
+    
     def render_content(self, engine):
+        to_chain = []
         if self.inline_child:
-            return chain(
+            to_chain = [
                 self.inline_child.render_start(engine),
                 self.inline_child.render_content(engine),
                 self.inline_child.render_end(engine),
-            )
-        return []
+            ]
+        for child in self.children_to_render():
+            to_chain.append(child.render(engine))
+        return chain(*to_chain)
     
-    def children_to_render(self):
-        return self.children
     
     def render_end(self, engine):
         return None
@@ -159,7 +170,7 @@ class Tag(Base):
         
         if self.strip_outer:
             yield engine.lstrip
-        else:
+        elif not self.inline_parent:
             yield engine.indent()
         
         if self.self_closing or self.name in self.self_closing_names:
@@ -171,7 +182,7 @@ class Tag(Base):
         else:
             yield '<%s%s>' % (self.name, attr_str)
             if self.children:
-                if self.strip_inner:
+                if self.strip_inner or self.inline_child:
                     yield engine.rstrip
                 else:
                     yield engine.endl
@@ -180,13 +191,15 @@ class Tag(Base):
     def render_content(self, engine):
         if self.inline_child:
             return chain(
-                [engine.rstrip],
+                [engine.lstrip, engine.rstrip],
                 super(Tag, self).render_content(engine),
-                [engine.lstrip],
+                [engine.lstrip, engine.rstrip],
             )
+        else:
+            return super(Tag, self).render_content(engine)
     
-    def render_end(self, engine):
-        if self.strip_inner:
+    def render_end(self, engine):        
+        if self.strip_inner or self.inline_child:
             yield engine.lstrip
         if not (self.self_closing or self.name in self.self_closing_names):
             if self.children:
@@ -195,7 +208,7 @@ class Tag(Base):
             yield '</%s>' % self.name
             if self.strip_outer:
                 yield engine.rstrip
-            else:
+            elif not self.inline_parent:
                 yield engine.endl
         elif self.strip_outer:
             yield engine.rstrip
@@ -251,13 +264,13 @@ class Control(Base):
         self.test = test
     
     def render_start(self, engine):
-        yield engine.assert_newline
+        yield engine.line_continuation
         yield engine.indent(-1)
         yield '%% %s %s: ' % (self.type, self.test)
         yield engine.no_strip(engine.endl)
     
     def render_end(self, engine):
-        yield engine.assert_newline
+        yield engine.line_continuation
         yield engine.indent(-1)
         yield '%% end%s' % self.type
         yield engine.no_strip(engine.endl)
