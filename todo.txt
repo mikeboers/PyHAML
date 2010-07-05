@@ -1,5 +1,7 @@
 
-- spcify that all the render_* methods must return an iterable
+- specify that all the render_* methods must return an iterable
+
+- verify the logic for handling line continuation tokens
 
 - rename nodes.Comment to nodes.HTMLComment
 - rename nodes.Silent to nodes.HAMLComment
@@ -20,18 +22,10 @@
     - expressions
     - control statements (start and end)
 
-- control statements should not count for collapsing inner whitespace for tags
-
-- boolean attributes should render without value
-
 - doctypes
-
-- implement tests for all the examples in the haml tutorial
 
 - cleanup a lot of the strip commands in the tag; there are way to many after
   the nodes got control over the full rendering process
-
-- boolean attributes
 
 - empty inline expressions should have space around them.
 

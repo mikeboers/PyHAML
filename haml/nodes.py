@@ -170,11 +170,11 @@ class Tag(Base):
         self.id = id
         self.class_ = (class_ or '').replace('.', ' ').strip()
         self.kwargs_expr = kwargs_expr
+        self.object_reference = object_reference
+        self.object_reference_prefix = object_reference_prefix
         self.self_closing = self_closing
         self.strip_inner = strip_inner
         self.strip_outer = strip_outer
-        self.object_reference = object_reference
-        self.object_reference_prefix = object_reference_prefix
 
     def render_start(self, engine):
 
@@ -183,8 +183,11 @@ class Tag(Base):
             const_attrs['id'] = self.id
         if self.class_:
             const_attrs['class'] = self.class_
-
+        
         kwargs_expr = self.kwargs_expr or ''
+        
+        # Object references are actually handled by the attribute formatting
+        # function.
         if self.object_reference:
             kwargs_expr += (', ' if kwargs_expr else '') + '__obj_ref=' + self.object_reference
             if self.object_reference_prefix:
@@ -203,7 +206,6 @@ class Tag(Base):
 
         if not kwargs_expr:
             attr_str = codegen.mako_build_attr_str(const_attrs)
-            # attr_str = ''.join(' %s="%s"' % (k, cgi.escape(v)) for k, v in const_attrs.items())
         elif not const_attrs:
             attr_str = '<%% __M_writer(__P_attrs(%s)) %%>' % kwargs_expr
         else:

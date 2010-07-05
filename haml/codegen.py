@@ -57,73 +57,61 @@ class BaseGenerator(object):
         return ''.join(self.generate_iter(node))
     
     def generate_iter(self, node):    
-        generator = self._generate_string_tokens(node)
+        tokens = self._tokenize_node(node)
         buffer = []
         r_stripping = False
-        try:
-            while True:
-                #print 'stack', buffer
-                x = next(generator)
-                #print 'outer', repr(x)
-                if isinstance(x, GeneratorSentinal):
-                    if x == self.line_continuation:
-                        if buffer and not buffer[-1].endswith('\\\n'):
-                            ##if buffer[-1].endswith('\n'):
-                            ##    buffer[-1] = buffer[-1][:-1]
-                            buffer.append(self.no_strip('\\\n'))
-                    elif x == self.lstrip:
-                        # Work backwards through the buffer rstripping until
-                        # we hit some non-white content. Then flush everything
-                        # in the buffer upto that point. We need to leave the
-                        # last one incase we get a "line_continuation" command.
-                        # Remember that no_strip strings are simply ignored.
-                        # print 'lstrip begin'
-                        for i in xrange(len(buffer) - 1, -1, -1):
-                            # print 'lstrip', i, repr(buffer[i])
-                            if isinstance(buffer[i], self.no_strip):
-                                # print 'lstrip skip'
-                                continue
-                            buffer[i] = buffer[i].rstrip()
-                            if buffer[i]:
-                                for z in buffer[:i]:
-                                    # print 'yield', repr(z)
-                                    yield z
-                                buffer = buffer[i:]
-                                break
-                    elif x == self.rstrip:
-                        r_stripping = True
-                    else:
-                        raise ValueError('unexpected %r' % x)
+        while True:
+            try:
+                token = next(tokens)
+            except StopIteration:
+                break;
+            if isinstance(token, GeneratorSentinal):
+                if token is self.lstrip:
+                    # Work backwards through the buffer rstripping until
+                    # we hit some non-white content. Then flush everything
+                    # in the buffer upto that point. We need to leave the
+                    # last one incase we get a "line_continuation" command.
+                    # Remember that no_strip strings are simply ignored.
+                    for i in xrange(len(buffer) - 1, -1, -1):
+                        if isinstance(buffer[i], self.no_strip):
+                            continue
+                        buffer[i] = buffer[i].rstrip()
+                        if buffer[i]:
+                            for x in buffer[:i]:
+                                yield x
+                            buffer = buffer[i:]
+                            break
+                elif token is self.rstrip:
+                    r_stripping = True
+                elif token is self.line_continuation:
+                    if buffer and not buffer[-1].endswith('\\\n'):
+                        buffer.append(self.no_strip('\\\n'))
                 else:
-                    # If we have encountered an rstrip token in the past, then
-                    # we are removing all leading whitespace on incoming tokens.
-                    # We must completely ignore no_strip strings as they go by.
-                    if r_stripping:
-                        if not isinstance(x, self.no_strip):
-                            x = x.lstrip()
-                            if x:
-                                r_stripping = False
-                    if x:
-                        # Flush the buffer if we have non-white content as no
-                        # lstrip command will get past this new token anyways.
-                        if buffer and x.strip():
-                            for y in buffer:
-                                #print 'yield', repr(y)
-                                yield y
-                            buffer = [x]
-                        else:
-                            buffer.append(x)
-        except StopIteration:
-            for x in buffer:
-                #print 'yield', repr(x)
-                yield x
+                    raise ValueError('unexpected %r' % token)
+            else:
+                # If we have encountered an rstrip token in the past, then
+                # we are removing all leading whitespace on incoming tokens.
+                # We must completely ignore no_strip strings as they go by.
+                if r_stripping:
+                    if not isinstance(token, self.no_strip):
+                        token = token.lstrip()
+                        if token:
+                            r_stripping = False
+                if token:
+                    # Flush the buffer if we have non-white content as no
+                    # lstrip command will get past this new token anyways.
+                    if buffer and token.strip() and not isinstance(token, self.no_strip):
+                        for x in buffer:
+                            yield x
+                        buffer = [token]
+                    else:
+                        buffer.append(token)
+        for x in buffer:
+            yield x
     
-    def _generate_string_tokens(self, node):
+    def _tokenize_node(self, node):
         self.depth = 0
         for token in node.render(self):
-            #print 'inner', repr(token)
-            if token is None:
-                continue
             if isinstance(token, basestring):
                 if token:
                     yield token
@@ -136,9 +124,6 @@ class BaseGenerator(object):
     
     def indent(self, delta=0):
         return self.indent_str * (self.depth + delta)
-    
-    def _set_whitespace_from_token(self, token):
-        self.__dict__.update(token.__dict__)
     
     def noop(self):
         return None
@@ -182,13 +167,15 @@ def flatten_attr_dict(prefix_key, input):
         yield prefix_key + '-' + key, value
 
 
-def camel_to_underscores(name):
+def camelcase_to_underscores(name):
     return re.sub(r'(?<!^)([A-Z])([A-Z]*)', lambda m: '_' + m.group(0), name).lower()
+
     
 def _format_mako_attr_pair(k, v):
     if v is True:
         v = k
     return ' %s="%s"' % (k, cgi.escape(str(v)))
+
 
 def mako_build_attr_str(*args, **kwargs):
     x = {}
@@ -204,7 +191,7 @@ def mako_build_attr_str(*args, **kwargs):
         [x.pop('class', []), x.pop('class_', [])]
     ))
     if obj_ref:
-        class_name = camel_to_underscores(obj_ref.__class__.__name__)
+        class_name = camelcase_to_underscores(obj_ref.__class__.__name__)
         x['id'] = filter(None, [obj_ref_prefix, class_name, getattr(obj_ref, 'id', None)])
         x['class'].append((obj_ref_prefix + '_' if obj_ref_prefix else '') + class_name)
     x['id'] = '_'.join(map(str, x['id']))
