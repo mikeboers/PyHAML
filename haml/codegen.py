@@ -1,6 +1,6 @@
 
-import cgi
 from itertools import chain
+import cgi
 import collections
 import re
 
@@ -14,9 +14,6 @@ _attr_sort_order = {
 }
 
 
-
-    
-
 class GeneratorSentinal(object):
     def __init__(self, **kwargs):
         self.__dict__.update(**kwargs)
@@ -26,35 +23,28 @@ class GeneratorSentinal(object):
         return '<Sentinal at 0x%x>' % id(self)
 
 
-class WhitespaceControlToken(str):
-    def __repr__(self):
-        return 'WhitespaceControlToken(%r)' % str.__repr__(self)
-
-
-
-
 class BaseGenerator(object):
-    
+
     indent_str = ''
     endl = ''
     endl_no_break = ''
-    
+
     inc_depth = GeneratorSentinal(delta=1, name='inc_depth')
     dec_depth = GeneratorSentinal(delta=-1, name='dec_depth')
     _increment_tokens = (inc_depth, dec_depth)
-    
+
     line_continuation = GeneratorSentinal(name='line_continuation')
     lstrip = GeneratorSentinal(name='lstrip')
     rstrip = GeneratorSentinal(name='rstrip')
-    
+
     class no_strip(str):
         """A string class that will not have space removed."""
         def __repr__(self):
             return 'no_strip(%s)' % str.__repr__(self)
-    
+
     def generate(self, node):
         return ''.join(self.generate_iter(node))
-    
+
     def generate_iter(self, node):
         buffer = []
         r_stripping = False
@@ -107,22 +97,22 @@ class BaseGenerator(object):
                 raise ValueError('unknown token %r' % token)
         for x in buffer:
             yield x
-    
+
     def indent(self, delta=0):
         return self.indent_str * (self.depth + delta)
-    
+
     def noop(self):
         return None
-    
+
     start_document = noop
 
 
 class MakoGenerator(BaseGenerator):
-    
+
     indent_str = '\t'
     endl = '\n'
     endl_no_break = '\\\n'
-    
+
     def start_document(self):
         return (
             '<%%! from %s import mako_build_attr_str as __P_attrs %%>' % __name__ +
@@ -156,7 +146,7 @@ def flatten_attr_dict(prefix_key, input):
 def camelcase_to_underscores(name):
     return re.sub(r'(?<!^)([A-Z])([A-Z]*)', lambda m: '_' + m.group(0), name).lower()
 
-    
+
 def _format_mako_attr_pair(k, v):
     if v is True:
         v = k
@@ -191,5 +181,3 @@ def mako_build_attr_str(*args, **kwargs):
 
 def generate_mako(node):
     return MakoGenerator().generate(node)
-
-

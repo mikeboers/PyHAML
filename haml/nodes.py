@@ -1,7 +1,6 @@
 
-import cgi
 from itertools import chain
-import ast
+import cgi
 
 from . import codegen
 
