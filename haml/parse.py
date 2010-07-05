@@ -119,7 +119,6 @@ class Parser(object):
             return
         
         # Tags.
-        print repr(line)
         m = re.match(r'''
             (?:%(%?\w*))?  # tag name. the extra % is for mako
             (?:\[(.+?)(?:,(.+?))?\])? # object reference and prefix
