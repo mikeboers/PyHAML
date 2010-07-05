@@ -34,10 +34,20 @@ source = '''
     
     three
     four
-        
+    
             """.strip()
 = content
     		
+'''.strip()
+
+source = '''
+
+- content = """
+    before
+    
+    after""".strip()
+= content
+
 '''.strip()
 
 

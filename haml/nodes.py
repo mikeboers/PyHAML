@@ -12,7 +12,7 @@ class Base(object):
         self.inline_child = None
         self.inline_parent = None
 
-    def add_child(self, node, inline):
+    def add_child(self, node, inline=False):
         if inline:
             self.inline_child = node
             node.inline_parent = self

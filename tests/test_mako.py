@@ -149,4 +149,18 @@ inline expr
     after
             '''.strip() + '\n') 
 
+    def test_empty_line_handling_2(self):
+        self.assertHTML(
+            '''
+- content = """
+    before
+    
+        after""".strip()
+= content
+            '''.strip(),
+            '''
+    before
+    
+        after
+            '''.strip() + '\n')
 
