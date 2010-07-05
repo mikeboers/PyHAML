@@ -30,6 +30,8 @@ class WhitespaceControlToken(str):
         return 'WhitespaceControlToken(%r)' % str.__repr__(self)
 
 
+
+
 class BaseGenerator(object):
     
     indent_str = ''
@@ -44,6 +46,11 @@ class BaseGenerator(object):
     lstrip = GeneratorSentinal(name='lstrip')
     rstrip = GeneratorSentinal(name='rstrip')
     _pass_to_outer_loop = (assert_newline, lstrip, rstrip)
+    
+    class no_strip(str):
+        """A string class that will not have space removed."""
+        def __repr__(self):
+            return 'no_strip(%s)' % str.__repr__(self)
     
     def generate(self, node):
         return ''.join(self.generate_iter(node))
@@ -60,29 +67,39 @@ class BaseGenerator(object):
                 if isinstance(x, GeneratorSentinal):
                     if x == self.assert_newline:
                         if buffer and not buffer[-1].endswith('\n'):
-                            buffer.append('\n')
+                            buffer.append(self.no_strip('\n'))
                     elif x == self.lstrip:
                         # Work backwards through the buffer rstripping until
                         # we hit some non-white content. Then flush everything
                         # in the buffer upto that point. We need to leave the
                         # last one incase we get a "assert_newline" command.
+                        # Remember that no_strip strings are simply ignored.
+                        # print 'lstrip begin'
                         for i in xrange(len(buffer) - 1, -1, -1):
+                            # print 'lstrip', i, repr(buffer[i])
+                            if isinstance(buffer[i], self.no_strip):
+                                # print 'lstrip skip'
+                                continue
                             buffer[i] = buffer[i].rstrip()
                             if buffer[i]:
                                 for z in buffer[:i]:
-                                    #print 'yield', repr(z)
+                                    # print 'yield', repr(z)
                                     yield z
-                                buffer = [buffer[i]]
+                                buffer = buffer[i:]
                                 break
                     elif x == self.rstrip:
                         r_stripping = True
                     else:
                         raise ValueError('unexpected %r' % x)
                 else:
+                    # If we have encountered an rstrip token in the past, then
+                    # we are removing all leading whitespace on incoming tokens.
+                    # We must completely ignore no_strip strings as they go by.
                     if r_stripping:
-                        x = x.lstrip()
-                        if x:
-                            r_stripping = False
+                        if not isinstance(x, self.no_strip):
+                            x = x.lstrip()
+                            if x:
+                                r_stripping = False
                     if x:
                         # Flush the buffer if we have non-white content as no
                         # lstrip command will get past this new token anyways.
@@ -101,7 +118,7 @@ class BaseGenerator(object):
     def _generate_string_tokens(self, node):
         self.depth = 0
         for token in self._visit_node(node):
-            print 'inner', repr(token)
+            # print 'inner', repr(token)
             if token is None:
                 continue
             if isinstance(token, basestring):

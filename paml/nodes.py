@@ -254,13 +254,13 @@ class Control(Base):
         yield engine.assert_newline
         yield engine.indent(-1)
         yield '%% %s %s: ' % (self.type, self.test)
-        yield engine.endl
+        yield engine.no_strip(engine.endl)
     
     def render_end(self, engine):
         yield engine.assert_newline
         yield engine.indent(-1)
         yield '%% end%s' % self.type
-        yield engine.endl
+        yield engine.no_strip(engine.endl)
     
     def __repr__(self):
         return '%s(type=%r, test=%r)' % (
