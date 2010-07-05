@@ -170,7 +170,7 @@ class Parser(object):
             self_closing = bool(line and line[0] == '/')
             line = line[int(self_closing):].lstrip()
                 
-            tag = nodes.Tag(
+            yield nodes.Tag(
                 name,
                 id,
                 ' '.join(class_),
@@ -179,10 +179,8 @@ class Parser(object):
                 strip_outer=strip_outer,
                 strip_inner=strip_inner,
             )
-            yield tag
-
-            if not line:
-                return
+            yield line
+            return
             
             tokens = list(self._parse_line(line))
             if len(tokens) == 1 and isinstance(tokens[0], (nodes.Content, nodes.Expression)):
@@ -221,7 +219,7 @@ class Parser(object):
             self.stack.pop()
                 
     def add_node(self, node, depth):
-        self.node.add_child(node)
+        self.node.add_child(node, bool(depth[1]))
         self.stack.append((depth, node))
         
 

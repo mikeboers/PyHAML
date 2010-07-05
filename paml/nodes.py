@@ -1,16 +1,30 @@
             
 import cgi
+from itertools import chain
 
 class Base(object):
     
     def __init__(self):
         self.children = []
+        self.inline_child = None
     
-    def add_child(self, node):
-        self.children.append(node)
+    def add_child(self, node, inline):
+        if inline:
+            self.inline_child = node
+        else:
+            self.children.append(node)
     
     def render_start(self, engine):
         return None
+    
+    def render_content(self, engine):
+        if self.inline_child:
+            return chain(
+                self.inline_child.render_start(engine),
+                self.inline_child.render_content(engine),
+                self.inline_child.render_end(engine),
+            )
+        return []
     
     def children_to_render(self):
         return self.children
@@ -127,8 +141,6 @@ class Tag(Base):
         self.self_closing = self_closing
         self.strip_inner = strip_inner
         self.strip_outer = strip_outer
-        
-        self.inline_child = None
     
     def render_start(self, engine):
         
@@ -164,14 +176,14 @@ class Tag(Base):
                 else:
                     yield engine.endl
                     yield engine.inc_depth
-        
+    
+    def render_content(self, engine):
         if self.inline_child:
-            yield engine.rstrip
-            for x in self.inline_child.render_start(engine):
-                yield x
-            for x in self.inline_child.render_end(engine):
-                yield x
-            yield engine.lstrip
+            return chain(
+                [engine.rstrip],
+                super(Tag, self).render_content(engine),
+                [engine.lstrip],
+            )
     
     def render_end(self, engine):
         if self.strip_inner:
@@ -191,7 +203,7 @@ class Tag(Base):
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
             ', '.join('%s=%r' % (k, getattr(self, k)) for k in (
-                'name', 'id', 'class_', 'kwargs_expr', 'inline_child',
+                'name', 'id', 'class_', 'kwargs_expr',
                 'strip_inner', 'strip_outer'
             ) if getattr(self, k))
         )

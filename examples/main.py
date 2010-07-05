@@ -32,8 +32,11 @@ source = '''
 
 source = '''
 
+%basic Hello, world!
+%outer %inner nested?
+
 %A
-    %outer -for i in range(3): %inner content
+    %outer -for i in range(3): %inner complex?!?!
 
 '''
 
@@ -44,10 +47,17 @@ print
 
 root = paml.parse_string(source)
 
-def print_tree(node, depth=0):
-    print '|   ' * depth + repr(node)
+def print_tree(node, depth=0, inline=False):
+    if inline:
+        print '-> ' + repr(node),
+    else:
+        print '|   ' * depth + repr(node),
+    if node.inline_child:
+        print_tree(node.inline_child, depth, True)
+    if not inline:
+        print
     for child in node.children:
-        print_tree(child, depth + 1)
+        print_tree(child, depth + int(not inline))
 
 print '===== NODES ====='
 print_tree(root)

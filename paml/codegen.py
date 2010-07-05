@@ -100,7 +100,7 @@ class BaseGenerator(object):
     def _generate_string_tokens(self, node):
         self.depth = 0
         for token in self._visit_node(node):
-            #print 'inner', repr(token)
+            print 'inner', repr(token)
             if token is None:
                 continue
             if token in self._increment_tokens:
@@ -113,6 +113,7 @@ class BaseGenerator(object):
         
     def _visit_node(self, node):
         for x in node.render_start(self) or []: yield x
+        for x in node.render_content(self) or []: yield x
         for child in node.children_to_render():
             for x in self._visit_node(child): yield x
         for x in node.render_end(self) or []: yield x
