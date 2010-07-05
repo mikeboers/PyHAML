@@ -32,7 +32,8 @@ source = '''
 
 source = '''
 
-%outer -for i in range(3): %inner content
+%A
+    %outer -for i in range(3): %inner content
 
 '''
 

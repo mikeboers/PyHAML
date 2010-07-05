@@ -180,7 +180,6 @@ class Parser(object):
                 strip_inner=strip_inner,
             )
             yield tag
-            
 
             if not line:
                 return

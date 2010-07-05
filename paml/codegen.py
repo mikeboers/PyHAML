@@ -53,7 +53,9 @@ class BaseGenerator(object):
         r_stripping = False
         try:
             while True:
+                #print 'stack', buffer
                 x = next(generator)
+                #print 'outer', repr(x)
                 if isinstance(x, WhitespaceControlToken):
                     if x == self.assert_newline:
                         if buffer and not buffer[-1].endswith('\n'):
@@ -67,6 +69,7 @@ class BaseGenerator(object):
                             buffer[i] = buffer[i].rstrip()
                             if buffer[i]:
                                 for z in buffer[:i]:
+                                    #print 'yield', repr(z)
                                     yield z
                                 buffer = [buffer[i]]
                                 break
@@ -84,17 +87,20 @@ class BaseGenerator(object):
                         # lstrip command will get past this new token anyways.
                         if buffer and x.strip():
                             for y in buffer:
+                                #print 'yield', repr(y)
                                 yield y
                             buffer = [x]
                         else:
                             buffer.append(x)
         except StopIteration:
             for x in buffer:
+                #print 'yield', repr(x)
                 yield x
     
     def _generate_string_tokens(self, node):
         self.depth = 0
         for token in self._visit_node(node):
+            #print 'inner', repr(token)
             if token is None:
                 continue
             if token in self._increment_tokens:
