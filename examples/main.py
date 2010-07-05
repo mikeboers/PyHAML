@@ -32,10 +32,8 @@ source = '''
 
 source = '''
 
-
-%=
-    'one'
-    'two'
+- attrs = dict(a='one', b='two')
+%a(attrs)/
 
 '''
 
