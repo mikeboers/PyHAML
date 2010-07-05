@@ -32,14 +32,10 @@ source = '''
 
 source = '''
 
-%basic Hello, world!
-%outer1 %inner1 nested?
 
-%A
-    %outer2 -for i in range(3): %inner2 complex?!?!
-
-%ul - for i in range(3):
-    %li ITEM ${i}
+%=
+    'one'
+    'two'
 
 '''
 

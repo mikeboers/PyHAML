@@ -16,3 +16,36 @@
 - doctypes
 
 - implement tests for all the examples in the haml tutorial
+
+- empty inline expressions should have space around them.
+
+    eg:
+    
+        %=
+            'one'
+            'two'
+    
+    should go to
+    
+        <div>
+            one
+        	two
+        </div>
+    
+    but currently goes to
+    
+        <div>one
+        	two</div>
+    
+    and gets compiled to
+    
+        <Document at 0x10113cb90>
+        |   Tag(name='div') -> Expression('', '')
+        |   |   Expression("'one'", '')
+        |   |   Expression("'two'", '')
+    
+    Ways to do this:
+        nodes should have a has_content() if it, and just it (not it's children)
+        will result in some content
+
+        
