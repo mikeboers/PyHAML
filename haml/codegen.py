@@ -46,7 +46,6 @@ class BaseGenerator(object):
     line_continuation = GeneratorSentinal(name='line_continuation')
     lstrip = GeneratorSentinal(name='lstrip')
     rstrip = GeneratorSentinal(name='rstrip')
-    _pass_to_outer_loop = (line_continuation, lstrip, rstrip)
     
     class no_strip(str):
         """A string class that will not have space removed."""
@@ -56,17 +55,15 @@ class BaseGenerator(object):
     def generate(self, node):
         return ''.join(self.generate_iter(node))
     
-    def generate_iter(self, node):    
-        tokens = self._tokenize_node(node)
+    def generate_iter(self, node):
         buffer = []
         r_stripping = False
-        while True:
-            try:
-                token = next(tokens)
-            except StopIteration:
-                break;
+        self.depth = 0
+        for token in node.render(self):
             if isinstance(token, GeneratorSentinal):
-                if token is self.lstrip:
+                if token in self._increment_tokens:
+                    self.depth += token.delta
+                elif token is self.lstrip:
                     # Work backwards through the buffer rstripping until
                     # we hit some non-white content. Then flush everything
                     # in the buffer upto that point. We need to leave the
@@ -88,7 +85,7 @@ class BaseGenerator(object):
                         buffer.append(self.no_strip('\\\n'))
                 else:
                     raise ValueError('unexpected %r' % token)
-            else:
+            elif isinstance(token, basestring):
                 # If we have encountered an rstrip token in the past, then
                 # we are removing all leading whitespace on incoming tokens.
                 # We must completely ignore no_strip strings as they go by.
@@ -106,21 +103,10 @@ class BaseGenerator(object):
                         buffer = [token]
                     else:
                         buffer.append(token)
+            else:
+                raise ValueError('unknown token %r' % token)
         for x in buffer:
             yield x
-    
-    def _tokenize_node(self, node):
-        self.depth = 0
-        for token in node.render(self):
-            if isinstance(token, basestring):
-                if token:
-                    yield token
-            elif token in self._increment_tokens:
-                self.depth += token.delta
-            elif token in self._pass_to_outer_loop:
-                yield token
-            else:
-                raise TypeError('unexpected token %r' % token)
     
     def indent(self, delta=0):
         return self.indent_str * (self.depth + delta)
