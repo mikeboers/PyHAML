@@ -84,17 +84,17 @@ class GreedyBase(Base):
         return x
 
     @property
-    def _depth_attr(self):
-        return '_%s_depth' % self.__class__.__name__
+    def _depth_name(self):
+        return '%s.depth' % self.__class__.__name__
 
     def inc_depth(self, engine):
-        depth = getattr(engine, self._depth_attr, 0)
-        setattr(engine, self._depth_attr, depth + 1)
+        depth = engine.node_data.get(self._depth_name, 0)
+        engine.node_data[self._depth_name] = depth + 1
         return depth
 
     def dec_depth(self, engine):
-        depth = getattr(engine, self._depth_attr) - 1
-        setattr(engine, self._depth_attr, depth)
+        depth = engine.node_data[self._depth_name] - 1
+        engine.node_data[self._depth_name] = depth
         return depth
 
 
@@ -424,9 +424,9 @@ class Doctype(Base):
     def render_start(self, engine):
         if self.name in ('xml', 'html'):
             mode = self.name
-            engine._Doctype_mode = mode
+            engine.node_data['Doctype.mode'] = mode
         else:
-            mode = getattr(engine, '_Doctype_mode', 'html')
+            mode = engine.node_data.get('Doctype.mode', 'html')
         if self.name == 'xml':
             charset = self.charset or 'utf-8'
             yield "<?xml version='1.0' encoding='%s' ?>" % charset

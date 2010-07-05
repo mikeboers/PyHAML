@@ -15,8 +15,10 @@ _attr_sort_order = {
 
 
 class GeneratorSentinal(object):
+    
     def __init__(self, **kwargs):
         self.__dict__.update(**kwargs)
+        
     def __repr__(self):
         if hasattr(self, 'name'):
             return '<Sentinal:%s>' % self.name
@@ -49,6 +51,7 @@ class BaseGenerator(object):
         buffer = []
         r_stripping = False
         self.depth = 0
+        self.node_data = {}
         for token in node.render(self):
             print repr(token)
             if isinstance(token, GeneratorSentinal):
