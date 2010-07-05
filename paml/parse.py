@@ -76,8 +76,8 @@ class Parser(object):
     
     def _parse_line(self, line):
         
-        if isinstance(self.node, nodes.Source):
-            yield nodes.Source(line)
+        if isinstance(self.node, nodes.GreedyBase):
+            yield self.node.__class__(line)
             return
         
         # Escape a line so it doesn't get touched.
@@ -106,6 +106,13 @@ class Parser(object):
             if add_escape:
                 filters = filters + (',' if filters else '') + 'h'
             yield nodes.Expression(content, filters)
+            return
+        
+        # Filters
+        m = re.match(r':(\w+)(?:\s+(.+))?$', line)
+        if m:
+            filter, content = m.groups()
+            yield nodes.Filtered(content, filter)
             return
         
         # Silent comments

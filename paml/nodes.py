@@ -218,7 +218,28 @@ class Control(Base):
             self.test
         )
 
-class Source(Base):
+
+class GreedyBase(Base):
+    
+    @property
+    def depth_attr(self):
+        return '_%s_depth' % self.__class__.__name__
+    
+    def get_depth(self, engine):
+        return getattr(engine, self.depth_attr, 0)
+    
+    def inc_depth(self, engine):
+        depth = getattr(engine, self.depth_attr, 0)
+        setattr(engine, self.depth_attr, depth + 1)
+        return depth
+    
+    def dec_depth(self, engine):
+        depth = getattr(engine, self.depth_attr) - 1
+        setattr(engine, self.depth_attr, depth)
+        return depth
+
+        
+class Source(GreedyBase):
     
     def __init__(self, content, module=False):
         super(Source, self).__init__()
@@ -226,12 +247,7 @@ class Source(Base):
         self.module = module
     
     def render_start(self, engine):
-        # We add an attribute to the engine to keep track of the nesting
-        # level of source nodes. We only open/close the source tags iff this
-        # is the outer source node.
-        nest_level = getattr(engine, '_Source_depth', 0)
-        setattr(engine, '_Source_depth', nest_level + 1)
-        if not nest_level:
+        if not self.inc_depth(engine):
             if self.module:
                 yield '<%! '
             else:
@@ -242,12 +258,32 @@ class Source(Base):
         yield engine.endl
         yield engine.inc_depth
     
-    def render_end(self, engine):  
-        nest_level = getattr(engine, '_Source_depth') - 1
-        setattr(engine, '_Source_depth', nest_level)
-        yield engine.dec_depth
-        if not nest_level:
+    def render_end(self, engine):
+        if not self.dec_depth(engine):
             yield '%>'
+        yield engine.dec_depth
+        
+        
+class Filtered(GreedyBase):
+
+    def __init__(self, content, filter=None):
+        super(Filtered, self).__init__()
+        self.content = content
+        self.filter = filter
+
+    def render_start(self, engine):
+        if not self.inc_depth(engine):
+            yield '<%% __M_writer(%s(\'\'.join([' % self.filter
+            yield engine.endl
+        if self.content is not None:
+            yield '\'%s%s\',' % (engine.indent(), (self.content + engine.endl).encode('unicode-escape').replace("'", "\\'"))
+            yield engine.endl
+        yield engine.inc_depth
+
+    def render_end(self, engine):
+        if not self.dec_depth(engine):
+            yield ']))) %>'
+        yield engine.dec_depth
 
 
 class Silent(Base):

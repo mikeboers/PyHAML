@@ -31,12 +31,15 @@ source = '''
 '''.strip()
 
 source = '''
-
-%
-    #eg1 = '1&'
-    #eg2 &= '2&'
-    #eg3 =|h '3&'
-
+A
+-! def noop(x):
+    return x
+B
+:noop
+    this stuff is filtered
+    or so we home
+    blah blah blah
+C
 '''
 
 
