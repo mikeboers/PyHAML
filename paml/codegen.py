@@ -40,9 +40,10 @@ class BaseGenerator(object):
     dec_depth = GeneratorSentinal(delta=-1, name='dec_depth')
     _increment_tokens = (inc_depth, dec_depth)
     
-    assert_newline = WhitespaceControlToken('assert_newline')
-    lstrip = WhitespaceControlToken('lstrip')
-    rstrip = WhitespaceControlToken('rstrip')
+    assert_newline = GeneratorSentinal(name='assert_newline')
+    lstrip = GeneratorSentinal(name='lstrip')
+    rstrip = GeneratorSentinal(name='rstrip')
+    _pass_to_outer_loop = (assert_newline, lstrip, rstrip)
     
     def generate(self, node):
         return ''.join(self.generate_iter(node))
@@ -56,7 +57,7 @@ class BaseGenerator(object):
                 #print 'stack', buffer
                 x = next(generator)
                 #print 'outer', repr(x)
-                if isinstance(x, WhitespaceControlToken):
+                if isinstance(x, GeneratorSentinal):
                     if x == self.assert_newline:
                         if buffer and not buffer[-1].endswith('\n'):
                             buffer.append('\n')
@@ -76,7 +77,7 @@ class BaseGenerator(object):
                     elif x == self.rstrip:
                         r_stripping = True
                     else:
-                        raise ValueError('unexpected WhitespaceControlToken %r' % x)
+                        raise ValueError('unexpected %r' % x)
                 else:
                     if r_stripping:
                         x = x.lstrip()
@@ -103,11 +104,13 @@ class BaseGenerator(object):
             print 'inner', repr(token)
             if token is None:
                 continue
-            if token in self._increment_tokens:
-                self.depth += token.delta
-            elif isinstance(token, basestring):
+            if isinstance(token, basestring):
                 if token:
                     yield token
+            elif token in self._increment_tokens:
+                self.depth += token.delta
+            elif token in self._pass_to_outer_loop:
+                yield token
             else:
                 raise TypeError('unexpected token %r' % token)
         

@@ -4,12 +4,6 @@ import re
 from . import nodes
 
 
-class _ParsingSentinal(object):
-    def __init__(self, *args, **kwargs):
-        self.__dict__.update(**kwargs)
-
-INC_DEPTH = _ParsingSentinal()
-
 class Parser(object):
     
     def __init__(self):
