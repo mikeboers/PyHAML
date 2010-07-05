@@ -10,4 +10,5 @@ setup(
     author_email='PyHAML@mikeboers.com',
     license='New BSD License',
     packages=['haml'],
+    install_requires=['mako'],
 )
