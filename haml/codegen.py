@@ -53,7 +53,6 @@ class BaseGenerator(object):
         self.depth = 0
         self.node_data = {}
         for token in node.render(self):
-            print repr(token)
             if isinstance(token, GeneratorSentinal):
                 if token in self._increment_tokens:
                     self.depth += token.delta

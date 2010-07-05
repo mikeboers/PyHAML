@@ -20,10 +20,7 @@
     - expressions
     - control statements (start and end)
 
-- doctypes
-
-- cleanup a lot of the strip commands in the tag; there are way to many after
-  the nodes got control over the full rendering process
+- can we support Django templates?
 
 - empty inline expressions should have space around them.
 
