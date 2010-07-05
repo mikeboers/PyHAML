@@ -58,13 +58,19 @@ class Parser(object):
             # not changed
             if line:
                 inter_depth = len(raw_line) - len(line)
+                intra_depth = 0
             else:
                 inter_depth = self._stack[-1][0][0]
-            intra_depth = 0
+                intra_depth = self._stack[-1][0][1] + 1
+            
+            #print '\t', self._stack
             
             # Cleanup the stack. We should only need to do this here as the
             # depth only goes up until it is calculated from the next line.
-            self._prep_stack_for_depth((inter_depth, 0))
+            self._prep_stack_for_depth((inter_depth, intra_depth))
+            
+            #print repr(line)
+            #print '\t', self._stack
             
             # Greedy nodes recieve all content until we fall out of their scope.
             if isinstance(self._topmost_node, nodes.GreedyBase):
