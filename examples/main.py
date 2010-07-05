@@ -26,30 +26,6 @@ source = '''
 
 '''
 
-source = '''
-
-- content = """one
-    
-    two
-    
-    three
-    four
-    
-            """.strip()
-= content
-    		
-'''.strip()
-
-source = '''
-
-- content = """
-    before
-    
-    after""".strip()
-= content
-
-'''.strip()
-
 
 print '===== SOURCE ====='
 print source.strip()
@@ -68,10 +44,10 @@ compiled = haml.generate_mako(root)
 print compiled.strip()
 print
 
-print '===== COMPILED MAKO ====='
+# print '===== COMPILED MAKO ====='
 template = Template(compiled)
-print template._code.strip()
-print
+# print template._code.strip()
+# print
 
 print '===== RENDERED ====='
 print template.render_unicode(class_='test', title="MyPage", a='A', b='B', c='C').strip()
