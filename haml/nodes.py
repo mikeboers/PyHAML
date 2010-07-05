@@ -1,6 +1,10 @@
             
 import cgi
 from itertools import chain
+import ast
+
+from . import codegen
+
 
 class Base(object):
     
@@ -161,12 +165,25 @@ class Tag(Base):
         if self.class_:
             const_attrs['class'] = self.class_
         
-        if not self.kwargs_expr:
-            attr_str = ''.join(' %s="%s"' % (k, cgi.escape(v)) for k, v in const_attrs.items())
+        kwargs_expr = self.kwargs_expr
+        if kwargs_expr:
+            try:
+                # HACK: This is really freaking dangerous...
+                # If we can evaluate the expression with no content then we
+                # can go ahead and use
+                const_attrs.update(eval('dict(%s)' % kwargs_expr, {}))
+            except (NameError, ValueError, KeyError):
+                pass
+            else:
+                kwargs_expr = None
+        
+        if not kwargs_expr:
+            attr_str = codegen.mako_build_attr_str(const_attrs)
+            # attr_str = ''.join(' %s="%s"' % (k, cgi.escape(v)) for k, v in const_attrs.items())
         elif not const_attrs:
-            attr_str = '<%% __M_writer(__P_attrs(%s)) %%>' % self.kwargs_expr
+            attr_str = '<%% __M_writer(__P_attrs(%s)) %%>' % kwargs_expr
         else:
-            attr_str = '<%% __M_writer(__P_attrs(%r, %s)) %%>' % (const_attrs, self.kwargs_expr)
+            attr_str = '<%% __M_writer(__P_attrs(%r, %s)) %%>' % (const_attrs, kwargs_expr)
         
         if self.strip_outer:
             yield engine.lstrip
