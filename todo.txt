@@ -1,9 +1,18 @@
 
-- WhitespaceControlToken should not be a string.
+- rename nodes.Comment to nodes.HTMLComment
+- rename nodes.Silent to nodes.HAMLComment
+- rename nodes.Filtered to nodes.Filter
+                                                
+- blank lines should perhaps not be immediately tossed out.
+	eg.:
+		- content = """one
+		    two
 
-- tags should not actually hold the inline_content; their inner whitespace
-  flag should be triggered instead and the child should be a normal child
-    
+		    three"""
+		= content  
+	
+	This will drop the blank line.   
+
 - the compiler should have backend specific methods for the following:
     - boolean attributes (ie HTML vs XHTML versions)
     - expressions

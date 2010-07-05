@@ -181,7 +181,7 @@ class Tag(Base):
         if self.class_:
             const_attrs['class'] = self.class_
         
-        kwargs_expr = self.kwargs_expr
+        kwargs_expr = self.kwargs_expr or ''
         if self.object_reference:
             kwargs_expr += (', ' if kwargs_expr else '') + '__obj_ref=' + self.object_reference
             if self.object_reference_prefix:

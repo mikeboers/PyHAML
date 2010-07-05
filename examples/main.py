@@ -32,7 +32,11 @@ source = '''
 
 source = '''
 
-%div(class_='content', **{'non-valid':'value'}) content
+- content = """one
+    two
+    
+    three"""
+= content
 
 '''.strip()
 
