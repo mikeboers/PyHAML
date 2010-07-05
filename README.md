@@ -81,9 +81,8 @@ We don't supply any filters, but the mechanism is there to take callables from t
         / comment
 
 ### [Boolean Attributes](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#boolean_attributes)
-### [Object Reference: []](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#object_reference_)
 ### [Doctype: !!!](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#doctype_)
 ### [Whitespace Preservation](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#tilde)
 ### [Helpers](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#helpers)
 
-Haven't gotten around to these yet... I'm not really sure if I can do the object references anyways
+Haven't gotten around to these yet...
