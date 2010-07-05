@@ -158,7 +158,7 @@ class Tag(Base):
     '''.strip().split())
     
     def __init__(self, name, id, class_, kwargs_expr=None, self_closing=False,
-        strip_inner=False, strip_outer=False):
+        strip_inner=False, strip_outer=False, object_reference=None):
         
         super(Tag, self).__init__()
         
@@ -169,6 +169,7 @@ class Tag(Base):
         self.self_closing = self_closing
         self.strip_inner = strip_inner
         self.strip_outer = strip_outer
+        self.object_reference = object_reference
     
     def render_start(self, engine):
         
@@ -179,6 +180,9 @@ class Tag(Base):
             const_attrs['class'] = self.class_
         
         kwargs_expr = self.kwargs_expr
+        if self.object_reference:
+            kwargs_expr += (', ' if kwargs_expr else '') + '__obj_ref=' + self.object_reference
+            
         if kwargs_expr:
             try:
                 # HACK: This is really freaking dangerous...

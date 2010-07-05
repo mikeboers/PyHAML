@@ -30,6 +30,14 @@ source = '''
 
 '''.strip()
 
+source = '''
+
+-! class ModelName(object):
+    id = 123
+- model = ModelName()
+%div[model] contents
+
+'''.strip()
 
 print '===== SOURCE ====='
 print source

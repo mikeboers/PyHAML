@@ -2,6 +2,7 @@
 import cgi
 from itertools import chain
 import collections
+import re
 
 
 _attr_sort_order = {
@@ -159,6 +160,8 @@ class MakoGenerator(BaseGenerator):
 
 
 def flatten_attr_list(input):
+    if not input:
+        return
     if isinstance(input, basestring):
         yield input
         return
@@ -178,18 +181,29 @@ def flatten_attr_dict(prefix_key, input):
     for key, value in input.iteritems():
         yield prefix_key + '-' + key, value
 
-  
+
+def camel_to_underscores(name):
+    return re.sub(r'(?<!^)([A-Z])([A-Z]*)', lambda m: '_' + m.group(0), name).lower()
+    
+
 def mako_build_attr_str(*args, **kwargs):
     x = {}
     for arg in args:
         x.update(arg)
+    obj_ref = kwargs.pop('__obj_ref', None)
     x.update(kwargs)
-    x['id'] = '_'.join(map(str, filter(None, flatten_attr_list(
+    x['id'] = flatten_attr_list(
         x.pop('id', [])
-    ))))
-    x['class'] = ' '.join(map(str, filter(None, flatten_attr_list(
+    )
+    x['class'] = list(flatten_attr_list(
         [x.pop('class', []), x.pop('class_', [])]
-    ))))
+    ))
+    if obj_ref:
+        class_name = camel_to_underscores(obj_ref.__class__.__name__)
+        x['id'] = [class_name, getattr(obj_ref, 'id', None)]
+        x['class'].append(class_name)
+    x['id'] = '_'.join(map(str, x['id']))
+    x['class'] = ' '.join(map(str, x['class']))
     pairs = []
     for k, v in x.iteritems():
         pairs.extend(flatten_attr_dict(k, v))
