@@ -52,12 +52,13 @@ def print_tree(node, depth=0, inline=False):
         print '-> ' + repr(node),
     else:
         print '|   ' * depth + repr(node),
+    depth += int(not inline)
     if node.inline_child:
         print_tree(node.inline_child, depth, True)
-    if not inline:
+    else:
         print
     for child in node.children:
-        print_tree(child, depth + int(not inline))
+        print_tree(child, depth)
 
 print '===== NODES ====='
 print_tree(root)
