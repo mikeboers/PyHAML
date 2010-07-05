@@ -32,7 +32,7 @@ source = '''
 
 source = '''
 
-%input(type='checkbox', checked=True)
+%div(class_='content', **{'non-valid':'value'}) content
 
 '''.strip()
 

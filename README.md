@@ -49,6 +49,14 @@ renders to:
         <li id="item_4">ITEM 4</li>
     </ul>
 
+If you want to pass in a class, use the keyword "class_". If you want to pass in any other non-identifier attribute names, you can expand a mapping in place. Eg.:
+
+    %div(class_='content', **{'not-valid-python': 'value'}) content
+
+renders to:
+
+    <div class='content', not-valid-python="value">content</div
+
 You can also pass in mapping objects as positional objects. Eg.:
 
     - attrs = dict(a='one', b='two')
