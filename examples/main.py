@@ -27,7 +27,7 @@ source = '''
 - content = """
     before
     
-    after"""
+    after""".strip()
 = content
     		
 '''.strip()
