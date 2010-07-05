@@ -13,8 +13,4 @@
 
 - doctypes
 
-- attribute values that are dicts should be combined with '-'
-    eg. %(data={'id': 4}) -> <div data-id="4">...</div>
-    - only need to do this for "data"
-
 - implement tests for all the examples in the haml tutorial

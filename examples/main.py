@@ -32,8 +32,7 @@ source = '''
 
 source = '''
 
-%(id=['a', 'b', None], class_=['a', 'b'])
-    content
+%outer -for i in range(3): %inner content
 
 '''
 

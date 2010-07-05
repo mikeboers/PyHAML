@@ -159,15 +159,17 @@ def mako_build_attr_str(*args, **kwargs):
     for arg in args:
         x.update(arg)
     x.update(kwargs)
-    if 'id' in x:
-        x['id'] = '_'.join(filter(None, flatten_attr_list(x['id'])))
-    if 'class_' in x:
-        x['class_'] = ' '.join(filter(None, flatten_attr_list(x['class_'])))
+    x['id'] = '_'.join(filter(None, flatten_attr_list(
+        x.pop('id', [])
+    )))
+    x['class'] = ' '.join(filter(None, flatten_attr_list(
+        [x.pop('class', []), x.pop('class_', [])]
+    )))
     pairs = []
     for k, v in x.iteritems():
         pairs.extend(flatten_attr_dict(k, v))
     pairs.sort(key=lambda pair: (_attr_sort_order.get(pair[0], 0), pair[0]))
-    return ''.join(' %s="%s"' % (k.strip('_'), cgi.escape(str(v))) for k, v in pairs)
+    return ''.join(' %s="%s"' % (k, cgi.escape(str(v))) for k, v in pairs if v)
 
 
 def generate_mako(node):
