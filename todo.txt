@@ -1,13 +1,18 @@
 
-- start thinking about exception handling (and making sense of it)
+- Add LICENSE.md file.
 
-- rename nodes.Comment to nodes.HTMLComment
-- rename nodes.Silent to nodes.HAMLComment
-- rename nodes.Filtered to nodes.Filter
+- Extend the Mako loader class to automatically compile mako.
+    - Make sure it caches the results!
+    
+- Start thinking about exception handling (and making sense of it)
+
+- Rename nodes.Comment to nodes.HTMLComment.
+- Rename nodes.Silent to nodes.HAMLComment.
+- Rename nodes.Filtered to nodes.Filter.
                                                 
-- blank lines should perhaps not be immediately tossed out.
+- Blank lines should perhaps not be immediately tossed out.
     eg.:
-        - content = """one
+        - Content = """one
             two
 
             three"""
@@ -15,10 +20,20 @@
     
     This will drop the blank line.   
 
-- the compiler should have backend specific methods for the following:
+- The compiler should have backend specific methods for the following:
     - boolean attributes (ie HTML vs XHTML versions)
     - expressions
     - control statements (start and end)
 
-- can we support Django templates?
+- Can we support other engines?
+    - Django
+    - Jinja
+    - Cheetah
+    - Genshi (even though they already have something similar)
+    - the one that comes with WerkZeug
+    - really simple one that uses #{...} syntax
+    
+    Will likely need to not have arbitrary code inclusion, but I don't know
+    if Haml actually specifies that you can do this. I can scan expressions
+    for control structures to add a little bit more to it but that may be it.
         
