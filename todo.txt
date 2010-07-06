@@ -1,26 +1,21 @@
 
-- Add LICENSE.md file.
-
 - Extend the Mako loader class to automatically compile mako.
     - Make sure it caches the results!
     
-- Start thinking about exception handling (and making sense of it)
-
-- Rename nodes.Comment to nodes.HTMLComment.
-- Rename nodes.Silent to nodes.HAMLComment.
-- Rename nodes.Filtered to nodes.Filter.
-                                                
-- Blank lines should perhaps not be immediately tossed out.
-    eg.:
-        - Content = """one
-            two
-
-            three"""
-        = content  
+- Start thinking about exception handling (and making sense of it).
     
-    This will drop the blank line.   
+    It would be very nice if there was a way to adapt exception tracebacks
+    similar to how Mako does it so that errors can be traced back to the
+    original HAML source.
 
-- The compiler should have backend specific methods for the following:
+- Consider renaming some node classes:
+    Comment -> HTMLComment
+    Silent -> HamlComment
+    Filtered -> Filter
+
+- Should standardize on either "Engine", "Compiler", or "Generator".
+
+- The engine should have backend specific methods for the following:
     - boolean attributes (ie HTML vs XHTML versions)
     - expressions
     - control statements (start and end)
@@ -34,6 +29,6 @@
     - really simple one that uses #{...} syntax
     
     Will likely need to not have arbitrary code inclusion, but I don't know
-    if Haml actually specifies that you can do this. I can scan expressions
+    if HAML actually specifies that you can do this. I can scan expressions
     for control structures to add a little bit more to it but that may be it.
         
