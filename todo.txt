@@ -31,4 +31,19 @@
     Will likely need to not have arbitrary code inclusion, but I don't know
     if HAML actually specifies that you can do this. I can scan expressions
     for control structures to add a little bit more to it but that may be it.
-        
+
+
+- Add +function shortcut for <%call ... /> tag:
+	- A function call like:
+		+example(1, 2)<
+			content
+	  would compile to:
+		<%call name="something" args="1, 2">content</%call>
+	- Remember that the content of the tag is availible to the funciton as
+	  ${caller.body}
+	- Could do very similar syntax to define a function as well:
+		+example(a, b):
+			ul
+				li= a
+				li= b
+			= caller.body()
