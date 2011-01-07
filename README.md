@@ -6,26 +6,79 @@ I have kept as much of the same syntax as I could, but there are some Rubyisms b
 
 This package essentially cross-compiles PyHAML code into a [Mako](http://www.makotemplates.org/) template. Ergo, all of your standard Mako syntax also applies to content which does not match any of the HAML syntax.
 
+## Basic Example
+
+Simple HAML (no variables passed in):
+
+    %head
+        %title My super awesome example!
+        %link(rel='stylesheet', href='/css/screen.css')
+    %body
+        #header
+            %img#logo(src='/img/logo.png')
+            %ul#top-nav.nav
+                - for i in range(2):
+                    %li= 'Item %02d' % i
+        #content
+            %p
+                The content goes in here.
+                This is another line of the content.
+            %p.warning
+                This is a warning.
+
+... results in:
+
+    <head>
+    	<title>My super awesome example!</title>
+    	<link href="/css/screen.css" rel="stylesheet" />
+    </head>
+    <body>
+    	<div id="header">
+    		<img id="logo" src="/img/logo.png" />
+    		<ul id="top-nav" class="nav">
+    			<li>Item 00</li>
+    			<li>Item 01</li>
+    		</ul>
+    	</div>
+    	<div id="content">
+    		<p>
+    			The content goes in here.
+    			This is another line of the content.
+    		</p>
+    		<p class="warning">
+    			This is a warning.
+    		</p>
+    	</div>
+    </body>
+
 ## API Example
 
     import haml
     import mako.template
+    
+    if your_templates_are_in_a_directory:
+    
+        # Build the template lookup.
+        lookup = mako.lookup.TemplateLookup(["various", "template", "paths"],
+            preprocessor=haml.preprocessor
+        )
+        
+        # Retrieve a template.
+        template = lookup.get_template('example_template.haml')
+    
+    else: # You have some strings...
+    
+        # Write your HAML.
+        haml_source = '.content Hello, World!'
+    
+        # Build your template.
+        template = mako.template.Template(haml_source,
+            preprocessor=haml.preprocessor
+        )
+    
+    # Render!
+    print template.render()
 
-    # 1. Write your HAML.
-    haml_source = '.content Hello, World!'
-
-    # 2. Parse your HAML source into a node tree.
-    haml_nodes = haml.parse_string(haml_source)
-
-    # 3. Generate Mako template source from the node tree.
-    mako_source = haml.generate_mako(haml_nodes)
-
-    # 4. Render the template.
-    print mako.template.Template(mako_source).render_unicode()
-
-Output:
-
-    <div class="content">Hello, World!</div>
     
 ## Reference
 
