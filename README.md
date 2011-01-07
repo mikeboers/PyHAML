@@ -8,48 +8,28 @@ This package essentially cross-compiles PyHAML code into a [Mako](http://www.mak
 
 ## Basic Example
 
-Simple HAML (no variables passed in):
+A simple PyHAML template:
 
-    %head
-        %title My super awesome example!
-        %link(rel='stylesheet', href='/css/screen.css')
-    %body
-        #header
-            %img#logo(src='/img/logo.png')
-            %ul#top-nav.nav
-                - for i in range(2):
-                    %li= 'Item %02d' % i
-        #content
-            %p
-                The content goes in here.
-                This is another line of the content.
-            %p.warning
-                This is a warning.
+    #profile
+      .left.column
+        #date= print_date
+        #address= current_user.address
+      .right.column
+        #email= current_user.email
+        #bio= current_user.bio
+    
+A Mako template to do the same thing:
 
-... results in:
-
-    <head>
-    	<title>My super awesome example!</title>
-    	<link href="/css/screen.css" rel="stylesheet" />
-    </head>
-    <body>
-    	<div id="header">
-    		<img id="logo" src="/img/logo.png" />
-    		<ul id="top-nav" class="nav">
-    			<li>Item 00</li>
-    			<li>Item 01</li>
-    		</ul>
+    <div id="profile">
+    	<div class="left column">
+    		<div id="date">${print_date}</div>
+    		<div id="address">${current_user.address}</div>
     	</div>
-    	<div id="content">
-    		<p>
-    			The content goes in here.
-    			This is another line of the content.
-    		</p>
-    		<p class="warning">
-    			This is a warning.
-    		</p>
+    	<div class="right column">
+    		<div id="email">${current_user.email}</div>
+    		<div id="bio">${current_user.bio}</div>
     	</div>
-    </body>
+    </div>
 
 ## API Example
 
