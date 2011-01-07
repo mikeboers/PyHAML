@@ -6,7 +6,7 @@ I have kept as much of the same syntax as I could, but there are some Rubyisms b
 
 This package essentially cross-compiles PyHAML code into a [Mako](http://www.makotemplates.org/) template. Ergo, all of your standard Mako syntax also applies to content which does not match any of the HAML syntax.
 
-## Basic Example
+## Markup Example
 
 A simple PyHAML template:
 
