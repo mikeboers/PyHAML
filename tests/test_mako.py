@@ -164,3 +164,19 @@ inline expr
         after
             '''.strip() + '\n')
 
+    def test_empty_line_handling_3(self):
+        '''A blank line should not affect indentation level.'''
+        self.assertHTML(
+            '''
+%a
+    %b
+
+        %c
+            '''.strip(),
+            '''
+<a>
+    <b>
+        <c></c>
+    </b>
+</a>
+            '''.strip() + '\n')

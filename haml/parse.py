@@ -51,33 +51,41 @@ class Parser(object):
 
             line = raw_line.lstrip()
             
-            # We track the inter-line depth seperate from the intra-line depth
-            # so that indentation due to whitespace always results in more
-            # depth in the graph than many nested nodes from a single line.
-            # We treat a whitespace-only line as if the indentation level has
-            # not changed
-            inter_depth = len(raw_line) - len(line)
-            intra_depth = 0
-            
-            # Cleanup the stack. We should only need to do this here as the
-            # depth only goes up until it is calculated from the next line.
-            self._prep_stack_for_depth((inter_depth, intra_depth))
-            
+            if line:
+                
+                # We track the inter-line depth seperate from the intra-line depth
+                # so that indentation due to whitespace always results in more
+                # depth in the graph than many nested nodes from a single line.
+                inter_depth = len(raw_line) - len(line)
+                intra_depth = 0
+                
+                # Cleanup the stack. We should only need to do this here as the
+                # depth only goes up until it is calculated from the next line.
+                self._prep_stack_for_depth((inter_depth, intra_depth))
+                
+            else:
+                
+                # Pretend that a blank line is at the same depth as the
+                # previous.
+                inter_depth, intra_depth = self._stack[-1][0]
+                    
             # Greedy nodes recieve all content until we fall out of their scope.
             if isinstance(self._topmost_node, nodes.GreedyBase):
+                topmost = self._topmost_node
+                # Blank lines go at the same level as the previous if it is
+                # not the parent greedy node.
+                if not line and topmost is not topmost.outermost_node:
+                    self._stack.pop()
                 self._add_node(
-                    self._topmost_node.__class__.with_parent(self._topmost_node, line),
+                    topmost.content_type.with_parent(topmost, line),
                     (inter_depth, intra_depth)
                 )
                 continue
             
+            # Discard all empty lines that are not in a greedy context.
             if not line:
-                # I am unsure if I should just be discarding all empty lines
-                # like this. There are some scenarios in which an empty line
-                # would still be used, such as in a multiline string inside a
-                # source block.
                 continue
-
+            
             # Main loop. We process a series of tokens, which consist of either
             # nodes to add to the stack, or strings to be re-parsed and
             # attached as inline.
