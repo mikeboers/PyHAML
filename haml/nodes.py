@@ -66,9 +66,6 @@ class Base(object):
 
 class GreedyBase(Base):
     
-    # This will get set below.
-    content_type = None
-    
     def __init__(self, *args, **kwargs):
         super(GreedyBase, self).__init__(*args, **kwargs)
         self._greedy_parent = None
@@ -129,7 +126,6 @@ class Content(Base):
 
 class GreedyContent(Content, GreedyBase):
     pass
-GreedyBase.content_type = GreedyContent
 
 class Expression(Content, GreedyBase):
 
@@ -148,7 +144,6 @@ class Expression(Content, GreedyBase):
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.content, self.filters)
 
-Expression.content_type = Expression
 
 
 class Tag(Base):
@@ -389,7 +384,6 @@ class Filtered(GreedyBase):
             yield ']))) %>'
         yield engine.dec_depth
 
-Filtered.content_type = Filtered
 
 class Silent(Base):
 

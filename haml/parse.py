@@ -77,7 +77,7 @@ class Parser(object):
                 if not line and topmost is not topmost.outermost_node:
                     self._stack.pop()
                 self._add_node(
-                    topmost.content_type.with_parent(topmost, line),
+                    topmost.with_parent(topmost, line),
                     (inter_depth, intra_depth)
                 )
                 continue
