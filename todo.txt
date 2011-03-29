@@ -1,7 +1,4 @@
 
-- Extend the Mako loader class to automatically compile mako.
-    - Make sure it caches the results!
-
 
 - Start thinking about exception handling (and making sense of it).
     
@@ -21,24 +18,24 @@
     Silent -> HamlComment
     Filtered -> Filter
 
+- doctypes should be able to add nodes to the stack to wrap everything
+    - good for "!!! xsl stylesheet 1.0"
+    - should this indent the whole file?
+
+- default xml doctypes should actually be "xhtml"
+
+- tag closing names should only be references in HTML mode
+    - add an html_mode attribute to the engine
+
+- engine should have feature mode attributes such as:
+    - html_closes (very few things should self close)
+
 - Should standardize on either "Engine", "Compiler", or "Generator".
 
 - The engine should have backend specific methods for the following:
     - boolean attributes (ie HTML vs XHTML versions)
     - expressions
     - control statements (start and end)
-
-- Can we support other engines?
-    - Django
-    - Jinja
-    - Cheetah
-    - Genshi (even though they already have something similar)
-    - the one that comes with WerkZeug
-    - really simple one that uses #{...} syntax
-    
-    Will likely need to not have arbitrary code inclusion, but I don't know
-    if HAML actually specifies that you can do this. I can scan expressions
-    for control structures to add a little bit more to it but that may be it.
 
 
 - Add +function shortcut for <%call ... /> tag:
