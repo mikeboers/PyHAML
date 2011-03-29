@@ -1,0 +1,8 @@
+<%inherit file="layout.haml" />
+
+<%def name="body()">
+%h3 I am the page name.
+%ul
+    - for x in ( 'one', 'two', 'three' ):
+        %li ${x}
+</%def>
