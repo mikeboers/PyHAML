@@ -151,7 +151,7 @@ class Parser(object):
 
         # Tags.
         m = re.match(r'''
-            (?:%(%?\w*))?             # tag name. the extra % is for mako
+            (?:%(%?(?:\w+:)\w*))?             # tag name. the extra % is for mako
             (?:
               \[(.+?)(?:,(.+?))?\]    # object reference and prefix
             )? 
