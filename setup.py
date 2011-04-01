@@ -11,4 +11,8 @@ setup(
     license='New BSD License',
     packages=['haml'],
     install_requires=['mako'],
+    scripts=[
+        'scripts/haml-preprocess',
+        'scripts/haml-render',
+    ],
 )
