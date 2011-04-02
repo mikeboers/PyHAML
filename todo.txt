@@ -1,4 +1,45 @@
 
+- make sure "xsl:apply-templates" tag works (ie. must allow for dash)
+
+- haml filter to strip leading whitespace (like docstrings)
+	:dedent
+
+- haml filters should stack
+	:dedent,sass
+
+- haml tags should be able to have positional argument names
+	default to (name='div', id=None, class=None)
+		%('a' * 10)
+		%xsl:template(match)
+		%xsl:apply-templates(select)
+
+- "from haml import runtime as __haml"
+	- instead of "from haml.codegen import mako_build_attr_str as __P_attrs"
+		"__haml.attribute_str(...)"
+	- engine for current template should be availible via "__haml.get_engine()"
+		- perhaps associate with the mako stack pointer?
+
+
+- !!! xsl stylesheet v1
+	- add the xml node and the xsl:stylesheet node
+		<?xml version='1.0' encoding='utf-8' ?>
+
+- what kind of tag is "<?xml version='1.0' encoding='utf-8' ?>"
+	- consider adding it via ???
+
+- non-selfclosing tag list should be a property of the engine object so it can
+  be set at compile, render, or runtime.
+
+- transform doctype declaration into general config setting syntax
+	- allow for changing engine settings
+		!!! indent None
+		!!! indent '  '
+		!!! no_self_close style False
+		!!! default_filter html
+
+- every time we have a set of function arguments we can see if it parses with:
+	compile('f(%s)', '<PyHAML>', 'eval')
+
 
 - Start thinking about exception handling (and making sense of it).
     
@@ -18,25 +59,29 @@
     Silent -> HamlComment
     Filtered -> Filter
 
-- doctypes should be able to add nodes to the stack to wrap everything
-    - good for "!!! xsl stylesheet 1.0"
-    - should this indent the whole file?
 
 - default xml doctypes should actually be "xhtml"
 
-- tag closing names should only be references in HTML mode
-    - add an html_mode attribute to the engine
-
-- engine should have feature mode attributes such as:
-    - html_closes (very few things should self close)
-
 - Should standardize on either "Engine", "Compiler", or "Generator".
 
-- The engine should have backend specific methods for the following:
-    - boolean attributes (ie HTML vs XHTML versions)
-    - expressions
-    - control statements (start and end)
+- filters should be able to pull from haml.filters as well
+	- we could include them all into the globals()
+	- OR have a haml.runtime.get_filter('name', globals()) to do it
 
+- implement as many of the filters in from the docs as we can
+ 	- see: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#filters
+	- "scss" for other sass syntax
+	- "python" should do the same as "ruby"
+	- "mako" should just drop it in place
+		- should this auto-dedent?
+		- :dedent,mako
+			Something something
+		- don't know if this is actually filterable though...
+
+- filters with arguments?
+	- exec(["blah"]) -> exec(["blah"])(<to be filtered>)
+		
+- does decorator syntax for filtering make any sense?
 
 - Add +function shortcut for <%call ... /> tag:
 	- A function call like:
@@ -44,12 +89,12 @@
 			content
 	  would compile to:
 		<%call name="something" args="1, 2">content</%call>
-	- Remember that the content of the tag is availible to the funciton as
+	- Remember that the content of the tag is available to the function as
 	  ${caller.body}
 	- Could do very similar syntax to define a function as well:
-		@example(*args)
-			ul - for arg in args:
-				li=|h arg
+		@def example(*args)
+			%ul - for arg in args:
+				%li=|h arg
 			= caller.body
 
 - Some tags should only have content and no possibility of sub-tags. eg. script,
