@@ -63,6 +63,10 @@
 - default xml doctypes should actually be "xhtml"
 
 - Should standardize on either "Engine", "Compiler", or "Generator".
+	- generator may be misconstrued with a generator-iterator. -1
+	- compiler seems most apt. +1
+	
+	There are a lot of places to make this change...
 
 - filters should be able to pull from haml.filters as well
 	- we could include them all into the globals()
@@ -102,3 +106,6 @@ style, etc. We should move the determination of if a node is greedy to a
 method on the node itself so that normals tags may also be greedy given the
 tag name. This method should also specify what type of node the children
 should be. Ie. a greedy tag would only be content.
+
+
+
