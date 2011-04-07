@@ -120,13 +120,16 @@ class MakoGenerator(BaseGenerator):
         )
 
 
+
 def flatten_attr_list(input):
     if not input:
         return
     if isinstance(input, basestring):
         yield input
         return
-    if not isinstance(input, collections.Iterable):
+    try:
+        input = iter(input)
+    except TypeError:
         yield input
         return
     for element in input:

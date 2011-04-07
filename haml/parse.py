@@ -1,4 +1,8 @@
 
+try:
+    next
+except NameError:
+    from .backwards import next
 import re
 
 from . import nodes
