@@ -1,6 +1,7 @@
 
 from itertools import chain
 import cgi
+import re
 
 from . import codegen
 
@@ -197,10 +198,10 @@ class Tag(Base):
 
         if kwargs_expr:
             try:
-                # HACK: This is really freaking dangerous...
-                # If we can evaluate the expression with no content then we
-                # can go ahead and use
-                const_attrs.update(eval('dict(%s)' % kwargs_expr, {}))
+                r1 = re.compile('([a-zA-Z0-9_%-]+)\s*=\s*\'([^\']*)\'')
+                r2 = re.compile('([a-zA-Z0-9_%-]+)\s*=\s*"([^"]*)"')
+                for match in r1.findall(kwargs_expr) + r2.findall(kwargs_expr):
+                    const_attrs[match[0]] = match[1]
             except (NameError, ValueError, KeyError):
                 pass
             else:
