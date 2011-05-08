@@ -197,10 +197,20 @@ class Tag(Base):
 
         if kwargs_expr:
             try:
-                # HACK: This is really freaking dangerous...
-                # If we can evaluate the expression with no content then we
-                # can go ahead and use
-                const_attrs.update(eval('dict(%s)' % kwargs_expr, {}))
+                # HACK: If we can evaluate the expression without error then
+                # we don't need to do it at runtime. This is possibly quite
+                # dangerous. We are trying to protect ourselves but I can't
+                # guarantee it.
+                kwargs_code = compile('__update__(%s)' % kwargs_expr, '<kwargs_expr>', 'eval')
+                sandbox = __builtins__.copy()
+                del sandbox['__import__']
+                del sandbox['eval']
+                del sandbox['execfile']
+                def const_attrs_update(*args, **kwargs):
+                    map(const_attrs.update, args)
+                    const_attrs.update(kwargs)
+                sandbox['__update__'] = const_attrs_update
+                eval(kwargs_code, sandbox)
             except (NameError, ValueError, KeyError):
                 pass
             else:
