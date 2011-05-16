@@ -161,10 +161,11 @@ def mako_build_attr_str(*args, **kwargs):
     x = {}
     for arg in args:
         x.update(arg)
-    obj_ref = kwargs.pop('__obj_ref', None)
-    obj_ref_prefix = kwargs.pop('__obj_ref_pre', None)
     x.update(kwargs)
-    x = dict((adapt_camelcase(k, '-'), v) for k, v in x.iteritems())
+    obj_ref = x.pop('__obj_ref', None)
+    obj_ref_prefix = x.pop('__obj_ref_pre', None)
+    if x.pop('__adapt_camelcase', True):
+        x = dict((adapt_camelcase(k, '-'), v) for k, v in x.iteritems())
     x['id'] = flatten_attr_list(
         x.pop('id', [])
     )
