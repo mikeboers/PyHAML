@@ -2,8 +2,14 @@ from . import Base
 
 class TestAttributes(Base):
     
-    def test_dashes_in_kwargs(self):
+    def test_raw_attribute_names(self):
         self.assertHTML(
             '%({"b-dash": "two"}, a="one", **{"c-dash": "three"}) content',
             '<div a="one" b-dash="two" c-dash="three">content</div>\n'
+        )
+        
+    def test_camelcase_attributes(self):
+        self.assertHTML(
+            '%div(dataKey="value") content',
+            '<div data-key="value">content</div>\n'
         )

@@ -145,9 +145,9 @@ def flatten_attr_dict(prefix_key, input):
     for key, value in input.iteritems():
         yield prefix_key + '-' + key, value
 
-
-def camelcase_to_underscores(name):
-    return re.sub(r'(?<!^)([A-Z])([A-Z]*)', lambda m: '_' + m.group(0), name).lower()
+_camelcase_re = re.compile(r'(?<!^)([A-Z])([A-Z]*)')
+def adapt_camelcase(name, seperator):
+    return _camelcase_re.sub(lambda m: seperator + m.group(0), name).lower()
 
 
 def _format_mako_attr_pair(k, v):
@@ -156,6 +156,7 @@ def _format_mako_attr_pair(k, v):
     return ' %s="%s"' % (k, cgi.escape(str(v)))
 
 
+    
 def mako_build_attr_str(*args, **kwargs):
     x = {}
     for arg in args:
@@ -163,6 +164,7 @@ def mako_build_attr_str(*args, **kwargs):
     obj_ref = kwargs.pop('__obj_ref', None)
     obj_ref_prefix = kwargs.pop('__obj_ref_pre', None)
     x.update(kwargs)
+    x = dict((adapt_camelcase(k, '-'), v) for k, v in x.iteritems())
     x['id'] = flatten_attr_list(
         x.pop('id', [])
     )
@@ -170,7 +172,7 @@ def mako_build_attr_str(*args, **kwargs):
         [x.pop('class', []), x.pop('class_', [])]
     ))
     if obj_ref:
-        class_name = camelcase_to_underscores(obj_ref.__class__.__name__)
+        class_name = adapt_camelcase(obj_ref.__class__.__name__, '_')
         x['id'] = filter(None, [obj_ref_prefix, class_name, getattr(obj_ref, 'id', None)])
         x['class'].append((obj_ref_prefix + '_' if obj_ref_prefix else '') + class_name)
     x['id'] = '_'.join(map(str, x['id']))
