@@ -153,7 +153,7 @@ def adapt_camelcase(name, seperator):
 def _format_mako_attr_pair(k, v):
     if v is True:
         v = k
-    return ' %s="%s"' % (k, cgi.escape(str(v)))
+    return ' %s="%s"' % (k, cgi.escape("%s" % v))
 
 
     
