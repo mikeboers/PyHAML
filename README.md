@@ -82,13 +82,21 @@ renders to:
         <li id="item_4">ITEM 4</li>
     </ul>
 
-If you want to pass in a class, use the keyword "class_". If you want to pass in any other non-identifier attribute names, you can expand a mapping in place. Eg.:
+If you want to pass in a class, use the keyword "class_". If you want to use attribute names with dashes, use camel case instead and it will be converted for you:
+
+    %meta(httpEquiv="Content-Type", content="text/html;charset=UTF-8")
+
+renders to:
+
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+
+If you want to pass in any other non-identifier attribute names, you can expand a mapping in place. Eg.:
 
     %div(class_='content', **{'not-valid-python': 'value'}) content
 
 renders to:
 
-    <div class='content', not-valid-python="value">content</div
+    <div class='content', not-valid-python="value">content</div>
 
 You can also pass in mapping objects as positional objects. Eg.:
 
