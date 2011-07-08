@@ -25,16 +25,16 @@ class GeneratorSentinal(object):
         return '<Sentinal at 0x%x>' % id(self)
 
 
-class BaseGenerator(object):
+class Generator(object):
     
     class no_strip(str):
         """A string class that will not have space removed."""
         def __repr__(self):
             return 'no_strip(%s)' % str.__repr__(self)
-            
-    indent_str = ''
-    endl = ''
-    endl_no_break = ''
+    
+    indent_str = '\t'
+    endl = '\n'
+    endl_no_break = '\\\n'
 
     inc_depth = GeneratorSentinal(delta=1, name='inc_depth')
     dec_depth = GeneratorSentinal(delta=-1, name='dec_depth')
@@ -101,23 +101,12 @@ class BaseGenerator(object):
     def indent(self, delta=0):
         return self.indent_str * (self.depth + delta)
 
-    def noop(self):
-        return None
-
-    start_document = noop
-
-
-class MakoGenerator(BaseGenerator):
-
-    indent_str = '\t'
-    endl = '\n'
-    endl_no_break = '\\\n'
-
     def start_document(self):
         return (
             '<%%! from %s import mako_build_attr_str as __P_attrs %%>' % __name__ +
             self.endl_no_break
         )
+
 
 
 
@@ -186,4 +175,4 @@ def mako_build_attr_str(*args, **kwargs):
 
 
 def generate_mako(node):
-    return MakoGenerator().generate(node)
+    return Generator().generate(node)

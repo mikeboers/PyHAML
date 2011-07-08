@@ -64,11 +64,6 @@
 
 - default xml doctypes should actually be "xhtml"
 
-- Should standardize on either "Engine", "Compiler", or "Generator".
-	- generator may be misconstrued with a generator-iterator. -1
-	- compiler seems most apt. +1
-	
-	There are a lot of places to make this change...
 
 - filters should be able to pull from haml.filters as well
 	- we could include them all into the globals()
@@ -102,6 +97,7 @@
 			%ul - for arg in args:
 				%li=|h arg
 			= caller.body
+
 
 - Some tags should only have content and no possibility of sub-tags. eg. script,
 style, etc. We should move the determination of if a node is greedy to a
