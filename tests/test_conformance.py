@@ -360,6 +360,51 @@ C
     def test_boolean_attribtues(self):
         """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#boolean_attributes"""
         self.assertHTML("%(type='checkbox', checked=True)", '<div type="checkbox" checked="checked"></div>\n')              
-                                      
+
+
+class TestControlStructures(Base):
+
+    def test_else_if(self):
+        self.assertHTML(
+'''
+- if False:
+    A
+- else:
+    B
+''', 'B\n')
+
+    def test_elif(self):
+        self.assertHTML(
+'''
+- if False:
+    A
+- elif False:
+    B
+- elif True:
+    C
+- else:
+    D
+''', 'C\n')
+
+
+    def test_for_else(self):
+        self.assertHTML(
+'''
+- for i in range(3): ${i}
+- else:
+    X
+''', '0\n1\n2\nX\n')
+
+    def test_for_else_break(self):
+        self.assertHTML(
+'''
+- for i in range(3):
+    ${i}
+    - break
+- else:
+    X
+''', '0\n')
+        
+                                        
 if __name__ == '__main__':
     main()

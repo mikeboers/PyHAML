@@ -1,6 +1,8 @@
 
 - "unicode_as_entities" option on engine
 
+- come up with something less hacky for "else".
+
 - make sure "xsl:apply-templates" tag works (ie. must allow for dash)
 
 - haml filter to strip leading whitespace (like docstrings)

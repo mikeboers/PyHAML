@@ -37,12 +37,16 @@ class Parser(object):
         return self._peek_line_buffer
 
     def parse(self, source):
+        self._parse_lines(source)
+        self._parse_context(self.root)
+    
+    def _parse_lines(self, source):
         self.source = iter(source)
         while True:
             try:
                 raw_line = self._next_line()
             except StopIteration:
-                return
+                break
 
             # Handle multiline statements.
             try:
@@ -104,7 +108,6 @@ class Parser(object):
                         intra_depth += 1
                     else:
                         raise TypeError('unknown token %r' % token)
-
 
     def _parse_line(self, line):
 
@@ -223,7 +226,7 @@ class Parser(object):
         m = re.match(r'''
             -
             \s*
-            (for|if|while) # control type
+            (for|if|while|elif) # control type
             \s+
             (.+?):         # test
         ''', line, re.X)
@@ -231,7 +234,12 @@ class Parser(object):
             yield nodes.Control(*m.groups())
             yield line[m.end():].lstrip()
             return
-
+        m = re.match(r'-\s*else\s*:', line, re.X)
+        if m:
+            yield nodes.Control('else', None)
+            yield line[m.end():].lstrip()
+            return
+        
         # Python source.
         if line.startswith('-'):
             if line.startswith('-!'):
@@ -252,6 +260,14 @@ class Parser(object):
         """Add a node to the graph, and the stack."""
         self._topmost_node.add_child(node, bool(depth[1]))
         self._stack.append((depth, node))
+    
+    def _parse_context(self, node):
+        i = 0
+        while i < len(node.children) - 1:
+            if node.children[i].consume_sibling(node.children[i + 1]):
+                del node.children[i + 1]
+            else:
+                i += 1
 
 
 def parse_string(source):

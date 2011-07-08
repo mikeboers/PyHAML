@@ -6,33 +6,10 @@ import haml.codegen
 
 source = '''
 
-!!! XML
-!!!
-%head
-    %title This should be one line.
-    %script(src='/js/jquery.js')
-        (function($){
-            console.log('Hello.')
-            $('<a>Click</a>')
-                .button()
-        })(jQuery)
-        
-    %link(rel='stylesheet', href='/css/screen.css')
-%body
-    #header
-        %img#logo(src='/img/logo.png')
-        %ul#top-nav.nav
-            - for i in range(2):
-                %li= 'Item %02d' % i
-    #nav - for i in range(3): %li= i
-    #content
-        %p
-            The content goes in here.
-            This is another line of the content.
-        %p.warning
-            This is a warning.
-        -
-            range(10)
+- if False:
+    AAA
+- else:
+    BBB
 
 '''
 

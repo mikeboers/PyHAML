@@ -18,6 +18,9 @@ class Base(object):
             node.inline_parent = self
         else:
             self.children.append(node)
+    
+    def consume_sibling(self, node):
+        return False
 
     def render(self, engine):
         return chain(
@@ -317,25 +320,61 @@ class Control(Base):
         super(Control, self).__init__()
         self.type = type
         self.test = test
+        self.elifs = []
+        self.else_ = None
 
+    def consume_sibling(self, node):
+        if not isinstance(node, Control):
+            return False
+        if node.type == 'elif':
+            self.elifs.append(node)
+            return True
+        if node.type == 'else' and self.else_ is None:
+            self.else_ = node
+            return True
+    
+    def print_tree(self, depth):
+        super(Control, self).print_tree(depth)
+        for node in self.elifs:
+            node.print_tree(depth)
+        if self.else_ is not None:
+            self.else_.print_tree(depth)
+            
+    def render(self, engine):
+        to_chain = [self.render_start(engine), self.render_content(engine)]
+        for node in self.elifs:
+            to_chain.append(node.render(engine))
+        if self.else_:
+            to_chain.append(self.else_.render(engine))
+        to_chain.append(self.render_end(engine))
+        return chain(*to_chain)
+        
     def render_start(self, engine):
         yield engine.line_continuation
         yield engine.indent(-1)
-        yield '%% %s %s: ' % (self.type, self.test)
+        if self.test is not None:
+            yield '%% %s %s: ' % (self.type, self.test)
+        else:
+            yield '%% %s: ' % (self.type)
         yield engine.no_strip(engine.endl)
 
     def render_end(self, engine):
+        if self.type in ('else', 'elif'):
+            return
         yield engine.line_continuation
         yield engine.indent(-1)
         yield '%% end%s' % self.type
         yield engine.no_strip(engine.endl)
 
     def __repr__(self):
-        return '%s(type=%r, test=%r)' % (
-            self.__class__.__name__,
-            self.type,
-            self.test
-        )
+        if self.test is not None:
+            return '%s(type=%r, test=%r)' % (
+                self.__class__.__name__,
+                self.type,
+                self.test
+            )
+        else:
+            return '%s(type=%r)' % (self.__class__.__name__, self.type)
 
 
 class Source(GreedyBase):
