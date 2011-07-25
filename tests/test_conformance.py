@@ -404,6 +404,21 @@ class TestControlStructures(Base):
 - else:
     X
 ''', '0\n')
+
+    def test_for_if(self):
+	self.assertHTML(
+'''
+- for i in range(4):
+       - if i % 2 == 0:
+               ${i} even
+       - else:
+               ${i} odd
+''', '''
+0 even
+1 odd
+2 even
+3 odd
+'''.lstrip())
         
                                         
 if __name__ == '__main__':
