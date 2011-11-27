@@ -9,6 +9,9 @@
 - haml filters should stack
 	:dedent,sass
 
+- cdata filter should cgi.escape if in html4 mode
+    - move filters into runtime?
+
 - haml tags should be able to have positional argument names
 	default to (name='div', id=None, class=None)
 		%('a' * 10)

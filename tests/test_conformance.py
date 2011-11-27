@@ -305,8 +305,10 @@ bar</pre><img />
         self.assertHTML(
             '''
 A
--! def noop(x):
-    return x
+-!
+    def noop(x):
+        return x
+    value = 123
 B
 :noop
     The syntaxes! They do nothing!!!
@@ -314,17 +316,18 @@ B
     .class
     - statement
     / comment
+    ${value}
 C
             '''.strip(),
             '''
 A
 B
-
 The syntaxes! They do nothing!!!
 #id
 .class
 - statement
 / comment
+123
 C
             '''.strip() + '\n') 
             
@@ -454,6 +457,33 @@ b
 a
 <style><![CDATA[body{margin:0;padding:0}div p{margin-top:1em}]]></style>b
 '''.lstrip())
+
+    def test_filter_scoping(self):
+        self.assertHTML(
+'''
+:plain
+    X
+''',
+'''
+X
+'''.lstrip())
+        self.assertHTML(
+'''
+-! def plain(x): return 'A'
+
+:plain
+    X
+
+''',
+'''A''')
+        self.assertHTML(
+'''
+-! def plain(x): return 'A'
+:plain
+    - def plain(x): return 'B'
+    X
+''',
+'''A''')
         
                                         
 if __name__ == '__main__':

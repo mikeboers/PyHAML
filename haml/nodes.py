@@ -1,6 +1,7 @@
 
 from itertools import chain
 import cgi
+import re
 
 from . import codegen
 from . import runtime
@@ -417,20 +418,28 @@ class Filtered(GreedyBase):
         self.content = content
         self.filter = filter
 
+    def _unescape_expressions(self, source):
+        parts = re.split(r'(\${.*?})', source)
+        for i in range(1, len(parts), 2):
+            print i, parts[i]
+            parts[i] = parts[i] and ('</%%text>%s<%%text>' % parts[i])
+        return ''.join(parts)
+
     def render_start(self, engine):
         if not self.inc_depth(engine):
-            # HACK
-            # I'm not sure if this chain respects proper scope resolution.
-            yield '<%%block filter="context.get(%r) or globals().get(%r) or __HAML.filters.%s">' % (self.filter, self.filter, self.filter)
-            yield engine.endl
+            # Hopefully this chain respects proper scope resolution.
+            yield '<%%block filter="__M_locals.get(%r) or globals().get(%r) or __HAML.filters.%s"><%%text>' % (self.filter, self.filter, self.filter)
         if self.content is not None:
-            yield '%s%s' % (engine.indent(-1), (self.content).encode('unicode-escape').replace("'", "\\'"))
-            yield engine.endl
+            yield self._unescape_expressions('%s%s%s' % (
+                engine.indent(-1),
+                self.content,
+                engine.endl
+            ))
         yield engine.inc_depth
 
     def render_end(self, engine):
         if not self.dec_depth(engine):
-            yield '</%block>'
+            yield '</%text></%block>'
         yield engine.dec_depth
 
     def __repr__(self):
