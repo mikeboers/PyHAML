@@ -3,6 +3,7 @@ from itertools import chain
 import cgi
 
 from . import codegen
+from . import runtime
 
 
 class Base(object):
@@ -220,11 +221,11 @@ class Tag(Base):
                 kwargs_expr = None
 
         if not kwargs_expr:
-            attr_str = codegen.mako_build_attr_str(const_attrs)
+            attr_str = runtime.attribute_str(const_attrs)
         elif not const_attrs:
-            attr_str = '<%% __M_writer(__P_attrs(%s)) %%>' % kwargs_expr
+            attr_str = '<%% __M_writer(__HAML.attribute_str(%s)) %%>' % kwargs_expr
         else:
-            attr_str = '<%% __M_writer(__P_attrs(%r, %s)) %%>' % (const_attrs, kwargs_expr)
+            attr_str = '<%% __M_writer(__HAML.attribute_str(%r, %s)) %%>' % (const_attrs, kwargs_expr)
 
         if self.strip_outer:
             yield engine.lstrip

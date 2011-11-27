@@ -7,7 +7,7 @@ class Base(TestCase):
     
     def assertMako(self, source, expected, *args):
         node = haml.parse_string(source)
-        mako = haml.generate_mako(node).replace('<%! from haml.codegen import mako_build_attr_str as __P_attrs %>\\\n', '')
+        mako = haml.generate_mako(node).replace('<%! from haml import runtime as __HAML %>\\\n', '')
         self.assertEqual(mako, expected.replace('    ', '\t'), *args)
         
     def assertHTML(self, source, expected, *args, **kwargs):

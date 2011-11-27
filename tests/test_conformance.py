@@ -1,6 +1,6 @@
 
 from . import Base
-from haml.codegen import flatten_attr_list
+from haml.runtime import flatten_attr_list
 
 
 class TestFlattenAttr(Base):
