@@ -419,7 +419,9 @@ class Filtered(GreedyBase):
 
     def render_start(self, engine):
         if not self.inc_depth(engine):
-            yield '<%% __M_writer((%s or __HAML.filters.%s)("""' % (self.filter, self.filter)
+            # HACK
+            # I'm not sure if this chain respects proper scope resolution.
+            yield '<%%block filter="context.get(%r) or globals().get(%r) or __HAML.filters.%s">' % (self.filter, self.filter, self.filter)
             yield engine.endl
         if self.content is not None:
             yield '%s%s' % (engine.indent(-1), (self.content).encode('unicode-escape').replace("'", "\\'"))
@@ -428,7 +430,7 @@ class Filtered(GreedyBase):
 
     def render_end(self, engine):
         if not self.dec_depth(engine):
-            yield '""")) %>'
+            yield '</%block>'
         yield engine.dec_depth
 
     def __repr__(self):
