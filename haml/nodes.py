@@ -69,6 +69,16 @@ class Base(object):
             child.print_tree(_depth)
 
 
+class SourceProcessor(Base):
+
+    def __init__(self, *args, **kwargs):
+        super(SourceProcessor, self).__init__(*args, **kwargs)
+        self.content = []
+
+    def add_line(self, line):
+        self.content.append(line)
+
+
 class GreedyBase(Base):
     
     def __init__(self, *args, **kwargs):
@@ -379,29 +389,25 @@ class Control(Base):
             return '%s(type=%r)' % (self.__class__.__name__, self.type)
 
 
-class Source(GreedyBase):
+class Python(SourceProcessor):
 
     def __init__(self, content, module=False):
-        super(Source, self).__init__()
-        self.content = content
+        super(Python, self).__init__()
+        if content.strip():
+            self.add_line(content)
         self.module = module
 
-    def render_start(self, engine):
-        if not self.inc_depth(engine):
-            if self.module:
-                yield '<%! '
-            else:
-                yield '<% '
+    def render(self, engine):
+        if self.module:
+            yield '<%! '
         else:
-            yield engine.indent()
-        yield self.content
+            yield '<% '
         yield engine.endl
-        yield engine.inc_depth
-
-    def render_end(self, engine):
-        if not self.dec_depth(engine):
-            yield '%>'
-        yield engine.dec_depth
+        for line in self.content:
+            yield line
+            yield engine.endl
+        yield '%>'
+        yield engine.endl_no_break
     
     def __repr__(self):
         return '%s(%r%s)' % (

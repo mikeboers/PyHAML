@@ -76,7 +76,13 @@ class Parser(object):
                 # Pretend that a blank line is at the same depth as the
                 # previous.
                 inter_depth, intra_depth = self._stack[-1][0]
-                    
+            
+            # Source processors recieve all content until we fall out of their
+            # scope.
+            if isinstance(self._topmost_node, nodes.SourceProcessor):
+                self._topmost_node.add_line(raw_line)
+                continue
+            
             # Greedy nodes recieve all content until we fall out of their scope.
             if isinstance(self._topmost_node, nodes.GreedyBase):
                 topmost = self._topmost_node
@@ -243,9 +249,9 @@ class Parser(object):
         # Python source.
         if line.startswith('-'):
             if line.startswith('-!'):
-                yield nodes.Source(line[2:].lstrip(), module=True)
+                yield nodes.Python(line[2:].lstrip(), module=True)
             else:
-                yield nodes.Source(line[1:].lstrip(), module=False)
+                yield nodes.Python(line[1:].lstrip(), module=False)
             return
 
         # Content

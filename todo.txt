@@ -66,6 +66,8 @@
     
     This should not have any effect on the final mako at all.
 
+- turn Greedy nodes into SourceProcessor
+    they receive raw source lines with indentation intact
 
 - filters should be able to pull from haml.filters as well
 	- we could include them all into the globals()
@@ -82,8 +84,18 @@
 			Something something
 		- don't know if this is actually filterable though...
 
+- filters should be able to have access to engine
+    - this will allow for "mako" filter to pass unprocessed mako through
+    - a SmartFilter class could be called with the engine
+
 - filters should be able to have arguments
 	- f(*args) -> f(*args)(to_filter)
+
+- generalize all control structures
+    - if/elif/else/endif
+    - for/else/endfor
+    - try/catch/else/finally/endtry
+    - while/endwhile
 
 
 - Add +function shortcut for <%call ... /> tag:
