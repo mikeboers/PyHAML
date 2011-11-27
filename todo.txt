@@ -2,7 +2,6 @@
 - "unicode_as_entities" option on engine
 
 
-- make sure "xsl:apply-templates" tag works (ie. must allow for dash)
 
 - haml filter to strip leading whitespace (like docstrings)
 	:dedent
@@ -16,11 +15,8 @@
 		%xsl:template(match)
 		%xsl:apply-templates(select)
 
-- "from haml import runtime as __haml"
-	- instead of "from haml.codegen import mako_build_attr_str as __P_attrs"
-		"__haml.attribute_str(...)"
-	- engine for current template should be availible via "__haml.get_engine()"
-		- perhaps associate with the mako stack pointer?
+- engine for current template should be availible via "__haml.get_engine()"
+	- perhaps associate with the mako stack pointer?
 
 
 - !!! xsl stylesheet v1

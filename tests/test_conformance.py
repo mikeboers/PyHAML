@@ -406,7 +406,7 @@ class TestControlStructures(Base):
 ''', '0\n')
 
     def test_for_if(self):
-	self.assertHTML(
+        self.assertHTML(
 '''
 - for i in range(4):
        - if i % 2 == 0:
@@ -418,6 +418,23 @@ class TestControlStructures(Base):
 1 odd
 2 even
 3 odd
+'''.lstrip())
+
+    def test_xslt(self):
+        self.assertHTML(
+'''
+%xsl:template(match='/')
+    %html
+        %body
+            %xsl:apply-templates/
+''', '''
+<xsl:template match="/">
+	<html>
+		<body>
+			<xsl:apply-templates />
+		</body>
+	</html>
+</xsl:template>
 '''.lstrip())
         
                                         
