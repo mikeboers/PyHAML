@@ -73,10 +73,23 @@ class SourceProcessor(Base):
 
     def __init__(self, *args, **kwargs):
         super(SourceProcessor, self).__init__(*args, **kwargs)
-        self.content = []
+        self._content = []
 
     def add_line(self, line):
-        self.content.append(line)
+        self._content.append(line)
+
+    def iter_dedented(self):
+        indent = None
+        for raw_line in self._content:
+            if indent is None:
+                line = raw_line.lstrip()                
+                yield line
+                if line:
+                    indent = len(raw_line) - len(line)
+            else:
+                yield raw_line[indent:]
+
+
 
 
 class GreedyBase(Base):
@@ -403,7 +416,7 @@ class Python(SourceProcessor):
         else:
             yield '<% '
         yield engine.endl
-        for line in self.content:
+        for line in self.iter_dedented():
             yield line
             yield engine.endl
         yield '%>'
@@ -417,36 +430,29 @@ class Python(SourceProcessor):
         )
 
 
-class Filter(GreedyBase):
+class Filter(SourceProcessor):
 
-    def __init__(self, content, filter=None):
+    def __init__(self, content, filter):
         super(Filter, self).__init__()
-        self.content = content
+        if content and content.strip():
+            self.add_line(content)
         self.filter = filter
 
     def _unescape_expressions(self, source):
         parts = re.split(r'(\${.*?})', source)
         for i in range(1, len(parts), 2):
-            print i, parts[i]
             parts[i] = parts[i] and ('</%%text>%s<%%text>' % parts[i])
         return ''.join(parts)
 
-    def render_start(self, engine):
-        if not self.inc_depth(engine):
-            # Hopefully this chain respects proper scope resolution.
-            yield '<%%block filter="__M_locals.get(%r) or globals().get(%r) or __HAML.filters.%s"><%%text>' % (self.filter, self.filter, self.filter)
-        if self.content is not None:
-            yield self._unescape_expressions('%s%s%s' % (
-                engine.indent(-1),
-                self.content,
-                engine.endl
-            ))
-        yield engine.inc_depth
-
-    def render_end(self, engine):
-        if not self.dec_depth(engine):
-            yield '</%text></%block>'
-        yield engine.dec_depth
+    def render(self, engine):
+        # Hopefully this chain respects proper scope resolution.
+        yield '<%%block filter="__M_locals.get(%r) or globals().get(%r) or __HAML.filters.%s"><%%text>' % (self.filter, self.filter, self.filter)
+        yield self._unescape_expressions('%s%s%s' % (
+            '', #engine.indent(-1),
+            engine.endl.join(self.iter_dedented()),
+            engine.endl
+        ))
+        yield '</%text></%block>'
 
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.content,

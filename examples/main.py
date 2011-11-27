@@ -6,10 +6,20 @@ import haml.codegen
 
 source = '''
 
-- if False:
-    AAA
-- else:
-    BBB
+-!
+    def upper(x):
+        return x.upper()
+
+- value = 'hello'
+
+%p
+    ${upper(value)}
+
+:sass
+    body
+        margin: 0
+    p
+        color: #fff
 
 '''
 
@@ -31,10 +41,11 @@ compiled = haml.generate_mako(root)
 print compiled.strip()
 print
 
-# print '===== COMPILED MAKO ====='
 template = Template(compiled)
-# print template._code.strip()
-# print
+if True:
+    print '===== COMPILED MAKO ====='
+    print template._code.strip()
+    print
 
 print '===== RENDERED ====='
 print template.render_unicode(class_='test', title="MyPage", a='A', b='B', c='C').strip()
