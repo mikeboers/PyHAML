@@ -282,10 +282,10 @@ class Tag(Base):
         )
 
 
-class Comment(Base):
+class HTMLComment(Base):
 
     def __init__(self, inline_content, IE_condition=''):
-        super(Comment, self).__init__()
+        super(HTMLComment, self).__init__()
         self.inline_content = inline_content
         self.IE_condition = IE_condition
 
@@ -411,10 +411,10 @@ class Source(GreedyBase):
         )
 
 
-class Filtered(GreedyBase):
+class Filter(GreedyBase):
 
     def __init__(self, content, filter=None):
-        super(Filtered, self).__init__()
+        super(Filter, self).__init__()
         self.content = content
         self.filter = filter
 
@@ -447,10 +447,10 @@ class Filtered(GreedyBase):
                 self.filter)
 
 
-class Silent(Base):
+class HAMLComment(Base):
 
     def __init__(self, comment):
-        super(Silent, self).__init__()
+        super(HAMLComment, self).__init__()
         self.comment = comment
 
     def __repr__(self):

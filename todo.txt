@@ -66,13 +66,6 @@
     
     This should not have any effect on the final mako at all.
 
-- Consider renaming some node classes:
-    Comment -> HTMLComment
-    Silent -> HamlComment
-    Filtered -> Filter
-
-
-
 
 - filters should be able to pull from haml.filters as well
 	- we could include them all into the globals()

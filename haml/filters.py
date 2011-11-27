@@ -23,7 +23,7 @@ def css(src):
     return '<style>%s</style>' % cdata(src)
 
 
-def sass(source, scss=False):
+def sass(src, scss=False):
     args = ['sass', '--style', 'compressed']
     if scss:
         args.append('--scss')
@@ -32,13 +32,13 @@ def sass(source, scss=False):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
     )
-    out, err = proc.communicate(source)
+    out, err = proc.communicate(src)
     if out:
         out = css(out.rstrip())
     if err:
         out += '<div class="sass-error">%s</div>' % cgi.escape(err)
     return out
 
-def scss(source):
-    return sass(source, scss=True)
+def scss(src):
+    return sass(src, scss=True)
 

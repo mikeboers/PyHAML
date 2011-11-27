@@ -119,7 +119,7 @@ class Parser(object):
         # HTML comments.
         m = re.match(r'/(\[if[^\]]+])?(.*)$', line)
         if m:
-            yield nodes.Comment(m.group(2).strip(), (m.group(1) or '').rstrip())
+            yield nodes.HTMLComment(m.group(2).strip(), (m.group(1) or '').rstrip())
             return
 
         # Expressions.
@@ -143,12 +143,12 @@ class Parser(object):
         m = re.match(r':(\w+)(?:\s+(.+))?$', line)
         if m:
             filter, content = m.groups()
-            yield nodes.Filtered(content, filter)
+            yield nodes.Filter(content, filter)
             return
 
         # HAML comments
         if line.startswith('-#'):
-            yield nodes.Silent(line[2:].lstrip())
+            yield nodes.HAMLComment(line[2:].lstrip())
             return  
         
         # XML Doctype
