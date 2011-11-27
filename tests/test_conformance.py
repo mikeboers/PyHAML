@@ -319,6 +319,7 @@ C
             '''
 A
 B
+
 The syntaxes! They do nothing!!!
 #id
 .class
@@ -435,6 +436,23 @@ class TestControlStructures(Base):
 		</body>
 	</html>
 </xsl:template>
+'''.lstrip())
+
+    def test_sass(self):
+        self.assertHTML(
+'''
+a
+:sass
+    body
+        margin: 0
+        padding: 0
+    div
+        p
+            margin-top: 1em
+b
+''', '''
+a
+<style><![CDATA[body{margin:0;padding:0}div p{margin-top:1em}]]></style>b
 '''.lstrip())
         
                                         

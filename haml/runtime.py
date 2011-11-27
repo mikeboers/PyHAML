@@ -1,6 +1,7 @@
 import re
 import cgi
 
+from . import filters
 
 _attr_sort_order = {
     'id': -3,

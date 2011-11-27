@@ -419,17 +419,21 @@ class Filtered(GreedyBase):
 
     def render_start(self, engine):
         if not self.inc_depth(engine):
-            yield '<%% __M_writer(%s(\'\'.join([' % self.filter
+            yield '<%% __M_writer((%s or __HAML.filters.%s)("""' % (self.filter, self.filter)
             yield engine.endl
         if self.content is not None:
-            yield '\'%s%s\',' % (engine.indent(-1), (self.content + engine.endl).encode('unicode-escape').replace("'", "\\'"))
+            yield '%s%s' % (engine.indent(-1), (self.content).encode('unicode-escape').replace("'", "\\'"))
             yield engine.endl
         yield engine.inc_depth
 
     def render_end(self, engine):
         if not self.dec_depth(engine):
-            yield ']))) %>'
+            yield '""")) %>'
         yield engine.dec_depth
+
+    def __repr__(self):
+        return '%s(%r, %r)' % (self.__class__.__name__, self.content,
+                self.filter)
 
 
 class Silent(Base):
