@@ -12,12 +12,10 @@ class Base(object):
     def __init__(self):
         self.children = []
         self.inline_child = None
-        self.inline_parent = None
 
     def add_child(self, node, inline=False):
         if inline:
             self.inline_child = node
-            node.inline_parent = self
         else:
             self.children.append(node)
     
@@ -40,11 +38,7 @@ class Base(object):
     def render_content(self, engine):
         to_chain = []
         if self.inline_child:
-            to_chain = [
-                self.inline_child.render_start(engine),
-                self.inline_child.render_content(engine),
-                self.inline_child.render_end(engine),
-            ]
+            to_chain.append(self.inline_child.render(engine))
         for child in self.children_to_render():
             to_chain.append(child.render(engine))
         return chain(*to_chain)
@@ -151,10 +145,6 @@ class Content(Base):
         return '%s(%r)' % (self.__class__.__name__, self.content)
 
 
-
-class GreedyContent(Content, GreedyBase):
-    pass
-
 class Expression(Content, GreedyBase):
 
     def __init__(self, content, filters=''):
@@ -253,8 +243,7 @@ class Tag(Base):
 
         if self.strip_outer:
             yield engine.lstrip
-        elif not self.inline_parent:
-            yield engine.indent()
+        yield engine.indent()
 
         if self.self_closing or self.name in self.self_closing_names:
             yield '<%s%s />' % (self.name, attr_str)
@@ -291,8 +280,7 @@ class Tag(Base):
             yield '</%s>' % self.name
             if self.strip_outer:
                 yield engine.rstrip
-            elif not self.inline_parent:
-                yield engine.endl
+            yield engine.endl
         elif self.strip_outer:
             yield engine.rstrip
 
@@ -425,7 +413,7 @@ class Python(SourceProcessor):
     def __repr__(self):
         return '%s(%r%s)' % (
             self.__class__.__name__,
-            self.content,
+            self._content,
             ', module=True' if self.module else ''
         )
 
