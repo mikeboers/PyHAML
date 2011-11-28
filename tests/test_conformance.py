@@ -455,7 +455,8 @@ a
 b
 ''', '''
 a
-<style><![CDATA[body{margin:0;padding:0}div p{margin-top:1em}]]></style>b
+<style><![CDATA[body{margin:0;padding:0}div p{margin-top:1em}]]></style>
+b
 '''.lstrip())
 
     def test_filter_scoping(self):
@@ -474,16 +475,18 @@ X
 :plain
     X
 
-''',
-'''A''')
+''', '''
+A
+'''.lstrip())
         self.assertHTML(
 '''
 -! def plain(x): return 'A'
 :plain
     - def plain(x): return 'B'
     X
-''',
-'''A''')
+''', '''
+A
+'''.lstrip())
         
                                         
 if __name__ == '__main__':

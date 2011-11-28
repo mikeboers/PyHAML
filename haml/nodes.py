@@ -423,24 +423,22 @@ class Filter(SourceProcessor):
             self.add_line(content)
         self.filter = filter
 
-    def _unescape_expressions(self, source):
+    def _escape_expressions(self, source):
         parts = re.split(r'(\${.*?})', source)
-        for i in range(1, len(parts), 2):
-            parts[i] = parts[i] and ('</%%text>%s<%%text>' % parts[i])
+        for i in range(0, len(parts), 2):
+            parts[i] = parts[i] and ('<%%text>%s</%%text>' % parts[i])
         return ''.join(parts)
 
     def render(self, engine):
         # Hopefully this chain respects proper scope resolution.
-        yield '<%%block filter="__M_locals.get(%r) or globals().get(%r) or __HAML.filters.%s"><%%text>' % (self.filter, self.filter, self.filter)
-        yield self._unescape_expressions('%s%s%s' % (
-            '', #engine.indent(-1),
-            engine.endl.join(self.iter_dedented()),
-            engine.endl
-        ))
-        yield '</%text></%block>'
+        yield '<%%block filter="__M_locals.get(%r) or globals().get(%r) or __HAML.filters.%s">' % (self.filter, self.filter, self.filter)
+        yield engine.endl_no_break
+        yield self._escape_expressions(engine.endl.join(self.iter_dedented()).strip())
+        yield '</%block>'
+        yield engine.endl
 
     def __repr__(self):
-        return '%s(%r, %r)' % (self.__class__.__name__, self.content,
+        return '%s(%r, %r)' % (self.__class__.__name__, self._content,
                 self.filter)
 
 
