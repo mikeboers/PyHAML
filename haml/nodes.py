@@ -66,19 +66,18 @@ class FilterBase(Base):
         super(FilterBase, self).__init__(*args, **kwargs)
         self._content = []
 
-    def add_line(self, line):
-        self._content.append(line)
+    def add_line(self, indent, content):
+        self._content.append((indent, content))
 
     def iter_dedented(self):
-        indent = None
-        for raw_line in self._content:
-            if indent is None:
-                line = raw_line.lstrip()                
-                yield line
-                if line:
-                    indent = len(raw_line) - len(line)
+        indent_to_remove = None
+        for indent, content in self._content:
+            if indent_to_remove is None:
+                yield content
+                if content:
+                    indent_to_remove = len(indent)
             else:
-                yield raw_line[indent:]
+                yield (indent + content)[indent_to_remove:]
 
 
 class GreedyBase(Base):
@@ -367,7 +366,7 @@ class Python(FilterBase):
     def __init__(self, content, module=False):
         super(Python, self).__init__()
         if content.strip():
-            self.add_line(content)
+            self.add_line('', content)
         self.module = module
 
     def render(self, engine):
@@ -395,7 +394,7 @@ class Filter(FilterBase):
     def __init__(self, content, filter):
         super(Filter, self).__init__()
         if content and content.strip():
-            self.add_line(content)
+            self.add_line('', content)
         self.filter = filter
 
     def _escape_expressions(self, source):

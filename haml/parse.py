@@ -42,6 +42,7 @@ class Parser(object):
     
     def _parse_lines(self, source):
         self.source = iter(source)
+        indent_str = ''
         while True:
             try:
                 raw_line = self._next_line()
@@ -66,6 +67,8 @@ class Parser(object):
                 # depth in the graph than many nested nodes from a single line.
                 inter_depth = len(raw_line) - len(line)
                 intra_depth = 0
+
+                indent_str = raw_line[:inter_depth]
                 
                 # Cleanup the stack. We should only need to do this here as the
                 # depth only goes up until it is calculated from the next line.
@@ -79,7 +82,7 @@ class Parser(object):
             
             # Filter(Base) nodes recieve all content in their scope.
             if isinstance(self._topmost_node, nodes.FilterBase):
-                self._topmost_node.add_line(raw_line)
+                self._topmost_node.add_line(indent_str, line)
                 continue
             
             # Greedy nodes recieve all content in their scope.
