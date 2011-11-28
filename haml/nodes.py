@@ -10,8 +10,8 @@ from . import runtime
 class Base(object):
 
     def __init__(self):
-        self.children = []
         self.inline_child = None
+        self.children = []
 
     def add_child(self, node, inline=False):
         if inline:
@@ -32,14 +32,11 @@ class Base(object):
     def render_start(self, engine):
         return []
 
-    def children_to_render(self):
-        return self.children
-
     def render_content(self, engine):
         to_chain = []
         if self.inline_child:
             to_chain.append(self.inline_child.render(engine))
-        for child in self.children_to_render():
+        for child in self.children:
             to_chain.append(child.render(engine))
         return chain(*to_chain)
 
@@ -459,9 +456,8 @@ class HAMLComment(Base):
             self.comment
         )
 
-    def children_to_render(self):
+    def render(self, engine):
         return []
-
 
 
 class Doctype(Base):
