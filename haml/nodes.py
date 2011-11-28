@@ -60,10 +60,10 @@ class Base(object):
             child.print_tree(_depth)
 
 
-class SourceProcessor(Base):
+class FilterBase(Base):
 
     def __init__(self, *args, **kwargs):
-        super(SourceProcessor, self).__init__(*args, **kwargs)
+        super(FilterBase, self).__init__(*args, **kwargs)
         self._content = []
 
     def add_line(self, line):
@@ -362,7 +362,7 @@ class Control(Base):
             return '%s(type=%r)' % (self.__class__.__name__, self.type)
 
 
-class Python(SourceProcessor):
+class Python(FilterBase):
 
     def __init__(self, content, module=False):
         super(Python, self).__init__()
@@ -390,7 +390,7 @@ class Python(SourceProcessor):
         )
 
 
-class Filter(SourceProcessor):
+class Filter(FilterBase):
 
     def __init__(self, content, filter):
         super(Filter, self).__init__()

@@ -77,8 +77,8 @@ class Parser(object):
                 # previous.
                 inter_depth, intra_depth = self._stack[-1][0]
             
-            # Source processors recieve all content in their scope.
-            if isinstance(self._topmost_node, nodes.SourceProcessor):
+            # Filter(Base) nodes recieve all content in their scope.
+            if isinstance(self._topmost_node, nodes.FilterBase):
                 self._topmost_node.add_line(raw_line)
                 continue
             
