@@ -77,21 +77,15 @@ class Parser(object):
                 # previous.
                 inter_depth, intra_depth = self._stack[-1][0]
             
-            # Source processors recieve all content until we fall out of their
-            # scope.
+            # Source processors recieve all content in their scope.
             if isinstance(self._topmost_node, nodes.SourceProcessor):
                 self._topmost_node.add_line(raw_line)
                 continue
             
-            # Greedy nodes recieve all content until we fall out of their scope.
+            # Greedy nodes recieve all content in their scope.
             if isinstance(self._topmost_node, nodes.GreedyBase):
-                topmost = self._topmost_node
-                # Blank lines go at the same level as the previous if it is
-                # not the parent greedy node.
-                if not line and topmost is not topmost.outermost_node:
-                    self._stack.pop()
                 self._add_node(
-                    topmost.with_parent(topmost, line),
+                    self._topmost_node.__class__(line),
                     (inter_depth, intra_depth)
                 )
                 continue

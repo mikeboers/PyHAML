@@ -81,40 +81,15 @@ class SourceProcessor(Base):
                 yield raw_line[indent:]
 
 
-
-
 class GreedyBase(Base):
     
     def __init__(self, *args, **kwargs):
         super(GreedyBase, self).__init__(*args, **kwargs)
-        self._greedy_parent = None
+        self._greedy_root = self
 
-    @classmethod
-    def with_parent(cls, parent, *args, **kwargs):
-        obj = cls(*args, **kwargs)
-        obj._greedy_parent = parent
-        return obj
-
-    @property
-    def outermost_node(self):
-        x = self
-        while x._greedy_parent is not None:
-            x = x._greedy_parent
-        return x
-
-    @property
-    def _depth_name(self):
-        return '%s.depth' % self.__class__.__name__
-
-    def inc_depth(self, engine):
-        depth = engine.node_data.get(self._depth_name, 0)
-        engine.node_data[self._depth_name] = depth + 1
-        return depth
-
-    def dec_depth(self, engine):
-        depth = engine.node_data[self._depth_name] - 1
-        engine.node_data[self._depth_name] = depth
-        return depth
+    def add_child(self, child, *args):
+        super(GreedyBase, self).add_child(child, *args)
+        child._greedy_root = self._greedy_root
 
 
 class Document(Base):
@@ -151,7 +126,7 @@ class Expression(Content, GreedyBase):
     def render_start(self, engine):
         if self.content.strip():
             yield engine.indent()
-            filters = self.outermost_node.filters
+            filters = self._greedy_root.filters
             yield '${%s%s}' % (self.content.strip(), ('|' + filters if filters else ''))
             yield engine.endl
         yield engine.inc_depth # This is countered by the Content.render_end
