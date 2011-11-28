@@ -142,6 +142,20 @@ class Parser(object):
             yield nodes.Expression(content, filters)
             return
 
+        # SASS Mixins
+        m = re.match(r'@(\w+)(?:\((.+?)\))?', line)
+        if m:
+            name, argspec = m.groups()
+            yield nodes.MixinDef(name, argspec)
+            yield line[m.end():].lstrip()
+            return
+        m = re.match(r'\+(\w+)(?:\((.+?)\))?', line)
+        if m:
+            name, argspec = m.groups()
+            yield nodes.MixinCall(name, argspec)
+            yield line[m.end():].lstrip()
+            return
+
         # HAML Filters.
         m = re.match(r':(\w+)(?:\s+(.+))?$', line)
         if m:

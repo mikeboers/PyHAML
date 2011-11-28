@@ -263,6 +263,28 @@ class Tag(Base):
             ) if getattr(self, k))
         )
 
+class MixinDef(Tag):
+
+    def __init__(self, name, argspec):
+        super(MixinDef, self).__init__(
+            '%def', # tag name
+            None, # ID
+            None, # class
+            'name=%r' % ('%s(%s)' % (name, argspec or '')), # kwargs expr
+            strip_inner=True,
+        )
+
+
+class MixinCall(Tag):
+
+    def __init__(self, name, argspec):
+        super(MixinCall, self).__init__(
+            '%call', # tag name
+            None, # ID
+            None, # class
+            'expr=%r' % ('%s(%s)' % (name, argspec or '')), # kwargs expr
+        )
+
 
 class HTMLComment(Base):
 
@@ -317,7 +339,7 @@ class Control(Base):
             self.else_ = node
             return True
     
-    def print_tree(self, depth):
+    def print_tree(self, depth, inline=False):
         super(Control, self).print_tree(depth)
         for node in self.elifs:
             node.print_tree(depth)
