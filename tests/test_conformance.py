@@ -455,7 +455,7 @@ a
 b
 ''', '''
 a
-<style><![CDATA[body{margin:0;padding:0}div p{margin-top:1em}]]></style>
+<style>/*<![CDATA[*/body{margin:0;padding:0}div p{margin-top:1em}/*]]>*/</style>
 b
 '''.lstrip())
 

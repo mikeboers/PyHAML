@@ -10,17 +10,20 @@ def escaped(src):
     return cgi.escape(src)
 
 
-def cdata(src):
+def cdata(src, comment=False):
     # This should only apply if the runtime is in XML mode.
-    return '<![CDATA[%s]]>' % (src.replace(']]>', ']]]]><![CDATA[>'))
+    block_open  = ('/*' if comment else '') + '<![CDATA[' + ('*/' if comment else '')
+    block_close = ('/*' if comment else '') + ']]>'       + ('*/' if comment else '')
+    # This close/reopen is only going to work with xhtml.
+    return block_open + (src.replace(']]>', ']]]]><![CDATA[>')) + block_close
 
 
 def javascript(src):
-    return '<script>%s</script>' % cdata(src)
+    return '<script>%s</script>' % cdata(src, True)
 
 
 def css(src):
-    return '<style>%s</style>' % cdata(src)
+    return '<style>%s</style>' % cdata(src, True)
 
 
 def sass(src, scss=False):
