@@ -427,7 +427,7 @@ class Filter(FilterBase):
 
     def render(self, engine):
         # Hopefully this chain respects proper scope resolution.
-        yield '<%%block filter="__M_locals.get(%r) or globals().get(%r) or __HAML.filters.%s">' % (self.filter, self.filter, self.filter)
+        yield '<%%block filter="locals().get(%r) or globals().get(%r) or getattr(__HAML.filters, %r, UNDEFINED)">' % (self.filter, self.filter, self.filter)
         yield engine.endl_no_break
         yield self._escape_expressions(engine.endl.join(self.iter_dedented()).strip())
         yield '</%block>'
