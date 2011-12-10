@@ -42,6 +42,23 @@ def sass(src, scss=False):
         out += '<div class="sass-error">%s</div>' % cgi.escape(err)
     return out
 
+
 def scss(src):
     return sass(src, scss=True)
+
+
+def coffeescript(src):
+    args = ['coffee', '--compile', '--stdio']
+    proc = subprocess.Popen(
+        args,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+    )
+    out, err = proc.communicate(src)
+    if out:
+        out = javascript(out)
+    if err:
+        out += '<div class="coffeescript-error">%s</div>' % cgi.escape(err)
+    return out
+
 
