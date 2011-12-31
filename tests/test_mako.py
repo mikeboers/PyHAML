@@ -1,5 +1,6 @@
 
-from . import Base
+from unittest import main
+from base import Base
 
 
 
@@ -180,3 +181,6 @@ inline expr
     </b>
 </a>
             '''.strip() + '\n')
+
+if __name__ == "__main__":
+    main()

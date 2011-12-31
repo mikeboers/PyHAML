@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from . import Base
+from unittest import main
+from base import Base
 
 class TestAttributes(Base):
 
@@ -28,3 +29,5 @@ class TestAttributes(Base):
             u'<div a="España">content</div>\n'
         )
     
+if __name__ == "__main__":
+    main()
