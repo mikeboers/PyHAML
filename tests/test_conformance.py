@@ -1,6 +1,6 @@
 
 from unittest import main
-from __init__ import Base
+from base import Base
 from haml.codegen import flatten_attr_list
 
 
