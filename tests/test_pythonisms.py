@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from unittest import main
 from __init__ import Base
 
 class TestAttributes(Base):
