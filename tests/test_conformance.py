@@ -1,5 +1,5 @@
 
-from . import Base
+from __init__ import Base
 from haml.codegen import flatten_attr_list
 
 

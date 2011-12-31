@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from . import Base
+from __init__ import Base
 
 class TestAttributes(Base):
 

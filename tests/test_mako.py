@@ -1,5 +1,5 @@
 
-from . import Base
+from __init__ import Base
 
 
 
