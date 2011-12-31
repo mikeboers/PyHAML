@@ -181,3 +181,6 @@ inline expr
     </b>
 </a>
             '''.strip() + '\n')
+
+if __name__ == "__main__":
+    main()

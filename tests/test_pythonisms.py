@@ -29,3 +29,5 @@ class TestAttributes(Base):
             u'<div a="España">content</div>\n'
         )
     
+if __name__ == "__main__":
+    main()
