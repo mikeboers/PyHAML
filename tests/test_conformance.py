@@ -407,7 +407,7 @@ class TestControlStructures(Base):
 ''', '0\n')
 
     def test_for_if(self):
-	self.assertHTML(
+        self.assertHTML(
 '''
 - for i in range(4):
        - if i % 2 == 0:
