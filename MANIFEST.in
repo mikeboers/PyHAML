@@ -1,2 +1,3 @@
 recursive-include scripts *.py
+recursive-include tests *.py
 
