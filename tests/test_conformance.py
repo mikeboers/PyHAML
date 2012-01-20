@@ -1,7 +1,7 @@
 
 from unittest import main
 from base import Base
-from haml.codegen import flatten_attr_list
+from haml.runtime import flatten_attr_list
 
 
 class TestFlattenAttr(Base):
@@ -306,8 +306,10 @@ bar</pre><img />
         self.assertHTML(
             '''
 A
--! def noop(x):
-    return x
+-!
+    def noop(x):
+        return x
+    value = 123
 B
 :noop
     The syntaxes! They do nothing!!!
@@ -315,6 +317,7 @@ B
     .class
     - statement
     / comment
+    ${value}
 C
             '''.strip(),
             '''
@@ -325,6 +328,7 @@ The syntaxes! They do nothing!!!
 .class
 - statement
 / comment
+123
 C
             '''.strip() + '\n') 
             
@@ -419,6 +423,70 @@ class TestControlStructures(Base):
 1 odd
 2 even
 3 odd
+'''.lstrip())
+
+    def test_xslt(self):
+        self.assertHTML(
+'''
+%xsl:template(match='/')
+    %html
+        %body
+            %xsl:apply-templates/
+''', '''
+<xsl:template match="/">
+	<html>
+		<body>
+			<xsl:apply-templates />
+		</body>
+	</html>
+</xsl:template>
+'''.lstrip())
+
+    def test_sass(self):
+        self.assertHTML(
+'''
+a
+:sass
+    body
+        margin: 0
+        padding: 0
+    div
+        p
+            margin-top: 1em
+b
+''', '''
+a
+<style>/*<![CDATA[*/body{margin:0;padding:0}div p{margin-top:1em}/*]]>*/</style>
+b
+'''.lstrip())
+
+    def test_filter_scoping(self):
+        self.assertHTML(
+'''
+:plain
+    X
+''',
+'''
+X
+'''.lstrip())
+        self.assertHTML(
+'''
+-! def plain(x): return 'A'
+
+:plain
+    X
+
+''', '''
+A
+'''.lstrip())
+        self.assertHTML(
+'''
+-! def plain(x): return 'A'
+:plain
+    - def plain(x): return 'B'
+    X
+''', '''
+A
 '''.lstrip())
         
                                         

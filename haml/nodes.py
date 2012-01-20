@@ -1,21 +1,21 @@
 
 from itertools import chain
 import cgi
+import re
 
 from . import codegen
+from . import runtime
 
 
 class Base(object):
 
     def __init__(self):
-        self.children = []
         self.inline_child = None
-        self.inline_parent = None
+        self.children = []
 
     def add_child(self, node, inline=False):
         if inline:
             self.inline_child = node
-            node.inline_parent = self
         else:
             self.children.append(node)
     
@@ -32,18 +32,11 @@ class Base(object):
     def render_start(self, engine):
         return []
 
-    def children_to_render(self):
-        return self.children
-
     def render_content(self, engine):
         to_chain = []
         if self.inline_child:
-            to_chain = [
-                self.inline_child.render_start(engine),
-                self.inline_child.render_content(engine),
-                self.inline_child.render_end(engine),
-            ]
-        for child in self.children_to_render():
+            to_chain.append(self.inline_child.render(engine))
+        for child in self.children:
             to_chain.append(child.render(engine))
         return chain(*to_chain)
 
@@ -67,38 +60,35 @@ class Base(object):
             child.print_tree(_depth)
 
 
+class FilterBase(Base):
+
+    def __init__(self, *args, **kwargs):
+        super(FilterBase, self).__init__(*args, **kwargs)
+        self._content = []
+
+    def add_line(self, indent, content):
+        self._content.append((indent, content))
+
+    def iter_dedented(self):
+        indent_to_remove = None
+        for indent, content in self._content:
+            if indent_to_remove is None:
+                yield content
+                if content:
+                    indent_to_remove = len(indent)
+            else:
+                yield (indent + content)[indent_to_remove:]
+
+
 class GreedyBase(Base):
     
     def __init__(self, *args, **kwargs):
         super(GreedyBase, self).__init__(*args, **kwargs)
-        self._greedy_parent = None
+        self._greedy_root = self
 
-    @classmethod
-    def with_parent(cls, parent, *args, **kwargs):
-        obj = cls(*args, **kwargs)
-        obj._greedy_parent = parent
-        return obj
-
-    @property
-    def outermost_node(self):
-        x = self
-        while x._greedy_parent is not None:
-            x = x._greedy_parent
-        return x
-
-    @property
-    def _depth_name(self):
-        return '%s.depth' % self.__class__.__name__
-
-    def inc_depth(self, engine):
-        depth = engine.node_data.get(self._depth_name, 0)
-        engine.node_data[self._depth_name] = depth + 1
-        return depth
-
-    def dec_depth(self, engine):
-        depth = engine.node_data[self._depth_name] - 1
-        engine.node_data[self._depth_name] = depth
-        return depth
+    def add_child(self, child, *args):
+        super(GreedyBase, self).add_child(child, *args)
+        child._greedy_root = self._greedy_root
 
 
 class Document(Base):
@@ -126,10 +116,6 @@ class Content(Base):
         return '%s(%r)' % (self.__class__.__name__, self.content)
 
 
-
-class GreedyContent(Content, GreedyBase):
-    pass
-
 class Expression(Content, GreedyBase):
 
     def __init__(self, content, filters=''):
@@ -139,7 +125,7 @@ class Expression(Content, GreedyBase):
     def render_start(self, engine):
         if self.content.strip():
             yield engine.indent()
-            filters = self.outermost_node.filters
+            filters = self._greedy_root.filters
             yield '${%s%s}' % (self.content.strip(), ('|' + filters if filters else ''))
             yield engine.endl
         yield engine.inc_depth # This is countered by the Content.render_end
@@ -220,16 +206,15 @@ class Tag(Base):
                 kwargs_expr = None
 
         if not kwargs_expr:
-            attr_str = codegen.mako_build_attr_str(const_attrs)
+            attr_str = runtime.attribute_str(const_attrs)
         elif not const_attrs:
-            attr_str = '<%% __M_writer(__P_attrs(%s)) %%>' % kwargs_expr
+            attr_str = '<%% __M_writer(__HAML.attribute_str(%s)) %%>' % kwargs_expr
         else:
-            attr_str = '<%% __M_writer(__P_attrs(%r, %s)) %%>' % (const_attrs, kwargs_expr)
+            attr_str = '<%% __M_writer(__HAML.attribute_str(%r, %s)) %%>' % (const_attrs, kwargs_expr)
 
         if self.strip_outer:
             yield engine.lstrip
-        elif not self.inline_parent:
-            yield engine.indent()
+        yield engine.indent()
 
         if self.self_closing or self.name in self.self_closing_names:
             yield '<%s%s />' % (self.name, attr_str)
@@ -266,8 +251,7 @@ class Tag(Base):
             yield '</%s>' % self.name
             if self.strip_outer:
                 yield engine.rstrip
-            elif not self.inline_parent:
-                yield engine.endl
+            yield engine.endl
         elif self.strip_outer:
             yield engine.rstrip
 
@@ -279,11 +263,33 @@ class Tag(Base):
             ) if getattr(self, k))
         )
 
+class MixinDef(Tag):
 
-class Comment(Base):
+    def __init__(self, name, argspec):
+        super(MixinDef, self).__init__(
+            '%def', # tag name
+            None, # ID
+            None, # class
+            'name=%r' % ('%s(%s)' % (name, argspec or '')), # kwargs expr
+            strip_inner=True,
+        )
+
+
+class MixinCall(Tag):
+
+    def __init__(self, name, argspec):
+        super(MixinCall, self).__init__(
+            '%call', # tag name
+            None, # ID
+            None, # class
+            'expr=%r' % ('%s(%s)' % (name, argspec or '')), # kwargs expr
+        )
+
+
+class HTMLComment(Base):
 
     def __init__(self, inline_content, IE_condition=''):
-        super(Comment, self).__init__()
+        super(HTMLComment, self).__init__()
         self.inline_content = inline_content
         self.IE_condition = IE_condition
 
@@ -333,7 +339,7 @@ class Control(Base):
             self.else_ = node
             return True
     
-    def print_tree(self, depth):
+    def print_tree(self, depth, inline=False):
         super(Control, self).print_tree(depth)
         for node in self.elifs:
             node.print_tree(depth)
@@ -377,64 +383,65 @@ class Control(Base):
             return '%s(type=%r)' % (self.__class__.__name__, self.type)
 
 
-class Source(GreedyBase):
+class Python(FilterBase):
 
     def __init__(self, content, module=False):
-        super(Source, self).__init__()
-        self.content = content
+        super(Python, self).__init__()
+        if content.strip():
+            self.add_line('', content)
         self.module = module
 
-    def render_start(self, engine):
-        if not self.inc_depth(engine):
-            if self.module:
-                yield '<%! '
-            else:
-                yield '<% '
+    def render(self, engine):
+        if self.module:
+            yield '<%! '
         else:
-            yield engine.indent()
-        yield self.content
+            yield '<% '
         yield engine.endl
-        yield engine.inc_depth
-
-    def render_end(self, engine):
-        if not self.dec_depth(engine):
-            yield '%>'
-        yield engine.dec_depth
+        for line in self.iter_dedented():
+            yield line
+            yield engine.endl
+        yield '%>'
+        yield engine.endl_no_break
     
     def __repr__(self):
         return '%s(%r%s)' % (
             self.__class__.__name__,
-            self.content,
+            self._content,
             ', module=True' if self.module else ''
         )
 
 
-class Filtered(GreedyBase):
+class Filter(FilterBase):
 
-    def __init__(self, content, filter=None):
-        super(Filtered, self).__init__()
-        self.content = content
+    def __init__(self, content, filter):
+        super(Filter, self).__init__()
+        if content and content.strip():
+            self.add_line('', content)
         self.filter = filter
 
-    def render_start(self, engine):
-        if not self.inc_depth(engine):
-            yield '<%% __M_writer(%s(\'\'.join([' % self.filter
-            yield engine.endl
-        if self.content is not None:
-            yield '\'%s%s\',' % (engine.indent(-1), (self.content + engine.endl).encode('unicode-escape').replace("'", "\\'"))
-            yield engine.endl
-        yield engine.inc_depth
+    def _escape_expressions(self, source):
+        parts = re.split(r'(\${.*?})', source)
+        for i in range(0, len(parts), 2):
+            parts[i] = parts[i] and ('<%%text>%s</%%text>' % parts[i])
+        return ''.join(parts)
 
-    def render_end(self, engine):
-        if not self.dec_depth(engine):
-            yield ']))) %>'
-        yield engine.dec_depth
+    def render(self, engine):
+        # Hopefully this chain respects proper scope resolution.
+        yield '<%%block filter="locals().get(%r) or globals().get(%r) or getattr(__HAML.filters, %r, UNDEFINED)">' % (self.filter, self.filter, self.filter)
+        yield engine.endl_no_break
+        yield self._escape_expressions(engine.endl.join(self.iter_dedented()).strip())
+        yield '</%block>'
+        yield engine.endl
+
+    def __repr__(self):
+        return '%s(%r, %r)' % (self.__class__.__name__, self._content,
+                self.filter)
 
 
-class Silent(Base):
+class HAMLComment(Base):
 
     def __init__(self, comment):
-        super(Silent, self).__init__()
+        super(HAMLComment, self).__init__()
         self.comment = comment
 
     def __repr__(self):
@@ -443,9 +450,8 @@ class Silent(Base):
             self.comment
         )
 
-    def children_to_render(self):
+    def render(self, engine):
         return []
-
 
 
 class Doctype(Base):

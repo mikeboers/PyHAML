@@ -129,16 +129,18 @@ We are using Mako to do the heavy lifting here.
 
 ### [Filters](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#filters)
 
-We don't supply any filters, but the mechanism is there to take callables from the runtime globals to use as a filter. Eg.:
+We don't supply any filters, but the mechanism is there to take callables from the runtime globals to use as a filter. You can also use Mako expression interpolation. Eg.:
 
     -! def to_upper(x):
         return x.upper()
+    - value = 123
     :to_upper
         %p The syntaxes, they do nothing!
         #id x
         .class x
         - statement
         / comment
+        ${value}
 
 ### [Doctype: !!!](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#doctype_)
 ### [Whitespace Preservation](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#tilde)

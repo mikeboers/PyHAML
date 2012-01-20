@@ -42,6 +42,7 @@ class Parser(object):
     
     def _parse_lines(self, source):
         self.source = iter(source)
+        indent_str = ''
         while True:
             try:
                 raw_line = self._next_line()
@@ -66,6 +67,8 @@ class Parser(object):
                 # depth in the graph than many nested nodes from a single line.
                 inter_depth = len(raw_line) - len(line)
                 intra_depth = 0
+
+                indent_str = raw_line[:inter_depth]
                 
                 # Cleanup the stack. We should only need to do this here as the
                 # depth only goes up until it is calculated from the next line.
@@ -76,16 +79,16 @@ class Parser(object):
                 # Pretend that a blank line is at the same depth as the
                 # previous.
                 inter_depth, intra_depth = self._stack[-1][0]
-                    
-            # Greedy nodes recieve all content until we fall out of their scope.
+            
+            # Filter(Base) nodes recieve all content in their scope.
+            if isinstance(self._topmost_node, nodes.FilterBase):
+                self._topmost_node.add_line(indent_str, line)
+                continue
+            
+            # Greedy nodes recieve all content in their scope.
             if isinstance(self._topmost_node, nodes.GreedyBase):
-                topmost = self._topmost_node
-                # Blank lines go at the same level as the previous if it is
-                # not the parent greedy node.
-                if not line and topmost is not topmost.outermost_node:
-                    self._stack.pop()
                 self._add_node(
-                    topmost.with_parent(topmost, line),
+                    self._topmost_node.__class__(line),
                     (inter_depth, intra_depth)
                 )
                 continue
@@ -119,7 +122,7 @@ class Parser(object):
         # HTML comments.
         m = re.match(r'/(\[if[^\]]+])?(.*)$', line)
         if m:
-            yield nodes.Comment(m.group(2).strip(), (m.group(1) or '').rstrip())
+            yield nodes.HTMLComment(m.group(2).strip(), (m.group(1) or '').rstrip())
             return
 
         # Expressions.
@@ -139,16 +142,30 @@ class Parser(object):
             yield nodes.Expression(content, filters)
             return
 
+        # SASS Mixins
+        m = re.match(r'@(\w+)(?:\((.+?)\))?', line)
+        if m:
+            name, argspec = m.groups()
+            yield nodes.MixinDef(name, argspec)
+            yield line[m.end():].lstrip()
+            return
+        m = re.match(r'\+(\w+)(?:\((.+?)\))?', line)
+        if m:
+            name, argspec = m.groups()
+            yield nodes.MixinCall(name, argspec)
+            yield line[m.end():].lstrip()
+            return
+
         # HAML Filters.
         m = re.match(r':(\w+)(?:\s+(.+))?$', line)
         if m:
             filter, content = m.groups()
-            yield nodes.Filtered(content, filter)
+            yield nodes.Filter(content, filter)
             return
 
         # HAML comments
         if line.startswith('-#'):
-            yield nodes.Silent(line[2:].lstrip())
+            yield nodes.HAMLComment(line[2:].lstrip())
             return  
         
         # XML Doctype
@@ -158,7 +175,7 @@ class Parser(object):
 
         # Tags.
         m = re.match(r'''
-            (?:%(%?(?:\w+:)?\w*))?             # tag name. the extra % is for mako
+            (?:%(%?(?:\w+:)?[\w-]*))? # tag name. the extra % is for mako
             (?:
               \[(.+?)(?:,(.+?))?\]    # object reference and prefix
             )? 
@@ -243,9 +260,9 @@ class Parser(object):
         # Python source.
         if line.startswith('-'):
             if line.startswith('-!'):
-                yield nodes.Source(line[2:].lstrip(), module=True)
+                yield nodes.Python(line[2:].lstrip(), module=True)
             else:
-                yield nodes.Source(line[1:].lstrip(), module=False)
+                yield nodes.Python(line[1:].lstrip(), module=False)
             return
 
         # Content

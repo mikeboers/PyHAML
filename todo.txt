@@ -1,9 +1,7 @@
 
 - "unicode_as_entities" option on engine
 
-- come up with something less hacky for "else".
 
-- make sure "xsl:apply-templates" tag works (ie. must allow for dash)
 
 - haml filter to strip leading whitespace (like docstrings)
 	:dedent
@@ -11,38 +9,48 @@
 - haml filters should stack
 	:dedent,sass
 
+- cdata filter should cgi.escape if in html4 mode
+    - move filters into runtime?
+
 - haml tags should be able to have positional argument names
 	default to (name='div', id=None, class=None)
 		%('a' * 10)
 		%xsl:template(match)
 		%xsl:apply-templates(select)
 
-- "from haml import runtime as __haml"
-	- instead of "from haml.codegen import mako_build_attr_str as __P_attrs"
-		"__haml.attribute_str(...)"
-	- engine for current template should be availible via "__haml.get_engine()"
-		- perhaps associate with the mako stack pointer?
+- engine for current template should be availible via "__haml.get_engine()"
+	- perhaps associate with the mako stack pointer?
 
 
 - !!! xsl stylesheet v1
 	- add the xml node and the xsl:stylesheet node
 		<?xml version='1.0' encoding='utf-8' ?>
 
-- what kind of tag is "<?xml version='1.0' encoding='utf-8' ?>"
-	- consider adding it via ???
-
 - non-selfclosing tag list should be a property of the engine object so it can
   be set at compile, render, or runtime.
 
 - transform doctype declaration into general config setting syntax
-	- allow for changing engine settings
-		!!! indent None
-		!!! indent '  '
-		!!! no_self_close style False
-		!!! default_filter html
+    - doctypes
+        !!! xml (or XML)
+            - outputs: <?xml version='1.0' encoding='utf-8' ?>
+            - sets us into xml mode (the default)
+        !!! xhtml strict
+        !!! xml 5
+            - outputs XML tag, and: <!DOCTYPE html>
+        !!!
+            - throw an error; we don't want a default
+	- indents
+        !!! indent None (or '', or 0)
+		!!! indent '  ' (or 2, or '\t', or 4)
+	- default filters
+        !!! default_filter html
+	!!! no_self_close style False
+        
 
-- every time we have a set of function arguments we can see if it parses with:
-	compile('f(%s)', '<PyHAML>', 'eval')
+- every time we have a set of function arguments we can see if it parses with
+  ast.parse('f(%s)', 'eval'). Then we can walk the AST and run
+  ast.literal_eval on each arg, keywork, *args, and **kwargs and attempt
+  to figure out as much of it as we can at compile time
 
 
 - Start thinking about exception handling (and making sense of it).
@@ -58,14 +66,8 @@
     
     This should not have any effect on the final mako at all.
 
-- Consider renaming some node classes:
-    Comment -> HTMLComment
-    Silent -> HamlComment
-    Filtered -> Filter
-
-
-- default xml doctypes should actually be "xhtml"
-
+- turn Greedy nodes into SourceProcessor
+    they receive raw source lines with indentation intact
 
 - filters should be able to pull from haml.filters as well
 	- we could include them all into the globals()
@@ -74,6 +76,7 @@
 - implement as many of the filters in from the docs as we can
  	- see: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#filters
 	- "scss" for other sass syntax
+        `sass --scss --style compressed`
 	- "python" should do the same as "ruby"
 	- "mako" should just drop it in place
 		- should this auto-dedent?
@@ -81,10 +84,19 @@
 			Something something
 		- don't know if this is actually filterable though...
 
-- filters with arguments?
-	- exec(["blah"]) -> exec(["blah"])(<to be filtered>)
-		
-- does decorator syntax for filtering make any sense?
+- filters should be able to have access to engine
+    - this will allow for "mako" filter to pass unprocessed mako through
+    - a SmartFilter class could be called with the engine
+
+- filters should be able to have arguments
+	- f(*args) -> f(*args)(to_filter)
+
+- generalize all control structures
+    - if/elif/else/endif
+    - for/else/endfor
+    - try/catch/else/finally/endtry
+    - while/endwhile
+
 
 - Add +function shortcut for <%call ... /> tag:
 	- A function call like:
@@ -95,7 +107,7 @@
 	- Remember that the content of the tag is available to the function as
 	  ${caller.body}
 	- Could do very similar syntax to define a function as well:
-		@def example(*args)
+		@example(*args)
 			%ul - for arg in args:
 				%li=|h arg
 			= caller.body
