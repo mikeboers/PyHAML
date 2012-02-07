@@ -21,14 +21,14 @@ A simple PyHAML template:
 A Mako template to do the same thing:
 
     <div id="profile">
-    	<div class="left column">
-    		<div id="date">${print_date}</div>
-    		<div id="address">${current_user.address}</div>
-    	</div>
-    	<div class="right column">
-    		<div id="email">${current_user.email}</div>
-    		<div id="bio">${current_user.bio}</div>
-    	</div>
+        <div class="left column">
+            <div id="date">${print_date}</div>
+            <div id="address">${current_user.address}</div>
+        </div>
+        <div class="right column">
+            <div id="email">${current_user.email}</div>
+            <div id="bio">${current_user.bio}</div>
+        </div>
     </div>
 
 ## API Example
@@ -126,6 +126,24 @@ Clearly this is now evaluating Python. It is evaluated in the Mako runtime conte
 ### [Python Interpolation: ${}](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#ruby_interpolation_)
 
 We are using Mako to do the heavy lifting here.
+
+### Mixins
+
+We have function delaration/calling syntax similar to [SASS-style mixins](http://sass-lang.com/docs/yardoc/file.INDENTED_SYNTAX.html#mixin_directives). E.g.:
+
+    @make_ol(*args)
+        %ol - for arg in args:
+            %li ${arg}
+    
+    +make_ol(1, 2, 3)
+
+renders to:
+
+    <ol>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+    </ul>
 
 ### [Filters](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#filters)
 
