@@ -8,6 +8,20 @@ import re
 from . import nodes
 
 
+def split_balanced_parens(line, depth=0):
+    # Too bad I can't do this with a regex... *sigh*.
+    deltas = {'(': 1, ')': -1}
+    pos = None
+    for pos, char in enumerate(line):
+        depth += deltas.get(char, 0)
+        if not depth:
+            break
+    if pos: # This could be either None or 0 if it wasn't a brace.
+        return line[:pos+1], line[pos+1:]
+    else:           
+        return '', line
+    
+    
 class Parser(object):
 
     def __init__(self):
@@ -143,17 +157,25 @@ class Parser(object):
             return
 
         # SASS Mixins
-        m = re.match(r'@(\w+)(?:\((.+?)\))?', line)
+        m = re.match(r'@(\w+)', line)
         if m:
-            name, argspec = m.groups()
+            name = m.group(1)
+            line = line[m.end():]
+            argspec, line = split_balanced_parens(line)
+            if argspec:
+                argspec = argspec[1:-1]
             yield nodes.MixinDef(name, argspec)
-            yield line[m.end():].lstrip()
+            yield line.lstrip()
             return
-        m = re.match(r'\+(\w+)(?:\((.+?)\))?', line)
+        m = re.match(r'\+(\w+)', line)
         if m:
-            name, argspec = m.groups()
+            name = m.group(1)
+            line = line[m.end():]
+            argspec, line = split_balanced_parens(line)
+            if argspec:
+                argspec = argspec[1:-1]
             yield nodes.MixinCall(name, argspec)
-            yield line[m.end():].lstrip()
+            yield line.lstrip()
             return
 
         # HAML Filters.
@@ -198,19 +220,9 @@ class Parser(object):
             line = line[m.end():]
 
             # Extract the kwargs expression.
-            # Too bad I can't do this with a regex... *sigh*.
-            brace_deltas = {'(': 1, ')': -1}
-            brace_depth = 0
-            pos = None
-            for pos, char in enumerate(line):
-                brace_depth += brace_deltas.get(char, 0)
-                if not brace_depth:
-                    break
-            if pos: # This could be either None or 0 if it wasn't a brace.
-                kwargs_expr = line[1:pos]
-                line = line[pos + 1:]
-            else:           
-                kwargs_expr = None
+            kwargs_expr, line = split_balanced_parens(line)
+            if kwargs_expr:
+                kwargs_expr = kwargs_expr[1:-1]
 
             # Whitespace stripping
             m2 = re.match(r'([<>]+)', line)
