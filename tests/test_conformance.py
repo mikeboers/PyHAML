@@ -461,6 +461,21 @@ a
 b
 '''.lstrip())
 
+    def test_sass_unicode(self):
+        self.assertHTML(
+u'''
+a
+:sass
+    #mydiv:before
+        content: "☺"
+b
+''', u'''
+a
+<style>/*<![CDATA[*/#mydiv:before{content:"☺"}/*]]>*/</style>
+b
+'''.lstrip())
+
+
     def test_filter_scoping(self):
         self.assertHTML(
 '''
@@ -490,7 +505,7 @@ A
 A
 '''.lstrip())
         
-    def test_filter_unicode(self):
+    def test_coffeescript_unicode(self):
                 self.assertHTML(
 u'''
 :coffeescript
