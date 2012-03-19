@@ -1,3 +1,4 @@
+# encoding: utf8
 
 from unittest import main
 from base import Base
@@ -487,6 +488,21 @@ A
     X
 ''', '''
 A
+'''.lstrip())
+        
+    def test_filter_unicode(self):
+                self.assertHTML(
+u'''
+:coffeescript
+    alert '☺'
+''',
+u'''
+<script>/*<![CDATA[*/(function() {
+
+  alert('☺');
+
+}).call(this);
+/*]]>*/</script>
 '''.lstrip())
         
                                         
