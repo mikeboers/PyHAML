@@ -35,12 +35,12 @@ def sass(src, scss=False):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
     )
-    out, err = proc.communicate(src)
+    out, err = proc.communicate(src.encode('utf-8'))
     if out:
         out = css(out.rstrip())
     if err:
         out += '<div class="sass-error">%s</div>' % cgi.escape(err)
-    return out
+    return out.decode('utf-8')
 
 
 def scss(src):
@@ -54,11 +54,11 @@ def coffeescript(src):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
     )
-    out, err = proc.communicate(src)
+    out, err = proc.communicate(src.encode('utf-8'))
     if out:
         out = javascript(out)
     if err:
         out += '<div class="coffeescript-error">%s</div>' % cgi.escape(err)
-    return out
+    return out.decode('utf-8')
 
 
