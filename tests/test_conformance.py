@@ -297,7 +297,10 @@ bar</pre><img />
     def test_escaping_html(self):
         """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#escaping_html"""
         self.assertHTML('&= "I like cheese & crackers"', 'I like cheese &amp; crackers\n')
-            
+    
+    def test_escaping_attr(self):
+        self.assertHTML('%(key="""value "with" quotes""")', '<div key="value &quot;with&quot; quotes"></div>\n')
+    
     def test_filters(self):
         """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#multiline
         
@@ -336,7 +339,8 @@ C
     def test_data_attr(self):
         """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#html5_custom_data_attributes"""
         self.assertHTML('%a(href="/posts", data={"author_id": 123}) Posts By Author', '<a data-author_id="123" href="/posts">Posts By Author</a>\n')              
-            
+    
+    
     def test_object_reference(self):
         """See: http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#object_reference_"""
         self.assertHTML(
