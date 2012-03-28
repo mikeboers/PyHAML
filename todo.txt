@@ -2,6 +2,24 @@
 - "unicode_as_entities" option on engine
 
 
+- smarter node-arg parsing
+	- allow for %(data-attribute="value")
+	- allow for %(a="one" b="two")
+		- note the lack of a comma
+	- allow for %{:class => "value", "id" => "value2"}
+	- allow for %{"class": "value"}
+	- decide if I want to allow %(key1="value", "key2":"value", :key3 => "value" key4="value")
+		- the parse I have could handle it, but it may not make too much sense to allow
+
+- attributes should be able to spread across multiple lines:
+	e.g.: %script(type='text/javascript,
+	        src ='/js/example.js')
+	- would need to switch to passing the rest of the document around instead of
+	  the rest of the current line, but it should be doable	
+
+- in html mode, boolean attributes need not have a value
+	- see: http://www.w3.org/TR/html5/common-microsyntaxes.html#boolean-attributes
+	- see: http://www.w3.org/TR/html5/index.html#attributes-1
 
 - haml filter to strip leading whitespace (like docstrings)
 	:dedent
@@ -12,6 +30,14 @@
 - cdata filter should cgi.escape if in html4 mode
     - move filters into runtime?
 
+- see how real haml dedents filtered content
+
+- consider adding << as dedent operator
+	%pre<<
+		This will be de-dented.
+	
+	- is this the same as the ":preserve" filter?
+	
 - haml tags should be able to have positional argument names
 	default to (name='div', id=None, class=None)
 		%('a' * 10)
@@ -21,6 +47,13 @@
 - engine for current template should be availible via "__haml.get_engine()"
 	- perhaps associate with the mako stack pointer?
 
+- filters that extend from a known class should also be passed the engine/context
+  so that they can see what mode the generator is in. This will allow for CDATA
+  blocks to be omitted for javascript/css filters.
+
+- look at what the output of "real" haml looks like in production vs debug
+	- I may be trying too hard in order to match some idealistic output which
+	  isn't really nessesary
 
 - !!! xsl stylesheet v1
 	- add the xml node and the xsl:stylesheet node
@@ -45,12 +78,6 @@
 	- default filters
         !!! default_filter html
 	!!! no_self_close style False
-        
-
-- every time we have a set of function arguments we can see if it parses with
-  ast.parse('f(%s)', 'eval'). Then we can walk the AST and run
-  ast.literal_eval on each arg, keywork, *args, and **kwargs and attempt
-  to figure out as much of it as we can at compile time
 
 
 - Start thinking about exception handling (and making sense of it).
@@ -65,6 +92,10 @@
         ## PyHAML SOURCE LINE (\d+)
     
     This should not have any effect on the final mako at all.
+	
+	- add a lineno to each tag as it is generated
+	- output a line comment every time the lineno changes on a tag that we are
+	  visiting
 
 - turn Greedy nodes into SourceProcessor
     they receive raw source lines with indentation intact
@@ -97,27 +128,6 @@
     - try/catch/else/finally/endtry
     - while/endwhile
 
-
-- Add +function shortcut for <%call ... /> tag:
-	- A function call like:
-		+example(1, 2)<
-			content
-	  would compile to:
-		<%call name="something" args="1, 2">content</%call>
-	- Remember that the content of the tag is available to the function as
-	  ${caller.body}
-	- Could do very similar syntax to define a function as well:
-		@example(*args)
-			%ul - for arg in args:
-				%li=|h arg
-			= caller.body
-
-
-- Some tags should only have content and no possibility of sub-tags. eg. script,
-style, etc. We should move the determination of if a node is greedy to a
-method on the node itself so that normals tags may also be greedy given the
-tag name. This method should also specify what type of node the children
-should be. Ie. a greedy tag would only be content.
 
 
 
