@@ -317,7 +317,7 @@ class HTMLComment(Base):
         yield engine.endl
 
     def __repr__(self):
-        yield '%s()' % self.__class__.__name__
+        return '%s()' % self.__class__.__name__
 
 
 class Control(Base):
