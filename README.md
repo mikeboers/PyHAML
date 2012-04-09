@@ -147,6 +147,16 @@ renders to:
 
 ### [Filters](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#filters)
 
+Several filters present in Haml are defined in PyHaml. These include
+:plain
+:escaped
+:cdata
+:javascript
+:css
+:sass
+:scss
+:coffeescript
+
 We don't supply any filters, but the mechanism is there to take callables from the runtime globals to use as a filter. You can also use Mako expression interpolation. Eg.:
 
     -! def to_upper(x):
