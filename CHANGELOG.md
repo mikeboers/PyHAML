@@ -23,6 +23,7 @@
 - Convert `camelCase` attributes to `dash-seperated`.
 - Added support for babel.
 - Support unicode attributes.
+- Include `haml-render` and `haml-preprocess` scripts (finally).
 
 0.1.4
 -----
