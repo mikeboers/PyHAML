@@ -10,7 +10,7 @@
 
 0.1.7
 -----
-- Mixin calls can have function calls (e.g. `+mixin(another_function())`).
+- Mixin calls can have nested function calls (e.g. `+mixin(another_function())`).
 
 0.1.6
 -----
