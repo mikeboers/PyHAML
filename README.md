@@ -153,11 +153,11 @@ Several filters present in Haml are defined in PyHaml. These include
 :cdata
 :javascript
 :css
-:sass
-:scss
-:coffeescript
+:sass (requires `sass` executable)
+:scss (requires `sass` executable)
+:coffeescript (requires `coffee` executable)
 
-We don't supply any filters, but the mechanism is there to take callables from the runtime globals to use as a filter. You can also use Mako expression interpolation. Eg.:
+We can also take callables from the runtime globals to use as a filter, and we can also use Mako expression interpolation. Eg.:
 
     -! def to_upper(x):
         return x.upper()
@@ -171,6 +171,15 @@ We don't supply any filters, but the mechanism is there to take callables from t
         ${value}
 
 ### [Doctype: !!!](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#doctype_)
+
+There is currently only very basic support for doctypes. In the future these commands should modify the current `format` of the generator to determine if it should create XML or HTML style tags (only closing when nessesary, etc.).
+
+    !!! 5
+
+renders to:
+
+    <!DOCTYPE html>
+
 ### [Whitespace Preservation](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#tilde)
 ### [Helpers](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#helpers)
 
