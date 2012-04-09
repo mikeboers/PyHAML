@@ -14,7 +14,8 @@
 
 0.1.6
 -----
-- Filters.
+- Filters only process Mako interpolation.
+- Added several builtin filters.
 - Allow dashes in tag names; XSLT is now usable.
 
 0.1.5
