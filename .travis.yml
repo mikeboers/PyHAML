@@ -7,5 +7,5 @@ python:
 install:
     - pip install --use-mirrors -e .
     - gem install sass
-    - gem install coffeescript
+    - gem install coffee-script
 script: nosetests
