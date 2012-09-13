@@ -1,5 +1,7 @@
 # Pythonic HAML
 
+[![Test Status](https://secure.travis-ci.org/mikeboers/PyHAML.png)](http://travis-ci.org/mikeboers/PyHAML)
+
 This is an implementation of [HAML](http://haml-lang.com/) for Python (2.5 through 2.7).
 
 I have kept as much of the same syntax as I could, but there are some Rubyisms built into HAML that I simply cannot replicate. I have tried to stay true to the original features while adapting them to be Pythonic.
