@@ -1,7 +1,9 @@
 # encoding: utf8
 
 from unittest import main
-from base import Base
+
+from base import Base, skip_on_travis
+
 from haml.runtime import flatten_attr_list
 
 
@@ -464,7 +466,8 @@ a
 <style>/*<![CDATA[*/body{margin:0;padding:0}div p{margin-top:1em}/*]]>*/</style>
 b
 '''.lstrip())
-
+    
+    @skip_on_travis
     def test_sass_unicode(self):
         self.assertHTML(
 u'''
@@ -508,9 +511,10 @@ A
 ''', '''
 A
 '''.lstrip())
-        
+    
+    @skip_on_travis
     def test_coffeescript_unicode(self):
-                self.assertHTML(
+        self.assertHTML(
 u'''
 :coffeescript
     alert '☺'
