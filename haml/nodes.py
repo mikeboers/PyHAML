@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 from itertools import chain
 import cgi
@@ -48,14 +49,14 @@ class Base(object):
 
     def print_tree(self, _depth=0, _inline=False):
         if _inline:
-            print '-> ' + repr(self),
+            print('-> ' + repr(self), endl='')
         else:
-            print '|   ' * _depth + repr(self),
+            print('|   ' * _depth + repr(self), endl=False)
         _depth += int(not _inline)
         if self.inline_child:
             self.inline_child.print_tree(_depth, True)
         else:
-            print
+            print()
         for child in self.children:
             child.print_tree(_depth)
 
