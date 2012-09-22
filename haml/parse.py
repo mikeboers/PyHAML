@@ -1,11 +1,6 @@
-
-try:
-    next
-except NameError:
-    from six import next
 import re
 
-from six import string_types
+from six import string_types, next
 
 from . import nodes
 

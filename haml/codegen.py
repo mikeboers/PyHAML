@@ -4,6 +4,7 @@ import collections
 import re
 
 from six import string_types
+from six.moves import xrange
 
 from . import runtime
 
