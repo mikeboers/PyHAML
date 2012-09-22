@@ -292,7 +292,7 @@ class Parser(object):
     
     def _parse_context(self, node):
         for child in node.children:
-	    self._parse_context(child)
+            self._parse_context(child)
         i = 0
         while i < len(node.children) - 1:
             if node.children[i].consume_sibling(node.children[i + 1]):
