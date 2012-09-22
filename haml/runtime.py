@@ -1,7 +1,7 @@
 import re
 import cgi
 
-from six import string_types
+from six import string_types, iteritems
 
 from . import filters
 
@@ -46,7 +46,7 @@ def flatten_attr_dict(prefix_key, input):
     if not isinstance(input, dict):
         yield prefix_key, input
         return
-    for key, value in input.iteritems():
+    for key, value in iteritems(input):
         yield prefix_key + '-' + key, value
 
 
@@ -58,7 +58,7 @@ def attribute_str(*args, **kwargs):
     obj_ref = x.pop('__obj_ref', None)
     obj_ref_prefix = x.pop('__obj_ref_pre', None)
     if x.pop('__adapt_camelcase', True):
-        x = dict((adapt_camelcase(k, '-'), v) for k, v in x.iteritems())
+        x = dict((adapt_camelcase(k, '-'), v) for k, v in iteritems(x))
     x['id'] = flatten_attr_list(
         x.pop('id', [])
     )
@@ -72,7 +72,7 @@ def attribute_str(*args, **kwargs):
     x['id'] = '_'.join(map(str, x['id']))
     x['class'] = ' '.join(map(str, x['class']))
     pairs = []
-    for k, v in x.iteritems():
+    for k, v in iteritems(x):
         pairs.extend(flatten_attr_dict(k, v))
     pairs.sort(key=lambda pair: (_attr_sort_order.get(pair[0], 0), pair[0]))
     return ''.join(_format_mako_attr_pair(k, v) for k, v in pairs if v)

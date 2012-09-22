@@ -4,6 +4,7 @@
 *.pyc
 *.egg-info
 
+/venv
 /.Python
 /bin
 /build
