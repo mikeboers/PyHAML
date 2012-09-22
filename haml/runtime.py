@@ -1,6 +1,8 @@
 import re
 import cgi
 
+from six import string_types
+
 from . import filters
 
 _attr_sort_order = {
@@ -26,7 +28,7 @@ def _format_mako_attr_pair(k, v):
 def flatten_attr_list(input):
     if not input:
         return
-    if isinstance(input, basestring):
+    if isinstance(input, string_types):
         yield input
         return
     try:

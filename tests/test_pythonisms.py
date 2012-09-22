@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from unittest import main
+
+from six import u
+
 from base import Base
+
 
 class TestAttributes(Base):
 
@@ -25,8 +29,8 @@ class TestAttributes(Base):
 
     def test_unicode_arguments(self):
         self.assertHTML(
-            u'%(a=u"España") content',
-            u'<div a="España">content</div>\n'
+            u('%(a=u"España") content'),
+            u('<div a="España">content</div>\n')
         )
     
 if __name__ == "__main__":

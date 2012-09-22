@@ -2,6 +2,8 @@
 
 from unittest import main
 
+from six import u
+
 from base import Base, skip_on_travis
 
 from haml.runtime import flatten_attr_list
@@ -470,17 +472,17 @@ b
     @skip_on_travis
     def test_sass_unicode(self):
         self.assertHTML(
-u'''
+u('''
 a
 :sass
     #mydiv:before
         content: "☺"
 b
-''', u'''
+'''), u('''
 a
 <style>/*<![CDATA[*/#mydiv:before{content:"☺"}/*]]>*/</style>
 b
-'''.lstrip())
+''').lstrip())
 
 
     def test_filter_scoping(self):
@@ -515,18 +517,18 @@ A
     @skip_on_travis
     def test_coffeescript_unicode(self):
         self.assertHTML(
-u'''
+u('''
 :coffeescript
     alert '☺'
-''',
-u'''
+'''),
+u('''
 <script>/*<![CDATA[*/(function() {
 
   alert('☺');
 
 }).call(this);
 /*]]>*/</script>
-'''.lstrip())
+''').lstrip())
         
                                         
 if __name__ == '__main__':

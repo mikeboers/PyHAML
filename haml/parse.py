@@ -2,8 +2,10 @@
 try:
     next
 except NameError:
-    from .backwards import next
+    from six import next
 import re
+
+from six import string_types
 
 from . import nodes
 
@@ -120,7 +122,7 @@ class Parser(object):
                 for token in self._parse_line(line):
                     if isinstance(token, nodes.Base):
                         self._add_node(token, (inter_depth, intra_depth))
-                    elif isinstance(token, basestring):
+                    elif isinstance(token, string_types):
                         line = token
                         intra_depth += 1
                     else:

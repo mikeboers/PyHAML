@@ -1,9 +1,9 @@
-
 from itertools import chain
 import cgi
 import collections
 import re
 
+from six import string_types
 
 from . import runtime
 
@@ -69,7 +69,7 @@ class Generator(object):
                     r_stripping = True
                 else:
                     raise ValueError('unexpected %r' % token)
-            elif isinstance(token, basestring):
+            elif isinstance(token, string_types):
                 # If we have encountered an rstrip token in the past, then
                 # we are removing all leading whitespace on incoming tokens.
                 # We must completely ignore no_strip strings as they go by.

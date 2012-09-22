@@ -49,9 +49,9 @@ class Base(object):
 
     def print_tree(self, _depth=0, _inline=False):
         if _inline:
-            print('-> ' + repr(self), endl='')
+            print('-> ' + repr(self), end='')
         else:
-            print('|   ' * _depth + repr(self), endl=False)
+            print('|   ' * _depth + repr(self), end='')
         _depth += int(not _inline)
         if self.inline_child:
             self.inline_child.print_tree(_depth, True)
