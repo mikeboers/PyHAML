@@ -193,15 +193,16 @@ class Tag(Base):
                 # guarantee it.
                 kwargs_code = compile('__update__(%s)' % kwargs_expr, '<kwargs_expr>', 'eval')
                 sandbox = __builtins__.copy()
-                del sandbox['__import__']
-                del sandbox['eval']
-                del sandbox['execfile']
+                sandbox.pop('__import__', None)
+                sandbox.pop('eval', None)
+                sandbox.pop('execfile', None)
                 def const_attrs_update(*args, **kwargs):
-                    map(const_attrs.update, args)
+                    for arg in args:
+                        const_attrs.update(arg)
                     const_attrs.update(kwargs)
                 sandbox['__update__'] = const_attrs_update
                 eval(kwargs_code, sandbox)
-            except (NameError, ValueError, KeyError):
+            except (NameError, ValueError, KeyError) as e:
                 pass
             else:
                 kwargs_expr = None
