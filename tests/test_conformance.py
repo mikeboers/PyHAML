@@ -4,7 +4,7 @@ from unittest import main
 
 from six import u
 
-from base import Base, skip_on_travis
+from base import Base, skip, skip_on_travis
 
 from haml.runtime import flatten_attr_list
 
@@ -469,7 +469,7 @@ a
 b
 '''.lstrip())
     
-    @skip_on_travis
+    @skip
     def test_sass_unicode(self):
         self.assertHTML(
 u('''
@@ -514,7 +514,7 @@ A
 A
 '''.lstrip())
     
-    @skip_on_travis
+    @skip
     def test_coffeescript_unicode(self):
         self.assertHTML(
 u('''
