@@ -37,10 +37,10 @@ def sass(src, scss=False):
     )
     out, err = proc.communicate(src.encode('utf-8'))
     if out:
-        out = css(out.rstrip())
+        out = css(out.rstrip().decode('utf-8'))
     if err:
-        out += '<div class="sass-error">%s</div>' % cgi.escape(err)
-    return out.decode('utf-8')
+        out += '<div class="sass-error">%s</div>' % cgi.escape(err.decode('utf-8'))
+    return out
 
 
 def scss(src):
