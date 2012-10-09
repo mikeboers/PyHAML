@@ -1,17 +1,22 @@
-
+# OS level.
 .DS_Store
 
-*.pyc
-*.egg-info
-
+# Explicit virtualenvs.
 /venv
+/venv3
+
+# Implicit virtualenvs.
 /.Python
 /bin
 /build
 /include
 /lib
 /man
+
+# Other products.
 /pip-log.txt
 /MANIFEST
 /dist
 /README.html
+*.pyc
+*.egg-info
