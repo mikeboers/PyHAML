@@ -1,7 +1,21 @@
 
 - "unicode_as_entities" option on engine
 
+- Error if we can't parse kwargs_expr for a Mako node, since we won't be able
+  to do those as a template at runtime, although we might be able to do it with
+  a slightly different syntax.
 
+- Treat tabs as 8 spaces (like Python) OR throw an exception when they are mixed
+
+- Should we also parse tags that are not at the front of the line? E.g.::
+
+    There is a %a(href="#") link
+    in the middle of this line.
+
+- Assert that my mini control statements pass through untouched. E.g.::
+
+    %li Before %{- if something} inside %{- end} after.
+    
 - smarter node-arg parsing
 	- allow for %(data-attribute="value")
 	- allow for %(a="one" b="two")
@@ -68,8 +82,8 @@
             - outputs: <?xml version='1.0' encoding='utf-8' ?>
             - sets us into xml mode (the default)
         !!! xhtml strict
-        !!! xml 5
-            - outputs XML tag, and: <!DOCTYPE html>
+        !!! html5
+            - <!DOCTYPE html>
         !!!
             - throw an error; we don't want a default
 	- indents
