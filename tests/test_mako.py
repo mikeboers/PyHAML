@@ -188,7 +188,9 @@ inline expr
             '''
 
 %%def(name="some_def(**attrs)")
-  = attrs
+  %dl - for k in sorted(attrs):
+    %dt= k
+    %dd= attrs[k]
   %p(**attrs)
  
 %%self:some_def(camelCase='value')
@@ -197,7 +199,9 @@ inline expr
             '''.strip(),
             '''
 
-    {'camelCase': u'value'}
+    <dl>    <dt>camelCase</dt>
+    <dd>value</dd>
+</dl>
     <p camel-case="value"></p>
 
 ''')
