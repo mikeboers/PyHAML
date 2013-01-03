@@ -182,5 +182,25 @@ inline expr
 </a>
             '''.strip() + '\n')
 
+
+    def test_camelcase_in_mako_tag(self):
+        self.assertHTML(
+            '''
+
+%%def(name="some_def(**attrs)")
+  = attrs
+  %p(**attrs)
+ 
+%%self:some_def(camelCase='value')
+    Body, which will be discarded.
+
+            '''.strip(),
+            '''
+
+    {'camelCase': u'value'}
+    <p camel-case="value"></p>
+
+''')
+
 if __name__ == "__main__":
     main()

@@ -185,6 +185,10 @@ class Tag(Base):
             if self.object_reference_prefix:
                 kwargs_expr += ', __obj_ref_pre=' + self.object_reference_prefix
 
+        # Mako tags should not convert camel case.
+        if self.name.startswith('%'):
+            const_attrs['__adapt_camelcase'] = False
+
         if kwargs_expr:
             try:
                 # HACK: If we can evaluate the expression without error then
