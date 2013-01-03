@@ -1,7 +1,8 @@
-0.1.9-dev
+0.1.9
 ---------
 - Added `!!! 5` support without putting the engine into HTML mode.
 - Fixed a repr bug in HTMLComment.
+- No longer process camel case in Mako tags.
 
 0.1.8
 -----
