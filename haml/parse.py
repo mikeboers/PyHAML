@@ -288,7 +288,7 @@ class Parser(object):
         self._stack.append((depth, node))
     
     def _parse_context(self, node):
-        for child in node.children:
+        for child in node.iter_all_children():
             self._parse_context(child)
         i = 0
         while i < len(node.children) - 1:

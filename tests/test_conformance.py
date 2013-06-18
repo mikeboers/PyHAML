@@ -434,6 +434,17 @@ class TestControlStructures(Base):
 3 odd
 '''.lstrip())
 
+    def test_after_for_if(self):
+        self.assertHTML(
+'''
+% - for i in [0]:
+    - if True:
+        A
+    - else:
+        B
+    C
+''', '<div>A\nC\n</div>\n')
+
     def test_xslt(self):
         self.assertHTML(
 '''

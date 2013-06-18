@@ -1,3 +1,11 @@
+1.0.1
+-----
+- Fix parsing of nesting control structures; `else` would not function properly in a nested structure.
+
+1.0.0
+-----
+- Switched to [SemVer](http://semver.org/); no changes here.
+
 0.1.9
 ---------
 - Added `!!! 5` support without putting the engine into HTML mode.

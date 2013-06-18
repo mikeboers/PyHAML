@@ -14,6 +14,17 @@ class Base(object):
         self.inline_child = None
         self.children = []
 
+    def iter_all_children(self):
+        '''Return an iterator that yields every node which is a child of this one.
+
+        This includes inline children, and control structure `else` clauses.
+        '''
+        
+        if self.inline_child:
+            yield self.inline_child
+        for x in self.children:
+            yield x
+
     def add_child(self, node, inline=False):
         if inline:
             self.inline_child = node
@@ -334,6 +345,14 @@ class Control(Base):
         self.test = test
         self.elifs = []
         self.else_ = None
+
+    def iter_all_children(self):
+        for x in super(Control, self).iter_all_children():
+            yield x
+        for x in self.elifs:
+            yield x
+        if self.else_:
+            yield x
 
     def consume_sibling(self, node):
         if not isinstance(node, Control):
