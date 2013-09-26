@@ -164,7 +164,7 @@ class Parser(object):
             yield nodes.MixinDef(name, argspec)
             yield line.lstrip()
             return
-        m = re.match(r'\+(\w+)', line)
+        m = re.match(r'\+([\w.]+)', line)
         if m:
             name = m.group(1)
             line = line[m.end():]
