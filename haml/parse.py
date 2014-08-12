@@ -119,32 +119,30 @@ class Parser(object):
             # Main loop. We process a series of tokens, which consist of either
             # nodes to add to the stack, or strings to be re-parsed and
             # attached as inline.
-            last_line = None
-            while line and line != last_line:
-                last_line = line
-                for token in self._parse_line(line):
-                    if isinstance(token, nodes.Base):
-                        self._add_node(token, (inter_depth, intra_depth))
-                    elif isinstance(token, string_types):
-                        line = token.lstrip()
-                        self._replace_line(line)
-                        intra_depth += 1
-                    else:
-                        raise TypeError('unknown token %r' % token)
+            while line:
+                self._replace_line(line)
+                node, line = self._parse_statement(line)
+                self._add_node(node, (inter_depth, intra_depth))
+                line = line.lstrip()
+                intra_depth += 1
 
 
-    def _parse_line(self, line):
+    def _parse_statement(self, line):
 
         # Escaping.
         if line.startswith('\\'):
-            yield nodes.Content(line[1:].lstrip())
-            return
+            return (
+                nodes.Content(line[1:]),
+                ''
+            )
 
         # HTML comments.
         m = re.match(r'/(\[if[^\]]+])?(.*)$', line)
         if m:
-            yield nodes.HTMLComment(m.group(2).strip(), (m.group(1) or '').rstrip())
-            return
+            return (
+                nodes.HTMLComment(m.group(2).strip(), (m.group(1) or '').rstrip()),
+                ''
+            )
 
         # Expressions.
         m = re.match(r'''
@@ -160,8 +158,10 @@ class Parser(object):
             filters = filters or ''
             if add_escape:
                 filters = filters + (',' if filters else '') + 'h'
-            yield nodes.Expression(content, filters)
-            return
+            return (
+                nodes.Expression(content, filters),
+                ''
+            )
 
         # SASS Mixins
         m = re.match(r'@(\w+)', line)
@@ -171,9 +171,11 @@ class Parser(object):
             argspec, line = split_balanced_parens(line)
             if argspec:
                 argspec = argspec[1:-1]
-            yield nodes.MixinDef(name, argspec)
-            yield line.lstrip()
-            return
+            return (
+                nodes.MixinDef(name, argspec),
+                line
+            )
+
         m = re.match(r'\+([\w.]+)', line)
         if m:
             name = m.group(1)
@@ -181,26 +183,33 @@ class Parser(object):
             argspec, line = split_balanced_parens(line)
             if argspec:
                 argspec = argspec[1:-1]
-            yield nodes.MixinCall(name, argspec)
-            yield line.lstrip()
-            return
+            return (
+                nodes.MixinCall(name, argspec),
+                line
+            )
 
         # HAML Filters.
         m = re.match(r':(\w+)(?:\s+(.+))?$', line)
         if m:
             filter, content = m.groups()
-            yield nodes.Filter(content, filter)
-            return
+            return (
+                nodes.Filter(content, filter),
+                ''
+            )
 
         # HAML comments
         if line.startswith('-#'):
-            yield nodes.HAMLComment(line[2:].lstrip())
-            return  
+            return (
+                nodes.HAMLComment(line[2:].lstrip()),
+                ''
+            ) 
         
         # XML Doctype
         if line.startswith('!!!'):
-            yield nodes.Doctype(*line[3:].strip().split())
-            return
+            return (
+                nodes.Doctype(*line[3:].strip().split()),
+                ''
+            )
 
         # Tags.
         m = re.match(r'''
@@ -243,20 +252,21 @@ class Parser(object):
             self_closing = bool(line and line[0] == '/')
             line = line[int(self_closing):].lstrip()
 
-            yield nodes.Tag(
-                name=name,
-                id=id,
-                class_=' '.join(class_),
-                
-                kwargs_expr=kwargs_expr,
-                object_reference=object_reference,
-                object_reference_prefix=object_reference_prefix, 
-                self_closing=self_closing,
-                strip_inner=strip_inner,
-                strip_outer=strip_outer,
+            return (
+                nodes.Tag(
+                    name=name,
+                    id=id,
+                    class_=' '.join(class_),
+                    
+                    kwargs_expr=kwargs_expr,
+                    object_reference=object_reference,
+                    object_reference_prefix=object_reference_prefix, 
+                    self_closing=self_closing,
+                    strip_inner=strip_inner,
+                    strip_outer=strip_outer,
+                ),
+                line
             )
-            yield line
-            return
 
         # Control statements.
         m = re.match(r'''
@@ -267,25 +277,35 @@ class Parser(object):
             (.+?):         # test
         ''', line, re.X)
         if m:
-            yield nodes.Control(*m.groups())
-            yield line[m.end():].lstrip()
-            return
+            return (
+                nodes.Control(*m.groups()),
+                line[m.end():].lstrip()
+            )
         m = re.match(r'-\s*else\s*:', line, re.X)
         if m:
-            yield nodes.Control('else', None)
-            yield line[m.end():].lstrip()
-            return
+            return (
+                nodes.Control('else', None),
+                line[m.end():].lstrip()
+            )
         
         # Python source.
         if line.startswith('-'):
             if line.startswith('-!'):
-                yield nodes.Python(line[2:].lstrip(), module=True)
+                return (
+                    nodes.Python(line[2:].lstrip(), module=True),
+                    ''
+                )
             else:
-                yield nodes.Python(line[1:].lstrip(), module=False)
-            return
+                return (
+                    nodes.Python(line[1:].lstrip(), module=False),
+                    ''
+                )
 
         # Content
-        yield nodes.Content(line)
+        return (
+            nodes.Content(line),
+            ''
+        )
 
     def _prep_stack_for_depth(self, depth):  
         """Pop everything off the stack that is not shorter than the given depth."""
