@@ -1,5 +1,6 @@
 import itertools
 import re
+import tokenize
 
 from six import string_types, next
 
@@ -33,20 +34,81 @@ class Parser(object):
     def _topmost_node(self):
         return self._stack[-1][1]
 
-    def _peek_line(self, i=0):
+    def _peek_buffer(self, i=0):
         """Get the next line without consuming it."""
         while len(self._buffer) <= i:
             self._buffer.append(next(self._source))
         return self._buffer[i]
 
-    def _consume_line(self):
+    def _consume_buffer(self):
         """Get the next line."""
         if self._buffer:
             return self._buffer.pop(0)
-        return next(self._source)
 
-    def _replace_line(self, line):
+    def _replace_buffer(self, line):
+        """Replace the contents of the first line in the buffer with the given."""
         self._buffer[0] = line
+
+    def _make_readline_peeker(self):
+        """Make a readline-like function which peeks into the source."""
+        counter = itertools.count(0)
+        def readline():
+            try:
+                return self._peek_buffer(next(counter))
+            except StopIteration:
+                return ''
+        return readline
+
+    def _peek_python_tokens(self):
+        """Return a generator of Python tokens from the source.
+
+        Does not consume any of the source.
+
+        """
+        return tokenize.generate_tokens(self._make_readline_peeker())
+
+    def _consume_python_token(self, token):
+        """Consume the buffer up to the given token (from _peek_python_tokens).
+
+        Returns a single string that was consumed.
+
+        """
+        ret = []
+        line, col = token[3]
+        if line > 1:
+            ret = self._buffer[:line-1]
+            self._buffer[:line-1] = []
+        ret.append(self._buffer[0][:col])
+        self._buffer[0] = self._buffer[0][col:]
+        return ''.join(ret)
+
+    def _match_python_brackets(self, first=None):
+        openers = set('({[')
+        closers = set(')}]')
+        close_to_open = {')': '(', '}': '{', ']': '['}
+        stack = []
+        try:
+            for token in self._peek_python_tokens():
+                type_, value, _, _, _  = token
+                if type_ == tokenize.OP:
+                    if value in openers:
+                        if not stack and first is not None and value != first:
+                            return
+                        stack.append(token[1])
+                    elif value in closers:
+                        if stack[-1] != close_to_open[value]:
+                            # Mismatched brackets!
+                            return
+                        stack.pop(-1)
+                        if not stack:
+                            return self._consume_python_token(token)
+
+                # If the first token wasn't a bracket, then bail.
+                if not stack:
+                    return
+
+        except IndentationError:
+            return
 
     def parse(self, source):
         self._source = iter(source)
@@ -60,10 +122,10 @@ class Parser(object):
         while True:
 
             if raw_line is not None:
-                self._consume_line()
+                self._consume_buffer()
 
             try:
-                raw_line = self._peek_line()
+                raw_line = self._peek_buffer()
             except StopIteration:
                 break
 
@@ -71,9 +133,9 @@ class Parser(object):
             try:
                 while raw_line.endswith('|'):
                     raw_line = raw_line[:-1]
-                    if self._peek_line(1).endswith('|'):
-                        self._consume_line()
-                        raw_line += self._peek_line()
+                    if self._peek_buffer(1).endswith('|'):
+                        self._consume_buffer()
+                        raw_line += self._peek_buffer()
             except StopIteration:
                 pass
 
@@ -116,18 +178,20 @@ class Parser(object):
             if not line:
                 continue
             
-            # Main loop. We process a series of tokens, which consist of either
-            # nodes to add to the stack, or strings to be re-parsed and
-            # attached as inline.
+            # Main loop. We continue removing statements from the front of the
+            # line until the line has been exhausted. We keep the buffer
+            # accurate so that the Python tokenize functions will work.
             while line:
-                self._replace_line(line)
-                node, line = self._parse_statement(line)
+                self._replace_buffer(line)
+                node, line = self._parse_statement()
                 self._add_node(node, (inter_depth, intra_depth))
                 line = line.lstrip()
                 intra_depth += 1
 
 
-    def _parse_statement(self, line):
+    def _parse_statement(self):
+
+        line = self._peek_buffer()
 
         # Escaping.
         if line.startswith('\\'):
@@ -168,9 +232,11 @@ class Parser(object):
         if m:
             name = m.group(1)
             line = line[m.end():]
-            argspec, line = split_balanced_parens(line)
+            self._replace_buffer(line)
+            argspec = self._match_python_brackets('(')
             if argspec:
                 argspec = argspec[1:-1]
+                line = self._peek_buffer()
             return (
                 nodes.MixinDef(name, argspec),
                 line
@@ -180,9 +246,11 @@ class Parser(object):
         if m:
             name = m.group(1)
             line = line[m.end():]
-            argspec, line = split_balanced_parens(line)
+            self._replace_buffer(line)
+            argspec = self._match_python_brackets('(')
             if argspec:
                 argspec = argspec[1:-1]
+                line = self._peek_buffer()
             return (
                 nodes.MixinCall(name, argspec),
                 line
@@ -236,9 +304,11 @@ class Parser(object):
             line = line[m.end():]
 
             # Extract the kwargs expression.
-            kwargs_expr, line = split_balanced_parens(line)
+            self._replace_buffer(line)
+            kwargs_expr = self._match_python_brackets('(')
             if kwargs_expr:
                 kwargs_expr = kwargs_expr[1:-1]
+                line = self._peek_buffer()
 
             # Whitespace stripping
             m2 = re.match(r'([<>]+)', line)

@@ -541,6 +541,38 @@ u('''
 /*]]>*/</script>
 ''').lstrip())
         
-                                        
+
+
+class TestParsingRegressions(Base):
+
+    def test_parenthesis_in_mixin_def(self):
+        self.assertHTML(
+'''
+@test(x='a)b') = x
++test
+''',
+'''
+a)b
+''')
+
+    def test_parenthesis_in_mixin_call(self):
+        self.assertHTML(
+'''
+@test(x) = x
++test('a)b')
+''',
+'''
+a)b
+''')
+
+    def test_parenthesis_in_tag_attribute(self):
+        self.assertHTML(
+'''
+%a(name=')')
+''',
+'''<a name=")"></a>
+''')
+
+
 if __name__ == '__main__':
     main()
