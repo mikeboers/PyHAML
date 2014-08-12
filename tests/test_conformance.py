@@ -582,6 +582,35 @@ a)b
 '''abc
 ''')
 
+    def test_multiline_attributes(self):
+        self.assertHTML(
+'''
+%(
+    id='abc',
+    class_='xyz',
+)
+    content
+''',
+'''
+<div id="abc" class="xyz">
+    content
+</div>
+'''.lstrip())
+
+    def test_multiline_control_statement(self):
+        self.assertHTML(
+'''
+- if (
+    True and
+    True
+):
+    YES
+- else:
+    NO
+''',
+'''YES
+''')
+
 
 if __name__ == '__main__':
     main()
