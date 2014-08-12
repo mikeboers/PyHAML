@@ -1,0 +1,26 @@
+# Activate the testing environment.
+# This is a wrapper for Python virtualenv's that also controls the Ruby gem
+# home (for compass).
+
+# This MUST be sourced, not run.
+
+_self="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)"
+_venv="$_self/venv"
+
+if [[ ! -f "$_venv/bin/activate" ]]; then
+    virtualenv "$_venv"
+fi
+
+. "$_venv/bin/activate"
+
+# Ruby gems.
+export GEM_HOME="$_venv"
+export GEM_PATH=""
+
+# Node packages.
+export NPM_CONFIG_GLOBAL="true"
+export NPM_CONFIG_PREFIX="$_venv"
+
+# Bower packages.
+export bower_cwd="$_venv"
+export bower_directory="lib/bower"
