@@ -573,6 +573,15 @@ a)b
 '''<a name=")"></a>
 ''')
 
+    def test_colon_in_control_statement(self):
+        self.assertHTML(
+'''
+- if 'x' in {'x': 'y'}:
+    abc
+''',
+'''abc
+''')
+
 
 if __name__ == '__main__':
     main()

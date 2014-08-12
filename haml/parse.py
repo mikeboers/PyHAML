@@ -82,30 +82,30 @@ class Parser(object):
         self._buffer[0] = self._buffer[0][col:]
         return ''.join(ret)
 
-    def _match_python_brackets(self, first=None):
+    def _match_python_expr(self, first=None, last=None):
         openers = set('({[')
         closers = set(')}]')
         close_to_open = {')': '(', '}': '{', ']': '['}
         stack = []
         try:
-            for token in self._peek_python_tokens():
+            for token_i, token in enumerate(self._peek_python_tokens()):
                 type_, value, _, _, _  = token
+
+                if not token_i and first is not None:
+                    if value not in first:
+                        return
+
                 if type_ == tokenize.OP:
                     if value in openers:
-                        if not stack and first is not None and value != first:
-                            return
                         stack.append(token[1])
                     elif value in closers:
                         if stack[-1] != close_to_open[value]:
                             # Mismatched brackets!
                             return
                         stack.pop(-1)
-                        if not stack:
-                            return self._consume_python_token(token)
 
-                # If the first token wasn't a bracket, then bail.
-                if not stack:
-                    return
+                if not stack and (last is None or value in last):
+                    return self._consume_python_token(token)
 
         except IndentationError:
             return
@@ -233,7 +233,7 @@ class Parser(object):
             name = m.group(1)
             line = line[m.end():]
             self._replace_buffer(line)
-            argspec = self._match_python_brackets('(')
+            argspec = self._match_python_expr(first=set('('), last=set(')'))
             if argspec:
                 argspec = argspec[1:-1]
                 line = self._peek_buffer()
@@ -247,7 +247,7 @@ class Parser(object):
             name = m.group(1)
             line = line[m.end():]
             self._replace_buffer(line)
-            argspec = self._match_python_brackets('(')
+            argspec = self._match_python_expr(first=set('('), last=set(')'))
             if argspec:
                 argspec = argspec[1:-1]
                 line = self._peek_buffer()
@@ -305,7 +305,7 @@ class Parser(object):
 
             # Extract the kwargs expression.
             self._replace_buffer(line)
-            kwargs_expr = self._match_python_brackets('(')
+            kwargs_expr = self._match_python_expr(first=set('('), last=set(')'))
             if kwargs_expr:
                 kwargs_expr = kwargs_expr[1:-1]
                 line = self._peek_buffer()
@@ -343,13 +343,14 @@ class Parser(object):
             -
             \s*
             (for|if|while|elif) # control type
-            \s+
-            (.+?):         # test
         ''', line, re.X)
         if m:
+            control_type = m.group(1)
+            self._replace_buffer(line[m.end():].lstrip())
+            expr = self._match_python_expr(last=set(':'))
             return (
-                nodes.Control(*m.groups()),
-                line[m.end():].lstrip()
+                nodes.Control(control_type, expr[:-1]),
+                self._peek_buffer()
             )
         m = re.match(r'-\s*else\s*:', line, re.X)
         if m:
