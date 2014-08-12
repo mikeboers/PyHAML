@@ -1,3 +1,4 @@
+import itertools
 import re
 
 from six import string_types, next
@@ -24,7 +25,6 @@ class Parser(object):
     def __init__(self):
         self.root = nodes.Document()
         self._stack = [((-1, 0), self.root)]
-        self._buffer = []
 
     def parse_string(self, source):
         self.parse(source.splitlines())
@@ -33,28 +33,37 @@ class Parser(object):
     def _topmost_node(self):
         return self._stack[-1][1]
 
-    def _next_line(self):
-        """Get the next line."""
-        if self._buffer:
-            return self._buffer.pop(0)
-        return next(self._source)
-
     def _peek_line(self, i=0):
         """Get the next line without consuming it."""
         while len(self._buffer) <= i:
             self._buffer.append(next(self._source))
         return self._buffer[i]
 
+    def _consume_line(self):
+        """Get the next line."""
+        if self._buffer:
+            return self._buffer.pop(0)
+        return next(self._source)
+
+    def _replace_line(self, line):
+        self._buffer[0] = line
+
     def parse(self, source):
         self._source = iter(source)
+        self._buffer = []
         self._parse_buffer()
         self._parse_context(self.root)
     
     def _parse_buffer(self):
         indent_str = ''
+        raw_line = None
         while True:
+
+            if raw_line is not None:
+                self._consume_line()
+
             try:
-                raw_line = self._next_line()
+                raw_line = self._peek_line()
             except StopIteration:
                 break
 
@@ -62,8 +71,9 @@ class Parser(object):
             try:
                 while raw_line.endswith('|'):
                     raw_line = raw_line[:-1]
-                    if self._peek_line().endswith('|'):
-                        raw_line += self._next_line()
+                    if self._peek_line(1).endswith('|'):
+                        self._consume_line()
+                        raw_line += self._peek_line()
             except StopIteration:
                 pass
 
@@ -116,10 +126,12 @@ class Parser(object):
                     if isinstance(token, nodes.Base):
                         self._add_node(token, (inter_depth, intra_depth))
                     elif isinstance(token, string_types):
-                        line = token
+                        line = token.lstrip()
+                        self._replace_line(line)
                         intra_depth += 1
                     else:
                         raise TypeError('unknown token %r' % token)
+
 
     def _parse_line(self, line):
 
