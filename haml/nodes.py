@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import ast
 from itertools import chain
 import cgi
 import re
@@ -201,25 +202,39 @@ class Tag(Base):
             const_attrs['__adapt_camelcase'] = False
 
         if kwargs_expr:
+
+            # If all of the kwargs are literals, then lets convert them up front.
+
             try:
-                # HACK: If we can evaluate the expression without error then
-                # we don't need to do it at runtime. This is possibly quite
-                # dangerous. We are trying to protect ourselves but I can't
-                # guarantee it.
-                kwargs_code = compile('__update__(%s)' % kwargs_expr, '<kwargs_expr>', 'eval')
-                sandbox = __builtins__.copy()
-                sandbox.pop('__import__', None)
-                sandbox.pop('eval', None)
-                sandbox.pop('execfile', None)
-                def const_attrs_update(*args, **kwargs):
-                    for arg in args:
-                        const_attrs.update(arg)
-                    const_attrs.update(kwargs)
-                sandbox['__update__'] = const_attrs_update
-                eval(kwargs_code, sandbox)
-            except (NameError, ValueError, KeyError) as e:
-                pass
+                root = ast.parse('func(%s)' % kwargs_expr)
+            except SyntaxError:
+                valid = False
             else:
+                func = root.body[0].value
+                valid = not func.starargs and not func.kwargs
+                literal_attrs = {}
+
+            if valid:
+                for arg in func.args:
+                    try:
+                        value = ast.literal_eval(arg)
+                    except ValueError:
+                        valid = False
+                        break
+                    else:
+                        literal_attrs.update(value)
+            if valid:
+                for kwarg in func.keywords:
+                    try:
+                        value = ast.literal_eval(kwarg.value)
+                    except ValueError:
+                        valid = False
+                        break
+                    else:
+                        literal_attrs[kwarg.arg] = value
+
+            if valid:
+                const_attrs.update(literal_attrs)
                 kwargs_expr = None
 
         if not kwargs_expr:
