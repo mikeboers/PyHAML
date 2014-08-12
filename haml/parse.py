@@ -24,7 +24,7 @@ class Parser(object):
     def __init__(self):
         self.root = nodes.Document()
         self._stack = [((-1, 0), self.root)]
-        self._peek_line_buffer = None
+        self._buffer = []
 
     def parse_string(self, source):
         self.parse(source.splitlines())
@@ -35,24 +35,22 @@ class Parser(object):
 
     def _next_line(self):
         """Get the next line."""
-        if self._peek_line_buffer is not None:
-            line = self._peek_line_buffer
-            self._peek_line_buffer = None
-            return line
-        return next(self.source)
+        if self._buffer:
+            return self._buffer.pop(0)
+        return next(self._source)
 
-    def _peek_line(self):
+    def _peek_line(self, i=0):
         """Get the next line without consuming it."""
-        if self._peek_line_buffer is None:
-            self._peek_line_buffer = next(self.source)
-        return self._peek_line_buffer
+        while len(self._buffer) <= i:
+            self._buffer.append(next(self._source))
+        return self._buffer[i]
 
     def parse(self, source):
-        self._parse_lines(source)
+        self._source = iter(source)
+        self._parse_buffer()
         self._parse_context(self.root)
     
-    def _parse_lines(self, source):
-        self.source = iter(source)
+    def _parse_buffer(self):
         indent_str = ''
         while True:
             try:
