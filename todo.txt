@@ -1,4 +1,6 @@
 
+- handle standard multiline support via backslashes
+
 - "unicode_as_entities" option on engine
 
 - Error if we can't parse kwargs_expr for a Mako node, since we won't be able
@@ -6,11 +8,6 @@
   a slightly different syntax.
 
 - Treat tabs as 8 spaces (like Python) OR throw an exception when they are mixed
-
-- Should we also parse tags that are not at the front of the line? E.g.::
-
-    There is a %a(href="#") link
-    in the middle of this line.
 
 - Assert that my mini control statements pass through untouched. E.g.::
 
@@ -24,12 +21,6 @@
 	- allow for %{"class": "value"}
 	- decide if I want to allow %(key1="value", "key2":"value", :key3 => "value" key4="value")
 		- the parse I have could handle it, but it may not make too much sense to allow
-
-- attributes should be able to spread across multiple lines:
-	e.g.: %script(type='text/javascript,
-	        src ='/js/example.js')
-	- would need to switch to passing the rest of the document around instead of
-	  the rest of the current line, but it should be doable	
 
 - in html mode, boolean attributes need not have a value
 	- see: http://www.w3.org/TR/html5/common-microsyntaxes.html#boolean-attributes

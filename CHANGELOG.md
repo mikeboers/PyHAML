@@ -1,3 +1,14 @@
+1.1.0
+-----
+- Fix use of parenthesis within strings in tag attributes (e.g. `%a(name=":)")`).
+- Fix use of colons within control statements (e.g. either colon in `if x[-1:] == ':':`).
+- Above fixes allow for multiline statements when parenthesis are present,
+  just like normal Python.
+
+Notes: templates which triggered fixed bugs would result in syntax errors, we
+are not classifying these are breaking backwards compatibility, and so this is
+only a minor bump.
+
 1.0.1
 -----
 - Fix parsing of nesting control structures; `else` would not function properly in a nested structure.
