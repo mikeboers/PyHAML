@@ -174,7 +174,7 @@ We can also take callables from the runtime globals to use as a filter, and we c
 
 ### [Doctype: !!!](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#doctype_)
 
-There is currently only very basic support for doctypes. In the future these commands should modify the current `format` of the generator to determine if it should create XML or HTML style tags (only closing when nessesary, etc.).
+There is currently only very basic support for doctypes. In the future these commands should modify the current `format` of the generator to determine if it should create XML or HTML style tags (only closing when necessary, etc.).
 
     !!! 5
 
