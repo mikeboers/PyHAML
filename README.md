@@ -131,7 +131,7 @@ We are using Mako to do the heavy lifting here.
 
 ### Mixins
 
-We have function delaration/calling syntax similar to [SASS-style mixins](http://sass-lang.com/docs/yardoc/file.INDENTED_SYNTAX.html#mixin_directives). E.g.:
+We have function declaration/calling syntax similar to [SASS-style mixins](http://sass-lang.com/docs/yardoc/file.INDENTED_SYNTAX.html#mixin_directives). E.g.:
 
     @make_ol(*args)
         %ol - for arg in args:
