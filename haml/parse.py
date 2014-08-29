@@ -161,12 +161,12 @@ class Parser(object):
                 # previous.
                 inter_depth, intra_depth = self._stack[-1][0]
             
-            # Filter(Base) nodes recieve all content in their scope.
+            # Filter(Base) nodes receive all content in their scope.
             if isinstance(self._topmost_node, nodes.FilterBase):
                 self._topmost_node.add_line(indent_str, line)
                 continue
             
-            # Greedy nodes recieve all content in their scope.
+            # Greedy nodes receive all content in their scope.
             if isinstance(self._topmost_node, nodes.GreedyBase):
                 self._add_node(
                     self._topmost_node.__class__(line),
@@ -318,7 +318,7 @@ class Parser(object):
                 strip_inner = '<' in m2.group(1)
                 line = line[m2.end():]
 
-            # Self closing tags
+            # Self-closing tags
             self_closing = bool(line and line[0] == '/')
             line = line[int(self_closing):].lstrip()
 

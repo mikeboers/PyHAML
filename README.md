@@ -68,7 +68,7 @@ Herein lies our differences to the [HAML reference](http://haml-lang.com/docs/ya
 
 ### [Attributes: ()](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#attributes)
 
-Python syntax must be used as if calling a function that takes keyword arguments. Eg.:
+Python syntax must be used as if calling a function that takes keyword arguments. E.g.:
 
     %ul
         - for i in range(5):
@@ -92,7 +92,7 @@ renders to:
 
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 
-If you want to pass in any other non-identifier attribute names, you can expand a mapping in place. Eg.:
+If you want to pass in any other non-identifier attribute names, you can expand a mapping in-place. E.g.:
 
     %div(class_='content', **{'not-valid-python': 'value'}) content
 
@@ -100,7 +100,7 @@ renders to:
 
     <div class='content', not-valid-python="value">content</div>
 
-You can also pass in mapping objects as positional objects. Eg.:
+You can also pass in mapping objects as positional objects. E.g.:
 
     - attrs = dict(a='one', b='two')
     %a(attrs)/
@@ -112,7 +112,7 @@ renders to:
 
 #### [Boolean Attributes](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#boolean_attributes)
 
-We only output the XHTML style attribute. Eg.:
+We only output the XHTML style attribute. E.g.:
     
     %input(type='checkbox', checked=True)
 
@@ -131,7 +131,7 @@ We are using Mako to do the heavy lifting here.
 
 ### Mixins
 
-We have function delaration/calling syntax similar to [SASS-style mixins](http://sass-lang.com/docs/yardoc/file.INDENTED_SYNTAX.html#mixin_directives). E.g.:
+We have function declaration/calling syntax similar to [SASS-style mixins](http://sass-lang.com/docs/yardoc/file.INDENTED_SYNTAX.html#mixin_directives). E.g.:
 
     @make_ol(*args)
         %ol - for arg in args:
@@ -159,7 +159,7 @@ Several filters present in Haml are defined in PyHaml. These include
 :scss (requires `sass` executable)
 :coffeescript (requires `coffee` executable)
 
-We can also take callables from the runtime globals to use as a filter, and we can also use Mako expression interpolation. Eg.:
+We can also take callables from the runtime globals to use as a filter, and we can also use Mako expression interpolation. E.g.:
 
     -! def to_upper(x):
         return x.upper()
@@ -174,7 +174,7 @@ We can also take callables from the runtime globals to use as a filter, and we c
 
 ### [Doctype: !!!](http://haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html#doctype_)
 
-There is currently only very basic support for doctypes. In the future these commands should modify the current `format` of the generator to determine if it should create XML or HTML style tags (only closing when nessesary, etc.).
+There is currently only very basic support for doctypes. In the future these commands should modify the current `format` of the generator to determine if it should create XML or HTML style tags (only closing when necessary, etc.).
 
     !!! 5
 
