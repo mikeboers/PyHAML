@@ -4,11 +4,13 @@ from itertools import chain
 import ast
 import cgi
 import re
-
-from six import PY3
+import sys
 
 from . import codegen
 from . import runtime
+
+
+PY35 = sys.version_info >= (3, 5, 0)
 
 
 class Base(object):
@@ -214,8 +216,8 @@ class Tag(Base):
             else:
                 func = root.body[0].value
                 # We can't handle starred things.
-                # Py2 and 3 do this differently.
-                if PY3:
+                # Python 3.5 changed how this works.
+                if PY35:
                     valid = not (
                         any(isinstance(x, ast.Starred) for x in func.args) or
                         any(x.arg is None for x in func.keywords)
