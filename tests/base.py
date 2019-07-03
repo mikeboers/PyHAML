@@ -1,13 +1,13 @@
-from unittest import TestCase, main
+from unittest import TestCase, main, SkipTest
 import os
 
 from mako.template import Template
+
 import haml
 
 
 def skip(func):
     def test(*args, **kwargs):
-        from nose.exc import SkipTest
         raise SkipTest()
     return test
 
@@ -15,7 +15,6 @@ def skip(func):
 def skip_on_travis(func):
     if os.environ.get('TRAVIS') == 'true':
         def test(*args, **kwargs):
-            from nose.exc import SkipTest
             raise SkipTest()
         return test
     else:

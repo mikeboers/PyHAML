@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+
 from unittest import main
+
 from base import Base
 
 class TestMixins(Base):

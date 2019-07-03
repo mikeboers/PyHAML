@@ -13,7 +13,11 @@ setup(
     
     packages=['haml'],
     
-    install_requires=['mako', 'six'],
+    install_requires=[
+      'mako',
+      'six',
+      'lesscpy',
+    ],
     scripts=[
         'scripts/haml-preprocess',
         'scripts/haml-render',

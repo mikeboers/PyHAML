@@ -1,6 +1,6 @@
 # encoding: utf8
 
-from unittest import main
+from unittest import main, SkipTest
 
 from six import u
 
@@ -463,7 +463,8 @@ class TestControlStructures(Base):
 '''.lstrip())
 
     def test_sass(self):
-        self.assertHTML(
+        try:
+            self.assertHTML(
 '''
 a
 :sass
@@ -479,6 +480,9 @@ a
 <style>/*<![CDATA[*/body{margin:0;padding:0}div p{margin-top:1em}/*]]>*/</style>
 b
 '''.lstrip())
+        except FileNotFoundError:
+            raise SkipTest()
+
     
     @skip
     def test_sass_unicode(self):
@@ -495,6 +499,29 @@ a
 b
 ''').lstrip())
 
+
+    def test_less(self):
+        # This is an alternative to sass.
+        self.assertHTML(
+'''
+a
+:less
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    div {
+        p {
+            margin-top: 1em;
+        }
+    }
+b
+''', '''
+a
+<style>/*<![CDATA[*/body{margin:0;padding:0;}
+div p{margin-top:1em;}/*]]>*/</style>
+b
+'''.lstrip())
 
     def test_filter_scoping(self):
         self.assertHTML(

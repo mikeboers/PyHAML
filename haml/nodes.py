@@ -1,9 +1,11 @@
 from __future__ import print_function
 
-import ast
 from itertools import chain
+import ast
 import cgi
 import re
+
+from six import PY3
 
 from . import codegen
 from . import runtime
@@ -211,7 +213,15 @@ class Tag(Base):
                 valid = False
             else:
                 func = root.body[0].value
-                valid = not func.starargs and not func.kwargs
+                # We can't handle starred things.
+                # Py2 and 3 do this differently.
+                if PY3:
+                    valid = not (
+                        any(isinstance(x, ast.Starred) for x in func.args) or
+                        any(x.arg is None for x in func.keywords)
+                    )
+                else:
+                    valid = not (func.starargs or func.kwargs)
                 literal_attrs = {}
 
             if valid:

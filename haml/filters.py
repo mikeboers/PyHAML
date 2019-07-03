@@ -1,6 +1,7 @@
 import subprocess
 import cgi
 
+from six import StringIO
 
 def plain(src):
     return src
@@ -46,6 +47,9 @@ def sass(src, scss=False):
 def scss(src):
     return sass(src, scss=True)
 
+def less(src):
+    import lesscpy
+    return css(lesscpy.compile(StringIO(src), minify=True))
 
 def coffeescript(src):
     args = ['coffee', '--compile', '--stdio']
