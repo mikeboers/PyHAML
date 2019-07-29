@@ -1,3 +1,7 @@
+1.2.0
+-----
+- Python 3 compatibility.
+
 1.1.0
 -----
 - Fix use of parenthesis within strings in tag attributes (e.g. `%a(name=":)")`).
