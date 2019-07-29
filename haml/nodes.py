@@ -214,36 +214,76 @@ class Tag(Base):
             except SyntaxError:
                 valid = False
             else:
+                valid = True
+
                 func = root.body[0].value
-                # We can't handle starred things.
-                # Python 3.5 changed how this works.
-                if PY35:
-                    valid = not (
-                        any(isinstance(x, ast.Starred) for x in func.args) or
-                        any(x.arg is None for x in func.keywords)
-                    )
-                else:
-                    valid = not (func.starargs or func.kwargs)
                 literal_attrs = {}
 
+                # Python 3.5 changed how this works, so our logic is a little
+                # wacky here.
+
+                if PY35:
+                    args = []
+                    starargs = []
+                    for x in func.args:
+                        if isinstance(x, ast.Starred):
+                            starargs.append(x)
+                        else:
+                            args.append(x)
+                    kwargs = []
+                    starkwargs = []
+                    for x in func.keywords:
+                        if x.arg is None:
+                            starkwargs.append(x.value)
+                        else:
+                            kwargs.append(x)
+
+                else:
+                    args = func.args
+                    starargs = [func.starargs] if func.starargs else []
+                    kwargs = func.keywords
+                    starkwargs = [func.kwargs] if func.kwargs else []
+
             if valid:
-                for arg in func.args:
+                for x in args:
                     try:
-                        value = ast.literal_eval(arg)
+                        value = ast.literal_eval(x)
                     except ValueError:
                         valid = False
                         break
                     else:
                         literal_attrs.update(value)
+
             if valid:
-                for kwarg in func.keywords:
+                for x in kwargs:
                     try:
-                        value = ast.literal_eval(kwarg.value)
+                        value = ast.literal_eval(x.value)
                     except ValueError:
                         valid = False
                         break
                     else:
-                        literal_attrs[kwarg.arg] = value
+                        literal_attrs[x.arg] = value
+
+            if valid:
+                for x in starargs:
+                    try:
+                        value = ast.literal_eval(x)
+                    except ValueError:
+                        valid = False
+                        break
+                    else:
+                        for map_ in value:
+                            literal_attrs.update(map_)
+
+            if valid:
+                for x in starkwargs:
+                    try:
+                        value = ast.literal_eval(x)
+                    except ValueError:
+                        valid = False
+                        break
+                    else:
+                        literal_attrs.update(value)
 
             if valid:
                 const_attrs.update(literal_attrs)
