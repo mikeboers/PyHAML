@@ -1,3 +1,9 @@
+
+1.2.1
+-----
+- Implement parsing of literal star-args and star-kwargs, restoring ability to
+  use alternative method of Python keywords in Mako tags.
+
 1.2.0
 -----
 - Python 3 compatibility.

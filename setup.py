@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='PyHAML',
-    version='1.2.0',
+    version='1.2.1',
     description='Pythonic implementation of HAML, cross compiling to Mako template syntax.',
     url='http://github.com/mikeboers/PyHAML',
     
