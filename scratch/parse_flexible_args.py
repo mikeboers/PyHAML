@@ -20,7 +20,7 @@ def parse_args(input, end=')'):
             name = None
     
         # Keep finding chunks until it compiles:
-        for i in xrange(1, len(chunks), 2):
+        for i in range(1, len(chunks), 2):
             source = ''.join(chunks[:i]).lstrip()
             try:
                 parsed = ast.parse(source, mode='eval')
@@ -59,7 +59,7 @@ def literal_eval(node_or_string):
         'sorted': sorted
     }
     
-    if isinstance(node_or_string, basestring):
+    if isinstance(node_or_string, str):
         node_or_string = parse(node_or_string, mode='eval')
         
     if isinstance(node_or_string, ast.Expression):
