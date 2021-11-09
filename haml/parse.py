@@ -143,7 +143,7 @@ class Parser(object):
             
             if line:
                 
-                # We track the inter-line depth seperate from the intra-line depth
+                # We track the inter-line depth separate from the intra-line depth
                 # so that indentation due to whitespace always results in more
                 # depth in the graph than many nested nodes from a single line.
                 inter_depth = len(raw_line) - len(line)
